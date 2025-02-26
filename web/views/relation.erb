@@ -1,12 +1,8 @@
-<div class="pre ui-helper-clearfix">
-    <div id="pre-text">
-        <h1></h1>
-        <p><%= @desc %></p>
-    </div>
+<div>
     <div id="toolsmenu"></div>
     <div id="tools" class="no-print">
         <ul>
-<% if @count_all_values <= TaginfoConfig.get('xapi.max_results', 1000) %>
+<% if @count_all_values <= @taginfo_config.get('xapi.max_results', 1000) %>
             <li class="button"><%= xapi_link('relation', 'type', @rtype) %></li>
             <li class="button"><%= josm_link('relation', 'type', @rtype) %></li>
 <% else %>
@@ -14,7 +10,13 @@
             <li class="button disabled" title="<%= h(t.pages.relation.button_disabled) %>">JOSM</li>
 <% end %>
             <li class="button"><%= turbo_link(@count_all_values, 'relations', 'type', @rtype) %></li>
+            <li class="button"><a target="_blank" id="osm-tag-history-button">OSM Tag History</a></li>
+            <li class="button"><a target="_blank" id="ohsome-button">ohsome</a></li>
         </ul>
+    </div>
+    <div>
+        <h1><%= h(t.pages.relation.name) %>: </h1>
+        <p><%= @desc %></p>
     </div>
 </div>
 <div id="tabs">
@@ -27,29 +29,45 @@
         <li><a href="#characters"><%= h(t.taginfo.characters) %></a></li>
     </ul>
     <div id="overview">
-<% if @image_url %>
-        <div class="wiki_image">
-            <img src="<%= @image_url.sub(/^http:/, '') %>" alt=""/>
-        </div>
-<% end %>
         <h2><%= h(t.pages.relation.overview.title) %></h2>
-        <table id="grid-overview">
-        </table>
-        <p><%= h(t.pages.relation.overview.see_also) %>: type=<span id="taglink"></span></p>
+        <div class="overview-container">
+            <div class="overview-item">
+                <h3><%= h(t.pages.sources.statistics) %></h3>
+                <div id="grid-overview"></div>
+<% if @projects_count > 0 %>
+                <p><%= t.pages.relation.overview.known_projects(@projects_count) %></p>
+<% end %>
+            </div>
+<% if @wikipages.size > 0 %>
+            <div class="overview-item overview-item-wiki">
+                <h3><%= h(t.taginfo.wiki) %></h3>
+<% if @wikipage_en %>
+                <p><a class="extlink" target="_blank" href="https://wiki.openstreetmap.org/<%= @wikipage_en[:title] %>"><%= @wikipage_en[:title] %></a></p>
+<% end %>
+                <div>
+<% @wikipages.each do |row| %>
+                    <a class="badge lang" target="_blank" data-tooltip-position="OnTop" data-tooltip-text="<%= row[:native] %> (<%= row[:english] %>)" href="https://wiki.openstreetmap.org/<%= row[:title] %>"><%= row[:lang] %></a>
+<% end %>
+                </div>
+<% if @image_url %>
+                <div class="overview-item-wiki-image" style="background-image: url(<%= @image_url.sub(/^http:/, '') %>);"></div>
+<% end %>
+            </div>
+<% end %>
+            <div class="overview-item">
+                <h3><%= h(t.taginfo.links) %></h3>
+                <p><%= h(t.pages.relation.overview.see_also) %>: type=<span id="taglink"></span></p>
+            </div>
+        </div>
     </div>
     <div id="roles">
         <h2><%= h(t.pages.relation.roles.title) %></h2>
-<% if @count_relation_roles > 0 %>
-        <table id="grid-roles">
-        </table>
-<% else %>
-        <p class="empty"><%= h(t.pages.relation.roles.no_roles_info) %></p>
-<% end %>
+        <div id="grid-roles"></div>
     </div>
     <div id="graph">
         <h2><%= h(t.pages.relation.graph.title) %></h2>
 <% if @count_relation_roles > 0 %>
-        <div class="canvas">
+        <div id="chart-roles" class="canvas">
         </div>
 <% else %>
         <p class="empty"><%= h(t.pages.relation.roles.no_roles_info) %></p>
@@ -58,34 +76,18 @@
     <div id="wiki">
         <h2><%= h(t.pages.relation.wiki_pages.title) %></h2>
         <% if @wiki_count > 0 %>
-            <table id="grid-wiki">
-            </table>
+            <div id="grid-wiki"></div>
         <% else %>
             <p class="empty"><%= h(t.pages.relation.wiki_pages.none_found) %></p>
-            <p><a class="extlink" target="_blank" rel="nofollow" href="//wiki.openstreetmap.org/w/index.php?action=edit&title=Relation:<%= @rtype_uri %>"><%= h(t.pages.relation.wiki_pages.create) %></a></p>
+            <p><a class="extlink" target="_blank" rel="nofollow" href="//wiki.openstreetmap.org/w/index.php?action=edit&redlink=1&title=Relation:<%= @rtype_uri %>"><%= h(t.pages.relation.wiki_pages.create) %></a></p>
         <% end %>
     </div>
     <div id="projects">
         <h2><%= h(t.pages.relation.projects.title) %></h2>
-        <table id="grid-projects">
-        </table>
+        <div id="grid-projects"></div>
     </div>
     <div id="characters">
         <h2><%= h(t.pages.relation.characters.title) %></h2>
-        <table id="grid-characters">
-        </table>
+        <div id="grid-characters"></div>
     </div>
 </div>
-<% javascript do
-    JS.raw(<<"JAVASCRIPT")
-function page_init2() {
-    var rtype = #{ @rtype.to_json },
-        roles = #{ @roles.to_json.gsub(/\},/, "},\n") };
-    jQuery('h1').html("#{ t.pages.relation.name } '" + fmt_rtype(rtype) + "'");
-    jQuery('span#taglink').html(link_to_value('type', rtype));
-    init_tabs([rtype]);
-    create_role_chart(roles);
-}
-JAVASCRIPT
-end
-%>

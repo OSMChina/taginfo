@@ -1,8 +1,37 @@
-<div class="pre ui-helper-clearfix">
-    <div id="pre-text">
-        <h1></h1>
-        <p><%= @desc %></p>
-    </div>
+<%
+@css = <<"CSS"
+.overview-item-status {
+    margin-top: 14px;
+}
+
+.overview-item-status > div {
+    margin-top: 20px;
+}
+
+.discardable-info {
+    background-color: var(--color-stripe0);
+    border: 1px dashed #c04040;
+    border-radius: 10px;
+    padding: 4px 0;
+}
+
+.discardable-info-badge {
+    border: 1px solid var(--color-dark);
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin: 0 2px;
+}
+
+.discardable-info-true {
+    background-color: #fff;
+}
+
+.discardable-info-false {
+    color: var(--color-dark);
+}
+CSS
+%>
+<div>
     <div id="toolsmenu"></div>
     <form id="filter-form">
         <label for="filter"><%= h(t.pages.key.filter.label) %></label>
@@ -13,30 +42,36 @@
             <option value="relations"<%= @sel['relations'] %>><%= h(t.pages.key.filter.relations) %></option>
         </select>
     </form>
-    <form id="list-form">
-        <select id="list" name="list">
-            <option value="title" selected="selected" style="color: #000000"><%= h(t.comparison.list) %> (0 <%= h(t.comparison.items) %>)</option>
-            <option value="add"><%= h(t.comparison.add_key) %></option>
-            <option value="clear"><%= h(t.comparison.clear) %></option>
-            <option value="compare"><%= h(t.comparison.compare) %></option>
-        </select>
-    </form>
+    <div id="comparison-list">
+        <div><%= h(t.comparison.list) %> (0 <%= h(t.comparison.items) %>)</div>
+        <ul>
+            <li id="comparison-list-add"><%= h(t.comparison.add_key) %></li>
+            <li id="comparison-list-clear"><%= h(t.comparison.clear) %></li>
+            <li id="comparison-list-compare"><%= h(t.comparison.compare) %></li>
+        </ul>
+    </div>
     <div id="tools" class="no-print">
         <ul>
-<% if @count_all_values <= TaginfoConfig.get('xapi.max_results', 1000) %>
+<% if @count_all_values <= @taginfo_config.get('xapi.max_results', 1000) %>
             <li class="button"><%= xapi_link(@filter_xapi, @key) %></li>
             <li class="button"><%= josm_link(@filter_xapi, @key) %></li>
 <% else %>
             <li class="button disabled" title="<%= h(t.pages.key.button_disabled) %>">XAPI</li>
             <li class="button disabled" title="<%= h(t.pages.key.button_disabled) %>">JOSM</li>
 <% end %>
-<% if @count_all_values <= TaginfoConfig.get('level0.max_results', 10) %>
+<% if @count_all_values <= @taginfo_config.get('level0.max_results', 10) %>
             <li class="button"><%= level0_link(@filter_type, @key) %></li>
 <% else %>
             <li class="button disabled" title="<%= h(t.pages.key.button_disabled) %>">Level0 Editor</li>
 <% end %>
             <li class="button"><%= turbo_link(@count_all_values, @filter_type, @key) %></li>
+            <li class="button"><a target="_blank" id="osm-tag-history-button">OSM Tag History</a></li>
+            <li class="button"><a target="_blank" id="ohsome-button">ohsome</a></li>
         </ul>
+    </div>
+    <div>
+        <h1></h1>
+        <p><%= @desc %></p>
     </div>
 </div>
 <div id="tabs">
@@ -45,7 +80,7 @@
         <li><a href="#values"><%= h(t.osm.values) %></a></li>
         <li><a href="#combinations"><%= h(t.taginfo.key_combinations) %></a></li>
         <li><a href="#similar"><%= h(t.pages.key.similar.tab) %></a></li>
-<% if Source.get(:chronology) %>
+<% if @sources.get(:chronology) %>
         <li><a href="#chronology"><%= h(t.taginfo.chronology) %></a></li>
 <% end %>
         <li><a href="#map"><%= h(t.taginfo.map) %></a></li>
@@ -54,38 +89,85 @@
         <li><a href="#characters"><%= h(t.taginfo.characters) %></a></li>
     </ul>
     <div id="overview">
-        <div style="float: right; text-align: center; padding-left: 20px;">
-            <p><%= h(t.pages.key.overview.distribution_of_values) %></p>
-            <div class="canvas" id="canvas-values"></div>
-        </div>
-<% if @image_url %>
-        <div class="wiki_image">
-            <img src="<%= @image_url.sub(/^http:/, '') %>" alt=""/>
-        </div>
-<% end %>
         <h2><%= h(t.taginfo.overview) %></h2>
-        <table id="grid-overview">
-        </table>
-        <p><span title="<%= h(t.pages.key.overview.no_endorsement) %>" tipsy="n"><%= t.pages.key.overview.objects_last_edited_by(@user_count.to_s_with_ts) %></span></p>
+        <div class="overview-container">
+            <div class="overview-item">
+                <h3><%= h(t.pages.sources.statistics) %></h3>
+                <div id="grid-overview"></div>
+                <p title="<%= h(t.pages.key.overview.no_endorsement) %>"><%= t.pages.key.overview.objects_last_edited_by(@user_count.to_s_with_ts) %></p>
+            </div>
+<% if @count_all_values > 0 %>
+            <div class="overview-item">
+                <h3><%= h(t.pages.key.overview.distribution_of_values) %></h3>
+                <div id="distribution-of-values"></div>
+            </div>
+<% end %>
+<% if @has_chronology %>
+            <div class="overview-item">
+                <h3><%= h(t.taginfo.chronology) %></h3>
+                <div id="overview-chronology"></div>
+            </div>
+<% end %>
+<% if !@wikipages.empty? || !@discardable.select{ |_k, v| v }.empty? || @projects_count > 0 %>
+            <div class="overview-item">
+                <h3><%= h(t.misc.status) %></h3>
+                <div class="overview-item-status">
+<% if @tagstatus %>
+                    <p><%= h(t.pages.key.overview.status.from_wiki) %> <%= @tagstatus.badge %></p>
+<% else %>
+                    <p><%= h(t.pages.key.overview.status.unknown) %></p>
+                    <p><a href="#wiki"><%= h(t.pages.key.overview.status.see_wiki_tab) %></a></p>
+<% end %>
+<% if !@discardable.select{ |_k, v| v }.empty? %>
+                    <div class="discardable-info">
+                        <p><%= h(t.pages.key.overview.status.marked_discardable) %></p><p>
+<% @discardable.each do |k, v| %>
+                        <span class="discardable-info-badge discardable-info-<%= v %>"><%= h(t.misc.software[k].name) %></span>
+<% end %>
+                        </p>
+                        <p><%= h(t.reports.discardable_tags.more_on_wiki) %>
+                           <a class="extlink" target="_blank" href="https://wiki.openstreetmap.org/wiki/Discardable_tags">Discardable tags</a></p>
+                    </div>
+<% end %>
+<% if @projects_count > 0 %>
+                    <div>
+                        <p><%= t.pages.key.overview.known_projects(@projects_count) %></p>
+                    </div>
+<% end %>
+                </div>
+            </div>
+<% end %>
+<% if @wikipages.size > 0 %>
+            <div class="overview-item overview-item-wiki">
+                <h3><%= h(t.taginfo.wiki) %></h3>
+<% if @wikipage_en %>
+                <p><a class="extlink" target="_blank" href="https://wiki.openstreetmap.org/<%= @wikipage_en[:title] %>"><%= @wikipage_en[:title] %></a></p>
+<% end %>
+                <div>
+<% @wikipages.each do |row| %>
+                    <a class="badge lang" target="_blank" data-tooltip-position="OnTop" data-tooltip-text="<%= row[:native] %> (<%= row[:english] %>)" href="https://wiki.openstreetmap.org/<%= row[:title] %>"><%= row[:lang] %></a>
+<% end %>
+                </div>
+<% if @image_url %>
+                <div class="overview-item-wiki-image" style="background-image: url(<%= @image_url.sub(/^http:/, '') %>);"></div>
+<% end %>
+            </div>
+<% end %>
+        </div>
     </div>
     <div id="values">
         <h2><%= h(t.pages.key.values_used) %></h2>
-        <div>
-            <table id="grid-values">
-            </table>
-        </div>
+        <div id="grid-values"></div>
     </div>
     <div id="combinations">
         <h2><%= h(t.pages.key.other_keys_used.title) %></h2>
-        <table id="grid-keys">
-        </table>
+        <div id="grid-combinations"></div>
     </div>
     <div id="similar">
         <h2><%= h(t.pages.key.similar.title) %></h2>
-        <table id="grid-similar">
-        </table>
+        <div id="grid-similar"></div>
     </div>
-<% if Source.get(:chronology) %>
+<% if @sources.get(:chronology) %>
     <div id="chronology">
         <h2><%= h(t.taginfo.chronology) %></h2>
         <div id="chart-chronology"></div>
@@ -95,22 +177,25 @@
         <h2><%= h(t.pages.key.geographic_distribution.title) %></h2>
         <% if @filter_type == 'all' %>
             <p><%= h(t.pages.key.geographic_distribution.all) %></p>
-            <div style="background-image: url(<%= TaginfoConfig.get('geodistribution.background_image') %>); background-repeat: no-repeat; background-position: 1px 1px;"/>
-                <img class="map" src="/api/4/key/distribution/nodes?key=<%= @key_uri %>" alt="" width="<%= @img_width %>" height="<%= @img_height %>" style="position: absolute;"/>
-                <img class="map" src="/api/4/key/distribution/ways?key=<%= @key_uri %>" alt="" width="<%= @img_width %>" height="<%= @img_height %>"/>
-                <div class="note"><%= TaginfoConfig.get('geodistribution.image_attribution') %></div>
+            <div class="multimap-container">
+                <img class="multimap-img" src="<%= @taginfo_config.get('geodistribution.background_image') %>" alt="" style="max-width: <%= @img_width %>px; z-index: 1; background-color: #ddddd4"/>
+                <img class="multimap-img" src="<%= build_link("/api/4/key/distribution/nodes?key=#{ @key_uri }") %>" alt="" style="max-width: <%= @img_width %>px; z-index: 2;"/>
+                <img class="multimap-img" src="<%= build_link("/api/4/key/distribution/ways?key=#{ @key_uri }") %>" alt="" style="max-width: <%= @img_width %>px; z-index: 3; position: relative;"/>
+                <div class="note"><%= @taginfo_config.get('geodistribution.image_attribution') %></div>
             </div>
         <% elsif @filter_type == 'nodes' %>
             <p><%= h(t.pages.key.geographic_distribution.nodes) %></p>
-            <div style="background-image: url(<%= TaginfoConfig.get('geodistribution.background_image') %>); background-repeat: no-repeat; background-position: 1px 1px;"/>
-                <img class="map" src="/api/4/key/distribution/nodes?key=<%= @key_uri %>" alt="" width="<%= @img_width %>" height="<%= @img_height %>"/>
-                <div class="note"><%= TaginfoConfig.get('geodistribution.image_attribution') %></div>
+            <div class="multimap-container">
+                <img class="multimap-img" src="<%= @taginfo_config.get('geodistribution.background_image') %>" alt="" style="max-width: <%= @img_width %>px; z-index: 1; background-color: #ddddd4"/>
+                <img class="multimap-img" src="<%= build_link("/api/4/key/distribution/nodes?key=#{ @key_uri }") %>" alt="" style="max-width: <%= @img_width %>px; z-index: 2; position: relative;"/>
+                <div class="note"><%= @taginfo_config.get('geodistribution.image_attribution') %></div>
             </div>
         <% elsif @filter_type == 'ways' %>
             <p><%= h(t.pages.key.geographic_distribution.ways) %></p>
-            <div style="background-image: url(<%= TaginfoConfig.get('geodistribution.background_image') %>); background-repeat: no-repeat; background-position: 1px 1px;"/>
-                <img class="map" src="/api/4/key/distribution/ways?key=<%= @key_uri %>" alt="" width="<%= @img_width %>" height="<%= @img_height %>"/>
-                <div class="note"><%= TaginfoConfig.get('geodistribution.image_attribution') %></div>
+            <div class="multimap-container">
+                <img class="multimap-img" src="<%= @taginfo_config.get('geodistribution.background_image') %>" alt="" style="max-width: <%= @img_width %>px; z-index: 1; background-color: #ddddd4"/>
+                <img class="multimap-img" src="<%= build_link("/api/4/key/distribution/ways?key=#{ @key_uri }") %>" alt="" style="max-width: <%= @img_width %>px; z-index: 3; position: relative;"/>
+                <div class="note"><%= @taginfo_config.get('geodistribution.image_attribution') %></div>
             </div>
         <% elsif @filter_type == 'relations' %>
             <p class="empty"><%= h(t.pages.key.geographic_distribution.relations) %></p>
@@ -119,56 +204,18 @@
     <div id="wiki">
         <h2><%= h(t.pages.key.wiki_pages.title) %></h2>
         <% if @wiki_count > 0 %>
-            <table id="grid-wiki">
-            </table>
+            <div id="grid-wiki"></div>
         <% else %>
             <p class="empty"><%= h(t.pages.key.wiki_pages.none_found) %></p>
-            <p><a class="extlink" target="_blank" rel="nofollow" href="//wiki.openstreetmap.org/w/index.php?action=edit&title=Key:<%= @key_uri %>"><%= h(t.pages.key.wiki_pages.create) %></a></p>
+            <p><a class="extlink" target="_blank" rel="nofollow" href="//wiki.openstreetmap.org/w/index.php?action=edit&redlink=1&title=Key:<%= @key_uri %>"><%= h(t.pages.key.wiki_pages.create) %></a></p>
         <% end %>
     </div>
     <div id="projects">
         <h2><%= h(t.pages.key.projects.title) %></h2>
-        <table id="grid-projects">
-        </table>
+        <div id="grid-projects"></div>
     </div>
     <div id="characters">
         <h2><%= h(t.pages.key.characters.title) %></h2>
-        <table id="grid-characters">
-        </table>
+        <div id="grid-characters"></div>
     </div>
 </div>
-<% javascript do
-    JS.raw(<<"JAVASCRIPT")
-function redraw_chart() {
-    jQuery('#canvas-values').html('');
-    var max_height = jQuery(window).height() - 300;
-    create_chart({
-        key: #{ @key.to_json },
-        width: 160,
-        height: Math.min(440, max_height),
-        max: #{ @count_all_values },
-        data: #{ @prevalent_values.to_json() }
-    });
-}
-function page_init2() {
-    var filter = #{ @filter_type.to_json },
-        key = #{ @key.to_json };
-    jQuery('h1').html(fmt_key(key));
-
-    if (cookies_enabled()) {
-        comparison_list_update(key);
-        jQuery('#list').bind('change', function() {
-            comparison_list_change(key);
-        });
-    } else {
-        jQuery('#list-form').html('<span class="empty" style="position: relative; top: 1px;">Enable cookies for comparison function!</span>');
-    }
-
-    init_tabs([key, filter, #{ r18n.locale.code.to_json }]);
-
-    redraw_chart();
-    jQuery(window).resize(redraw_chart);
-}
-JAVASCRIPT
-end
-%>

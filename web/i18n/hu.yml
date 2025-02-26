@@ -1,4 +1,3 @@
-
 osm:
     tag: Címke
     tags: Címkék
@@ -140,7 +139,7 @@ pages:
         reports:
             listreports: Összes jelentés megtekintése...
         about:
-            intro:
+            intro: |
                 <p>Az OpenStreetMap <b>kulcs/érték</b> formájú <b>címkéket</b> használ
                 a földrajzi objektumok leírására. A taginfo ezekről a címkékről gyűjt
                 adatokat különböző forrásokból azért, hogy könnyebben tudd értelmezni,
@@ -150,13 +149,13 @@ pages:
             see: Lásd a többi taginfo oldalt...
     sources:
         intro: |
-            <p>A taginfo az OSM címkéket különböző forrásokból gyűjti be, majd egyesíti őket
-            a könnyű kereshetőség és felfedezés érdekében.</p>
-            <p> Megjegyzendő, hogy a taginfo csak megjeleníti ezeket az adatokat.
-            Ha módosítani szeretnéd, vissza kell menned a forráshoz.</p>
-        list:
-            title: Források listája
-            intro: Ez egy lista a jelenleg használt forrásokról. A jövőben további források is beépítésre kerülhetnek.
+            A taginfo az OSM címkéket különböző forrásokból gyűjti be, majd
+            egyesíti őket a könnyű kereshetőség és felfedezés érdekében. Ez egy
+            lista a jelenleg használt forrásokról. A jövőben további források
+            is beépítésre kerülhetnek.
+        display_only: |
+            Megjegyzendő, hogy a taginfo csak megjeleníti ezeket az adatokat.
+            Ha módosítani szeretnéd, vissza kell menned a forráshoz.
         updates:
             title: Frissítések
             intro: A taginfo adatok rendszeresen frissülnek a forrásokból.
@@ -170,7 +169,7 @@ pages:
             <a class="extlink" href="https://www.sqlite.org/">Sqlite</a> adatbázisokban tárolódik.
             Az adatbázisfájlok <a class="extlink" href="http://www.bzip.org/">bzip2</a>-vel vannak csomagolva.</p>
             <p>Ha nem szeretnéd letölteni az adatbázisokat, viszont automatizáltan érnéd el az adatokat,
-            érdemes az <a href="/about">API</a>-t használnod.</p>
+            érdemes az <a href="about">API</a>-t használnod.</p>
         file: Fájl
         packed: Csomagolva
         unpacked: Kicsomagolva
@@ -194,13 +193,13 @@ pages:
         nothing_to_compare: Nincsenek összehasonlítható kulcsok/értékek. Menj egy kulcs vagy címke lapjára és add a listához.
     keys:
         intro: |
-                Ez a táblázat az adatbázisban és egyéb forrásokban található összes kulcsot tartalmazza.
+            Ez a táblázat az adatbázisban és egyéb forrásokban található összes kulcsot tartalmazza.
     tags:
         intro: |
-                Ez a táblázat az adatbázisban található leggyakoribb címkéket tartalmazza.
+            Ez a táblázat az adatbázisban található leggyakoribb címkéket tartalmazza.
     relations:
         name: Kapcsolattípusok
-        intro: Információk a különböző típusú kapcsolatokról (a <a href="/keys/type?filter=relations">type</a> címke alapján).
+        intro: Információk a különböző típusú kapcsolatokról (a <a href="keys/type?filter=relations">type</a> címke alapján).
         relations_of_type_tooltip: Az ilyen típusú kapcsolatok száma és aránya.
         prevalent_roles: Leggyakoribb szerepek
         prevalent_roles_tooltip: Az ilyen típusú kapcsolatok leggyakoribb szerepei.
@@ -212,7 +211,7 @@ pages:
         no_description_in_wiki: A kulcsnak nincs angol nyelvű leírása a wikiben. (Lásd még "Wiki" fül.)
         filter:
             label: |
-                 Szűrő:
+                Szűrő:
             none: Nincs szűrés
             nodes: Csak pontok
             ways: Csak vonalak
@@ -267,7 +266,7 @@ pages:
             title: A címkéről szóló wiki-lap
             none_found: Nem érhető el wiki-lap a címkéhez.
             create: Készíts wiki-lapot a címkéhez
-            suggest_key_wiki_page: "%1 kulcsról bővebb információt találhatsz a wikin."
+            suggest_key_wiki_page: '%1 kulcsról bővebb információt találhatsz a wikin.'
             wiki_page: Wiki-lap
             implied_tags: Benne foglalt címkék
             combined_tags: Kombinálható címkék
@@ -289,7 +288,7 @@ pages:
             objects_tooltip: Kapcsolattagok ezzel a szereppel (és az összes tag arányában)
             nodes_tooltip: Pont típusú kapcsolattagok ezzel a szereppel (és az összes pont típusú tag arányában) ehhez a kapcsolattípushoz.
             ways_tooltip: Vonal típusú kapcsolattagok ezzel a szereppel (és az összes vonal típusú tag arányában) ehhez a kapcsolattípushoz.
-            relations_tooltip:  Kapcsolat típusú kapcsolattagok ezzel a szereppel (és az összes kapcsolat típusú tag arányában) ehhez a kapcsolattípushoz.
+            relations_tooltip: Kapcsolat típusú kapcsolattagok ezzel a szereppel (és az összes kapcsolat típusú tag arányában) ehhez a kapcsolattípushoz.
             no_roles_info: Nincs információ a kapcsolattípus szerepéről (feltehetőleg azért, mert nagyon kevés az ilyen kapcsolat).
         graph:
             tab: Szerep diagram
@@ -300,7 +299,7 @@ pages:
             create: Készíts wiki-lapot a kapcsolattípushoz
             wiki_page: Wiki-lap
 
-flexigrid:
+dynamic_table:
     pagetext: Oldal
     pagestat: Elemek megjelenítve {from} - {to}, összesen {total}
     outof: /
@@ -323,7 +322,7 @@ sources:
         description: Aggregált statisztikák és különféle adatok, amik a taginfo felhasználói felületéhez kellenek.
     db:
         name: Adatbázis
-        description: Statisztikák az egyes kulcsokról és címkékről a fő OSM adatbázisból (planet fájl).
+        description: Statisztikák az egyes kulcsokról és címkékről a fő OSM adatbázisból.
     wiki:
         name: Wiki
         description: Az OSM wiki címke és kulcs leírólapjairól származó adatok.

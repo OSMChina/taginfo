@@ -4,86 +4,55 @@ class Taginfo < Sinatra::Base
     get %r{/compare/(.*)} do |items|
         @data = []
 
-        if !items.nil?
-            items.split('/').each do |item|
-                kv = item.split('=')
-                @data << { :key => kv[0], :value => kv[1] }
+        # syntax is key=value@instance
+        items&.split('/')&.each do |item|
+            ti = item.split('@')
+            kv = ti[0].split('=')
+            instance = ''
+            if ti.length > 1
+                instance = ti[1]
             end
+            @data << { :instance => instance, :key => kv[0], :value => kv[1] }
         end
 
         if params[:key].is_a?(Array)
             params[:key].each_with_index do |key, index|
+                value = if params[:value].is_a?(Array)
+                            params[:value][index] == '' ? nil : params[:value][index]
+                        end
+
                 @data << {
+                    :instance => (params[:instance] ? params[:instance][index] : ''),
                     :key => key,
-                    :value => (params[:value].is_a?(Array) ? (params[:value][index] == '' ? nil : params[:value][index]) : nil)
+                    :value => value
                 }
             end
         end
 
         @data = @data[0..4] # allow to compare maximum of 5 items
 
-        @data = @data.map{ |data|
+        @data = @data.map do |data|
             key   = data[:key]
             value = data[:value]
 
             if value.nil?
-                result = @db.select("SELECT count_all, count_nodes, count_ways, count_relations, projects FROM db.keys").condition('key = ?', key).get_first_row()
+                data.delete(:value)
+                result = @db.select("SELECT count_all FROM db.keys").condition('key = ?', key).get_first_row
                 if result
-                    data[:count_all]       = result['count_all']
-                    data[:count_nodes]     = result['count_nodes']
-                    data[:count_ways]      = result['count_ways']
-                    data[:count_relations] = result['count_relations']
-                    data[:projects]        = result['projects']
-                    desc = get_key_description(key)
-                    data[:desc]            = h(desc[0])
-                    data[:lang]            = desc[1]
-                    data[:dir]             = desc[2]
-
-                    prevalent_values = @db.select("SELECT value, count, fraction FROM db.prevalent_values").
-                        condition('key=?', key).
-                        order_by([:count], 'DESC').
-                        execute().map{ |row| { 'value' => row['value'], 'count' => row['count'].to_i, 'fraction' => row['fraction'].to_f } }
-                    data[:prevalent_values] = prevalent_values
-
-                    data[:wiki_pages] = @db.select("SELECT DISTINCT lang FROM wiki.wikipages WHERE key=? AND value IS NULL ORDER BY lang", key).execute().map{ |row| row['lang'] }
-
-                    data[:has_map] = data[:count_all] > 0
+                    data[:has_map] = result['count_all'].to_i > 0
                     data
-                else
-                    nil
                 end
             else
-                result = @db.select("SELECT count_all, count_nodes, count_ways, count_relations FROM db.tags").condition('key=? AND value=?', key, value).get_first_row()
-                if result
-                    data[:count_all]       = result['count_all']
-                    data[:count_nodes]     = result['count_nodes']
-                    data[:count_ways]      = result['count_ways']
-                    data[:count_relations] = result['count_relations']
-                    desc = get_tag_description(key, value)
-                    data[:desc]            = h(desc[0])
-                    data[:lang]            = desc[1]
-                    data[:dir]             = desc[2]
-
-                    data[:prevalent_values] = []
-
-                    data[:wiki_pages] = @db.select("SELECT DISTINCT lang FROM wiki.wikipages WHERE key=? AND value=? ORDER BY lang", key, value).execute().map{ |row| row['lang'] }
-
-                    data[:projects] = @db.select("SELECT projects FROM projects.project_unique_tags WHERE key=? AND value=?", key, value).execute().map{ |row| row['projects'] }[0] || 0
-
-                    data[:has_map] = (@db.count('tag_distributions').condition('key=? AND value=?', key, value).get_first_i > 0)
-                    data
-                else
-                    nil
-                end
+                data[:has_map] = (@db.count('tag_distributions').condition('key=? AND value=?', key, value).get_first_i > 0)
+                data
             end
-        }.compact
+        end.compact
 
-        @img_width  = (TaginfoConfig.get('geodistribution.width')  * TaginfoConfig.get('geodistribution.scale_compare_image')).to_i
-        @img_height = (TaginfoConfig.get('geodistribution.height') * TaginfoConfig.get('geodistribution.scale_compare_image')).to_i
+        @img_width  = (@taginfo_config.get('geodistribution.width')  * @taginfo_config.get('geodistribution.scale_compare_image')).to_i
+        @img_height = (@taginfo_config.get('geodistribution.height') * @taginfo_config.get('geodistribution.scale_compare_image')).to_i
 
-        javascript "#{ r18n.locale.code }/compare"
+        javascript "pages/compare"
         erb :compare
     end
 
 end
-

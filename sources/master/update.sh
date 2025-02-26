@@ -9,7 +9,9 @@
 
 set -euo pipefail
 
-readonly SRCDIR=$(dirname "$(readlink -f "$0")")
+SRCDIR=$(dirname "$(readlink -f "$0")")
+readonly SRCDIR
+
 readonly DATADIR=$1
 
 if [ -z "$DATADIR" ]; then
@@ -27,10 +29,21 @@ source "$SRCDIR/../util.sh" master
 create_master_database() {
     rm -f "$MASTER_DB"
     run_sql "$MASTER_DB" "$SRCDIR/languages.sql"
-    run_sql "DIR=$DATADIR" "$MASTER_DB" "$SRCDIR/master.sql"
+    run_sql \
+        "DIR=$DATADIR" \
+        "MIN_COUNT_POPULAR=1000" \
+        "MIN_COUNT_SUGGESTION=10000" \
+        "$MASTER_DB" \
+        "$SRCDIR/master.sql"
 
     if [ -e "$DATADIR/chronology/taginfo-chronology.db" ]; then
         run_sql "DIR=$DATADIR" "$MASTER_DB" "$SRCDIR/master-chronology.sql"
+    fi
+    if [ -e "$DATADIR/wikidata/taginfo-wikidata.db" ]; then
+        run_sql "DIR=$DATADIR" "$MASTER_DB" "$SRCDIR/master-wikidata.sql"
+    fi
+    if [ -e "$DATADIR/sw/taginfo-sw.db" ]; then
+        run_sql "DIR=$DATADIR" "$MASTER_DB" "$SRCDIR/master-sw.sql"
     fi
 }
 

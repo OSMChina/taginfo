@@ -1,6 +1,25 @@
 # web/lib/api/v4/site.rb
 class Taginfo < Sinatra::Base
 
+    api(4, 'site/config/geodistribution', {
+        :description => 'Get information about the background map for distribution charts.',
+        :result => [
+            [:width,               :INT,    'width of background image'],
+            [:height,              :INT,    'height of background image'],
+            [:scale_image,         :FLOAT,  'scale factor for images'],
+            [:scale_compare_image, :FLOAT,  'scale factor for comparison images'],
+            [:background_image,    :STRING, 'URL of background image'],
+            [:image_attribution,   :STRING, 'map attribution for comparison background']
+        ],
+        :example => {}
+    }) do
+        data = {}
+        [:width, :height, :scale_image, :scale_compare_image, :background_image, :image_attribution].each do |k|
+            data[k] = @taginfo_config.get("geodistribution.#{k}")
+        end
+        return JSON.generate(data, json_opts(params[:format]))
+    end
+
     api(4, 'site/info', {
         :description => 'Get information about this taginfo site.',
         :result => [
@@ -11,11 +30,11 @@ class Taginfo < Sinatra::Base
             [:contact,     :STRING, 'Contact information to admin.'],
             [:area,        :STRING, 'Description of area covered.']
         ],
-        :example => { }
+        :example => {}
     }) do
         data = {}
         [:url, :name, :description, :icon, :contact, :area].each do |k|
-            data[k] = TaginfoConfig.get("instance.#{k}")
+            data[k] = @taginfo_config.get("instance.#{k}")
         end
         return JSON.generate(data, json_opts(params[:format]))
     end
@@ -29,16 +48,17 @@ class Taginfo < Sinatra::Base
             [:update_start, :STRING, 'Date/Timestamp when last update was started.'],
             [:update_end  , :STRING, 'Date/Timestamp when last update was finished.']
         ],
-        :example => { },
+        :example => {},
         :ui => '/sources'
     }) do
-        return JSON.generate(Source.visible.map{ |source| {
+        return JSON.generate(@sources.visible.map do |source| {
             :id           => source.id,
             :name         => source.name,
             :data_until   => source.data_until,
             :update_start => source.update_start,
             :update_end   => source.update_end
-        }}, json_opts(params[:format]))
+        }
+        end, json_opts(params[:format]))
     end
 
 end

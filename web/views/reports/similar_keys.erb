@@ -1,13 +1,12 @@
-<div class="pre ui-helper-clearfix">
-    <div id="pre-text">
+<div>
+    <div>
         <h1><%= h(t.reports.similar_keys.name) %></h1>
         <p><%= h(t.reports.similar_keys.intro) %></p>
     </div>
 </div>
-<div class="box resize">
+<div class="box">
 <% begin @db.count('db.similar_keys_common_rare').execute() %>
-    <table id="grid-keys">
-    </table>
+    <div id="grid-keys"></div>
 <% rescue %>
     <p><i>Report not available due to missing database table. Please run update!</i></p>
 <% end %>

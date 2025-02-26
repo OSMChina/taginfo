@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# coding: utf-8
 #------------------------------------------------------------------------------
 #
 #  Taginfo source: Projects
@@ -8,7 +7,7 @@
 #
 #------------------------------------------------------------------------------
 #
-#  Copyright (C) 2014-2021  Jochen Topf <jochen@topf.org>
+#  Copyright (C) 2014-2025  Jochen Topf <jochen@topf.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,7 +24,6 @@
 #
 #------------------------------------------------------------------------------
 
-require 'pp'
 require 'json'
 require 'sqlite3'
 
@@ -36,6 +34,7 @@ database = SQLite3::Database.new(dir + '/taginfo-projects.db')
 
 #------------------------------------------------------------------------------
 
+# Simple logging class
 class Log
 
     def initialize
@@ -45,35 +44,27 @@ class Log
 
     def fatal(message)
         @messages << "FATAL: #{message}"
-        if @state < 3
-            @state = 3
-        end
+        @state = 3 if @state < 3
     end
 
     def error(message)
         @messages << "ERROR: #{message}"
-        if @state < 2
-            @state = 2
-        end
+        @state = 2 if @state < 2
     end
 
     def warning(message)
         @messages << "WARNING: #{message}"
-        if @state < 1
-            @state = 1
-        end
+        @state = 1 if @state < 1
     end
 
     def get_log
-        return @messages.join("\n")
+        @messages.join("\n")
     end
 
     def get_state
-        if @state < 3
-            return 'OK'
-        else
-            return 'PARSE_ERROR'
-        end
+        return 'OK' if @state < 3
+
+        'PARSE_ERROR'
     end
 
 end
@@ -119,23 +110,23 @@ def parse_and_check(id, data, log, db)
 
     p = data[:project].clone
 
-    unless p[:name] && p[:name].is_a?(String)
+    unless p[:name].is_a?(String)
         log.fatal "MISSING project.name OR NOT A STRING."
     end
 
-    unless p[:description] && p[:name].is_a?(String)
+    unless p[:description].is_a?(String)
         log.fatal "MISSING project.description OR NOT A STRING."
     end
 
-    unless p[:project_url] && p[:name].is_a?(String)
+    unless p[:project_url].is_a?(String)
         log.fatal "MISSING project.project_url OR NOT A STRING."
     end
 
-    unless p[:contact_name] && p[:name].is_a?(String)
+    unless p[:contact_name].is_a?(String)
         log.error "MISSING project.contact_name OR NOT A STRING."
     end
 
-    unless p[:contact_email] && p[:name].is_a?(String)
+    unless p[:contact_email].is_a?(String)
         log.error "MISSING project.contact_email OR NOT A STRING."
     end
 
@@ -147,16 +138,17 @@ def parse_and_check(id, data, log, db)
         log.error "OPTIONAL project.icon_url MUST BE STRING."
     end
 
-    db.execute("UPDATE projects SET name=?, description=?, project_url=?, doc_url=?, icon_url=?, contact_name=?, contact_email=? WHERE id=?", [
-        p[:name],
-        p[:description],
-        p[:project_url],
-        p[:doc_url],
-        p[:icon_url],
-        p[:contact_name],
-        p[:contact_email],
-        id
-    ])
+    db.execute("UPDATE projects SET name=?, description=?, project_url=?, doc_url=?, icon_url=?, contact_name=?, contact_email=? WHERE id=?",
+               [
+                   p[:name],
+                   p[:description],
+                   p[:project_url],
+                   p[:doc_url],
+                   p[:icon_url],
+                   p[:contact_name],
+                   p[:contact_email],
+                   id
+               ])
 
     p.delete(:name)
     p.delete(:description)
@@ -190,7 +182,7 @@ def parse_and_check(id, data, log, db)
             has_error = false
             on = { 'node' => 0, 'way' => 0, 'relation' => 0, 'area' => 0 }
             if d[:object_types]
-                if d[:object_types].class == Array
+                if d[:object_types].instance_of?(Array)
                     if d[:object_types] == []
                         log.warning "EMPTY tags.#{n}.object_types IS INTERPRETED AS 'ALL TYPES'. PLEASE REMOVE object_types OR ADD SOME TYPES."
                         on = { 'node' => 1, 'way' => 1, 'relation' => 1, 'area' => 1 }
@@ -233,18 +225,19 @@ def parse_and_check(id, data, log, db)
             end
 
             if !has_error
-                db.execute("INSERT INTO project_tags (project_id, key, value, description, doc_url, icon_url, on_node, on_way, on_relation, on_area) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-                    id,
-                    d[:key],
-                    d[:value],
-                    d[:description],
-                    d[:doc_url],
-                    d[:icon_url],
-                    on['node'],
-                    on['way'],
-                    on['relation'],
-                    on['area'],
-                ])
+                db.execute("INSERT INTO project_tags (project_id, key, value, description, doc_url, icon_url, on_node, on_way, on_relation, on_area) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                           [
+                               id,
+                               d[:key],
+                               d[:value],
+                               d[:description],
+                               d[:doc_url],
+                               d[:icon_url],
+                               on['node'],
+                               on['way'],
+                               on['relation'],
+                               on['area'],
+                           ])
             end
         end
     end
@@ -260,12 +253,11 @@ database.execute("SELECT id, fetch_json FROM projects WHERE status='OK' ORDER BY
         database.transaction do |db|
             log = Log.new
             parse_and_check(id, data, log, db)
-            db.execute("UPDATE projects SET error_log=?, status=? WHERE id=?", [log.get_log(), log.get_state(), id])
+            db.execute("UPDATE projects SET error_log=?, status=? WHERE id=?", [log.get_log, log.get_state, id])
         end
     rescue JSON::ParserError
         database.execute("UPDATE projects SET status='JSON_ERROR' WHERE id=?", [id])
     end
 end
-
 
 #-- THE END -------------------------------------------------------------------

@@ -1,26 +1,39 @@
 # web/lib/api.rb
 
+require 'csv'
+
 class API
 
     @@paths = {}
 
-    attr_accessor :version, :path, :parameters, :paging, :filter, :sort, :result, :description, :notes, :example, :ui
+    # Maps from complete path (something like /api/4/key/combinations) to the
+    # API object implementing this path.
+    @@complete_paths = {}
+
+    attr_accessor :version, :path, :parameters, :paging, :filter, :sort, :result, :description, :notes, :example, :ui, :formats
 
     def self.paths
         @@paths
+    end
+
+    def self.complete_paths
+        @@complete_paths
     end
 
     def initialize(version, path, doc)
         @version = version
         @path = path
         @doc = doc
+        @formats = [:json]
 
-        doc.each_pair do |k,v|
+        doc.each_pair do |k, v|
             instance_variable_set("@#{k}".to_sym, v)
         end
 
         @@paths[version] = {} unless @@paths[version]
         @@paths[version][path] = self
+
+        @@complete_paths[complete_path] = self
     end
 
     def complete_path
@@ -33,8 +46,9 @@ class API
 
     def show_parameters
         return '<span class="empty">none</span>' unless parameters
+
         list = []
-        parameters.keys.sort{ |a,b| a.to_s <=> b.to_s }.each do |p|
+        parameters.keys.sort{ |a, b| a.to_s <=> b.to_s }.each do |p|
             list << "<tt>#{p}</tt> &mdash; #{parameters[p]}"
         end
         list.join('<br/>')
@@ -42,8 +56,9 @@ class API
 
     def show_filter
         return '<span class="empty">none</span>' unless filter
+
         list = []
-        filter.keys.sort{ |a,b| a.to_s <=> b.to_s }.each do |f|
+        filter.keys.sort{ |a, b| a.to_s <=> b.to_s }.each do |f|
             list << "<tt>#{f}</tt> &mdash; #{filter[f][:doc]}"
         end
         list.join('<br/>')
@@ -51,24 +66,25 @@ class API
 
     def show_example
         return '' if example.nil?
+
         params = []
-        example.each_pair do |k,v|
+        example.each_pair do |k, v|
             params << "#{k}=#{v}"
         end
-        if params.empty?
-            return complete_path
-        else
-            return complete_path + '?' + params.join('&')
-        end
+        return complete_path if params.empty?
+
+        complete_path + '?' + params.join('&')
     end
 
     def show_ui
         return '' if example.nil?
+
         ui
     end
 
     def show_sort
         return '<span class="empty">none</span>' unless sort
+
         sort.map{ |s| "<tt>#{s}</tt>" }.join(', ')
     end
 
@@ -81,7 +97,7 @@ class API
                 :desc => r[2]
             })
             if r[3]
-                stack_results(level+1, stack, r[3])
+                stack_results(level + 1, stack, r[3])
             end
         end
     end
@@ -99,51 +115,59 @@ class API
 
         stack = []
         stack_results(0, stack, result)
-        return '<table class="apiresults">' +
-               stack.map{ |s| "<tr><td>#{ '&nbsp;&nbsp;&nbsp;&nbsp;' * s[:level] }<tt>#{ s[:name] }</tt></td><td>#{ s[:type] }</td><td>#{ s[:desc] }</td></tr>" }.join("\n") +
-               '</table>'
+
+        '<table class="apiresults">' +
+            stack.map{ |s| "<tr><td>#{ '&nbsp;&nbsp;&nbsp;&nbsp;' * s[:level] }<tt>#{ s[:name] }</tt></td><td>#{ s[:type] }</td><td>#{ s[:desc] }</td></tr>" }.join("\n") +
+            '</table>'
     end
 
     def deprecated?
-        return !@superseded_by.nil?
+        !@superseded_by.nil?
     end
 
     def superseded_by
-        return '/api/' + @superseded_by
+        '/api/' + @superseded_by
     end
 
 end
 
 class APIParameters
 
-    attr_reader :page, :results_per_page, :sortorder
+    attr_reader :page, :results_per_page, :sortorder, :format
     attr_accessor :sortname
 
-    def initialize(p)
-        if p[:rp].nil? || p[:rp] == '0' || p[:rp] == '' || p[:page].nil? || p[:page] == '0' || p[:page] == ''
+    def initialize(params)
+        if params[:rp].nil? || params[:rp] == '0' || params[:rp] == '' || params[:page].nil? || params[:page] == '0' || params[:page] == ''
             @page = 0
             @results_per_page = 0
         else
-            if p[:rp] !~ /^[0-9]{1,3}$/
+            if params[:rp] !~ /^[0-9]{1,3}$/
                 raise ArgumentError, 'results per page must be integer between 0 and 999'
             end
-            if p[:page] !~ /^[0-9]{1,6}$/
+            if params[:page] !~ /^[0-9]{1,6}$/
                 raise ArgumentError, 'page must be integer between 0 and 999999'
             end
-            @page = p[:page].to_i
-            @results_per_page = p[:rp].to_i
+
+            @page = params[:page].to_i
+            @results_per_page = params[:rp].to_i
         end
 
-        if p[:sortname].nil? || p[:sortname] == ''
-            @sortname = nil
-        else
-            @sortname = p[:sortname].gsub(/[^a-z_]/, '_')
-        end
+        @sortname = if params[:sortname].nil? || params[:sortname] == ''
+                        nil
+                    else
+                        params[:sortname].gsub(/[^a-z_]/, '_')
+                    end
 
-        if p[:sortorder] == 'desc' || p[:sortorder] == 'DESC'
-            @sortorder = 'DESC'
+        @sortorder = if params[:sortorder] == 'desc' || params[:sortorder] == 'DESC'
+                         'DESC'
+                     else
+                         'ASC'
+                     end
+
+        if params[:format] == 'csv'
+            @format = :csv
         else
-            @sortorder = 'ASC'
+            @format = :json
         end
     end
 
@@ -155,6 +179,24 @@ class APIParameters
         @results_per_page * (@page - 1)
     end
 
+end
+
+def generate_result(api, total, data)
+    if @ap.format == :csv
+        attachment @attachment
+        return generate_csv_result(api, total, data)
+    end
+    return generate_json_result(total, data)
+end
+
+def generate_csv_result(api, total, data)
+    columns = api.result.find{ |d| d[0] == :data and d[1] == :ARRAY_OF_HASHES }[3].map{ |d| d[0].to_s }
+    return CSV.generate do |csv|
+        csv << columns
+        data.each do |d|
+            csv << d.values
+        end
+    end
 end
 
 def generate_json_result(total, data)
@@ -175,18 +217,17 @@ def generate_json_result(total, data)
         :data       => data
     })
 
-    return JSON.generate(result, json_opts(params[:format]))
+    JSON.generate(result, json_opts(params[:format]))
 end
 
-def get_png(table, type, key, value=nil)
+def get_png(table, type, key, value = nil)
     content_type :png
     @db.select("SELECT png FROM db.#{ table }_distributions").
         condition("object_type=?", type).
         condition('key = ?', key).
         condition_if('value = ?', value).
-        get_first_value() ||
-    @db.select('SELECT png FROM db.key_distributions').
-        is_null('key').
-        get_first_value()
+        get_first_value ||
+        @db.select('SELECT png FROM db.key_distributions').
+            is_null('key').
+            get_first_value
 end
-

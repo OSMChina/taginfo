@@ -1,4 +1,3 @@
-
 osm:
     tag: 标签
     tags: 标签
@@ -149,11 +148,9 @@ pages:
         reports:
             listreports: 查看所有报告
         about:
-            intro:
-                <p>OpenStreetMap 使用<b>key=value</b>表中的<b>标签</b>
-                来为地理上的要素添加含义。
-                Taginfo通过多种来源收集这些标签的使用信息
-                来帮助您理解他们的含义及用法。</p>
+            intro: |
+                <p>OpenStreetMap 使用<b>key=value</b>表中的<b>标签</b>来为地理上的要素添加含义。
+                Taginfo通过多种来源收集这些标签的使用信息来帮助您理解他们的含义及用法。</p>
             more: 关于taginfo的更多
         international:
             see: 查看其他taginfo站点
@@ -185,9 +182,6 @@ pages:
         software:
             title: Taginfo软件
     sources:
-        list:
-            title: 来源列表
-            intro: 这是目前使用的来源列表。未来可能还将引入更多来源。
         updates:
             title: 更新
             intro: Taginfo的数据会定期从来源更新
@@ -195,6 +189,20 @@ pages:
         last_update_run: 最后一次更新运行于
         data_until_explanation: 所有截止到这天的修改都会在数据里，之后的数据也有可能包含在内。
         to: 到
+        wiki:
+            language_comparison_table_for_keys:
+                name: Wiki中的键的多语言对照表
+            parsing_problems:
+                name: Wiki解析问题
+            image_comparison:
+                name: Wiki图片
+        db:
+            stats:
+                name: 数据库统计信息
+                objects_in_db: 数据库中的对象数量
+                tags_in_db: 数据库中的标签数量
+                distinct_keys: 不相同的键的数量
+                distinct_tags: 不相同的标签的数量
     download:
         intro: |
             <p>你可以在这里下载taginfo使用的数据库。所有数据都以<a class="extlink" href="https://www.sqlite.org/">Sqlite</a>数据库存储。
@@ -221,16 +229,16 @@ pages:
         no_match: 未能匹配到结果
     keys:
         intro: |
-                这个表展示了数据库或其他一切来源中的所有标签的键
+            这个表展示了数据库或其他一切来源中的所有标签的键
     tags:
         intro: |
-                这个表展示了数据库中最常用的标签。
+            这个表展示了数据库中最常用的标签。
     key:
         description_from_wiki: Wiki上关于您所选的键的解释（若您当前的语言不可用则将默认为英文）
         no_description_in_wiki: 在Wiki上找不到这个键的英文描述（亦可参见“Wiki”标签页）
         filter:
             label: |
-                 过滤器:
+                过滤器:
             none: 无过滤器
             nodes: 仅节点
             ways: 仅路径
@@ -283,7 +291,7 @@ pages:
             last_update: 最后更新
             json_url: 项目的JSON文件
 
-flexigrid:
+dynamic_table:
     pagetext: 页
     pagestat: 显示第{from}到{to}项（总计 {total} 项）
     outof: of
@@ -313,12 +321,6 @@ reports:
         intro: |
             任何有效的Unicode字符都可以出现在OSM的键中，但通常会被用到的只有小写拉丁字母 (a-z) 和下划线 (_) 。
             冒号 (:) 通常用作分隔符。这份报告根据所有键所使用的字符对它们进行分类。
-    database_statistics:
-        name: 数据库统计信息
-        objects_in_db: 数据库中的对象数量
-        tags_in_db: 数据库中的标签数量
-        distinct_keys: 不相同的键的数量
-        distinct_tags: 不相同的标签的数量
     frequently_used_keys_without_wiki_page:
         name: 没有Wiki页面的常用键
     key_lengths:
@@ -330,8 +332,6 @@ reports:
             intro: 该直方图反映了不同长度的键与他们的数目的关系。
             key_length: 键长度
             number_of_keys: 键的数目
-    language_comparison_table_for_keys_in_the_wiki:
-        name: Wiki中的键的多语言对照表
     languages:
         name: 语言
         code: 语言代码
@@ -356,7 +356,3 @@ reports:
         similarity: 相似性
     historic_development:
         name: 历史上的开发用数据
-    wiki_images:
-        name: Wiki图片
-    wiki_problems:
-        name: Wiki解析问题

@@ -1,4 +1,3 @@
-
 osm:
     tag: Etiqueta
     tags: Etiquetas
@@ -144,7 +143,7 @@ pages:
         reports:
             listreports: Ver todos los reportes...
         about:
-            intro:
+            intro: |
                 <p>OpenStreetMap utiliza <b>etiquetas</b> de la forma <b>clave=valor</b>
                 para añadir significado a los objetos geográficos. Taginfo recopila información
                 acerca de estas etiquetas de varias fuentes para ayudarle a entender qué
@@ -169,18 +168,17 @@ pages:
                 base de datos, cuántas personas utilizan las etiquetas, donde se utilizan, etc. También
                 consigue información acerca de las etiquetas de la wiki y de otros lugares. Taginfo
                 intenta reunir toda la información acerca de las etiquetas para ayudarle a entender
-                cómo se utilizan y qué significan. Véase una <a href="/sources">lista de fuentes</a>
+                cómo se utilizan y qué significan. Véase una <a href="sources">lista de fuentes</a>
                 que utiliza taginfo.</p>
         about_site:
             title: Acerca de este sitio
         building_on_taginfo:
             title: Basándose en taginfo
-            pre: |
-                <p>Puede utilizar los datos de taginfo en sus propios proyectos:</p>
+            pre: 'Puede utilizar los datos de taginfo en sus propios proyectos:'
             api: |
                 <h3>API</h3>
                 <p>Los datos de Taginfo pueden accederse a través de una API REST. Véase la
-                <a href="/taginfo/apidoc">documentación de la API</a> para los detalles, información general se
+                <a href="taginfo/apidoc">documentación de la API</a> para los detalles, información general se
                 encuentra <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo/API">en la wiki de OSM</a>.
                 Los servidores que ejecutan la API de taginfo no tiene recursos ilimitados.
                 Por favor, utilice la API responsablemente. En caso de duda contáctese con los responsables del
@@ -189,7 +187,7 @@ pages:
                 <h3>Descargar</h3>
                 <p>Si desea jugar un poco con los datos utilizados por taginfo, puede descargar los
                 archivos de la base de datos Sqlite actualizados regularmente. Todo el preprocesamiento es hecho para usted.
-                Véase la <a href="/download">página de descargas</a> para obtener una lista de archivos. Tenga en cuenta que
+                Véase la <a href="download">página de descargas</a> para obtener una lista de archivos. Tenga en cuenta que
                 algunos de estos archivos pueden llegar a ser demasiado grandes. Si desea descargar de forma regular,
                 contáctese con los responsables del sitio que está utilizando o hable con nosotros en la lista de correo.</p>
             license: |
@@ -206,7 +204,7 @@ pages:
                 <a class="extlink" href="https://ctd-studio.co.uk/">Christian Topf</a>.</p>
                 <h3>Traducciones</h3>
                 <p>Necesitamos traductores para la interfaz de usuario de taginfo. Véase el <a
-                href="/taginfo/translations">resumen de las traducciones</a> para idiomas que necesitan
+                href="taginfo/translations">resumen de las traducciones</a> para idiomas que necesitan
                 algo de trabajo. Más información sobre cómo ayudar se encuentra en la
                 <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo/I18N">wiki de OSM</a>.</p>
                 <h3>Código</h3>
@@ -231,13 +229,13 @@ pages:
                 si usted tiene preguntas o quiere ayudar.</p>
     sources:
         intro: |
-            <p>Taginfo recopila datos acerca de las etiquetas de OSM de varias fuentes y los une
-            para una fácil navegación y descubrimiento.</p>
-            <p>Tenga en cuenta que taginfo sólo muestra estos datos. Si desea cambiarlo,
-            tiene que ir de nuevo a la fuente.</p>
-        list:
-            title: Lista de Fuentes
-            intro: Aquí está una lista de fuentes usadas actualmente. Más fuentes podrían integrarse en el futuro.
+            Taginfo recopila datos acerca de las etiquetas de OSM de varias
+            fuentes y los une para una fácil navegación y descubrimiento. Aquí
+            está una lista de fuentes usadas actualmente. Más fuentes podrían
+            integrarse en el futuro.
+        display_only: |
+            Tenga en cuenta que taginfo sólo muestra estos datos. Si desea cambiarlo,
+            tiene que ir de nuevo a la fuente.
         description:
             db: |
                 <p>Las estadísticas sobre las claves, etiquetas y tipos de relación son generadas a partir de la <a class="extlink" href="https://planet.openstreetmap.org/">base de datos de OSM</a> (o un extracto) así como los mapas que muestran la distribución geográfica de los nodos y vías.</p>
@@ -246,7 +244,7 @@ pages:
             languages: |
                 <p>Taginfo obtiene información acerca de los diferentes idiomas del mundo, sus códigos, nombres, etc. de varios registros de <a class="extlink" href="https://www.iana.org/">IANA</a> y <a class="extlink" href="https://www.unicode.org/">Unicode</a>.</p>
             projects: |
-                <p>Proyectos que utilizan etiquetas OSM de alguna manera, tales como editores, mapas, enrutadores, etc. Ver <a href="/projects">la lista de proyectos</a>.</p>
+                <p>Proyectos que utilizan etiquetas OSM de alguna manera, tales como editores, mapas, enrutadores, etc.</p>
         updates:
             title: Actualizaciones
             intro: Los datos taginfo se actualizan regularmente desde las fuentes.
@@ -254,13 +252,90 @@ pages:
         last_update_run: Última ejecución de la actualización
         data_until_explanation: Todas las ediciones hasta este momento estarán en los datos, las ediciones posteriores podrían estar.
         to: a
+        languages:
+            subtags:
+                title: Subetiquetas BCP47
+                filter:
+                    label: Mostrar sólo las subetiquetas de tipo
+                    all: Todos
+                    language: Idioma
+                    script: Escritura
+                    region: Región
+                    variant: Variante
+                intro: |
+                    <p>El <a href="https://www.ietf.org/">IETF</a> define
+                    <i>etiquetas de idioma</i> en sus estándares <a
+                    href="https://tools.ietf.org/html/bcp47">Etiquetas para
+                    Identificación de Idiomas (BCP47)</a>. Las etiquetas de idioma
+                    consisten en una o más <i>subetiquetas</i> describiendo el
+                    idioma, escritura, variantes, etc. Para más información véase
+                    también el <a
+                    href="https://en.wikipedia.org/wiki/IETF_language_tag">artículo
+                    de la Wikipedia sobre etiquetas de idioma IETF</a> y el sitio
+                    <a href="http://www.langtag.net/">langtag.net</a>.</p>
+                note: |
+                    Tenga en cuenta que los datos mostrados en esta tabla no son de
+                    OpenStreetMap, sólo muestran los bloques que pueden utilizarse
+                    para describir idiomas independientemente de si en realidad son
+                    utilizados en OSM.
+        wiki:
+            language_comparison_table_for_keys:
+                name: Tabla de comparación de idioma para las claves en la wiki
+                icons:
+                    template: Página wiki disponible y contiene la plantilla estándar.
+                    error: Página wiki disponible y contiene la plantilla estándar, pero no pudo ser analizado.
+                    page: Página wiki disponible pero no contiene la plantilla estándar.
+                    redirect: La página es una redirección.
+                intro: |
+                    Esta tabla muestra todas las claves de la etiquetas para los cuales hay páginas wiki disponibles y en qué idiomas están.
+            parsing_problems:
+                name: Problemas de análisis
+                intro: |
+                    Taginfo lee todas las páginas wiki utilizadas para describir las
+                    claves, etiquetas y relaciones para encontrar información sobre las
+                    etiquetas. Este reporte muestra una lista de problemas encontrados
+                    durante la lectura de esas páginas.  Estos no son necesariamente
+                    errores en la wiki, sólo significan que algo en las páginas wiki no
+                    está formateado en una forma que taginfo entienda. O bien la página
+                    tiene que ser corregida o taginfo tiene que ser corregido.
+                location: Ubicación
+                reason: Razón
+                wiki_page: Página wiki
+                lang: Idioma
+                info: Información adicional
+            image_comparison:
+                name: Imágenes wiki
+                intro: |
+                    Las imágenes utilizadas en el wiki para simbolizar las claves en
+                    diferentes idiomas. A veces, la imagen de una u otra variante de
+                    idioma es mejor. Pero a veces tiene sentido tener diferentes
+                    imágenes a causa de diferentes trasfondos culturales o algo así.
+        db:
+            stats:
+                name: Estadísticas de la base de datos
+                objects_in_db: Número de objetos en la base de datos
+                tags_in_db: Número de etiquetas en la base de datos
+                distinct_keys: Número de claves distintas
+                distinct_tags: Número de etiquetas distintas
+                nodes_in_db: Número de nodos en la base de datos
+                nodes_with_tags_in_db: Número de nodos con al menos una etiqueta
+                nodes_with_tags_in_db_percent: Porcentaje de nodos con al menos una etiqueta
+                tags_on_nodes: Número de etiquetas en los nodos
+                avg_tags_per_tagged_node: Número promedio de etiquetas por nodo etiquetado
+                ways_in_db: Número de vías en la base de datos
+                closed_ways_in_db: Número de vías cerradas
+                tags_on_ways: Número de etiquetas en las vías
+                avg_tags_per_way: Número promedio de etiquetas por vía
+                relations_in_db: Número de relaciones en la base de datos
+                tags_on_relations: Número de etiquetas en las relaciones
+                avg_tags_per_relation: Número promedio de etiquetas por relación
     download:
         intro: |
             <p>Aquí puedes descargar las bases de datos utilizadas por taginfo. Todos los datos se almacenan
             en bases de datos <a class="extlink" href="https://www.sqlite.org/">Sqlite</a>.
             Los archivos de la base de datos luego se comprimen con <a class="extlink" href="http://www.bzip.org/">bzip2</a>.</p>
             <p>Si no desea descargar estas bases de datos, pero necesita acceso automatizado a
-            los datos, también puede utilizar la <a href="/about">API</a>.</p>
+            los datos, también puede utilizar la <a href="about">API</a>.</p>
         file: Archivo
         packed: Comprimido
         unpacked: Sin comprimir
@@ -285,13 +360,13 @@ pages:
         nothing_to_compare: Hay no hay claves/etiquetas para comparar. Ir a cualquier página de clave o etiqueta y agregarlas.
     keys:
         intro: |
-                Esta tabla muestra todas las claves de etiquetas que existen en la base de datos o en cualquiera de las otras fuentes.
+            Esta tabla muestra todas las claves de etiquetas que existen en la base de datos o en cualquiera de las otras fuentes.
     tags:
         intro: |
-                Esta tabla muestra las etiquetas más comunes en la base de datos.
+            Esta tabla muestra las etiquetas más comunes en la base de datos.
     relations:
         name: Tipos de relación
-        intro: Información sobre los diferentes tipos de relaciones (indicados por el <a href="/keys/type?filter=relations">tipo</a> de etiqueta).
+        intro: Información sobre los diferentes tipos de relaciones (indicados por el <a href="keys/type?filter=relations">tipo</a> de etiqueta).
         relations_of_type_tooltip: Número de relaciones de este tipo (y como porcentaje de todas las relaciones).
         prevalent_roles: Roles frecuentes
         prevalent_roles_tooltip: Roles frecuentes para este tipo de relación.
@@ -300,13 +375,13 @@ pages:
         empty_role: rol vacío
     projects:
         intro: |
-                Esta tabla muestra todos los proyectos conocidos por taginfo que utilizan etiquetas OSM de alguna manera.<br/>Para más información sobre esta funcionalidad ver la <a href="//wiki.openstreetmap.org/wiki/Taginfo/Projects" class="extlink">wiki</a>.
+            Esta tabla muestra todos los proyectos conocidos por taginfo que utilizan etiquetas OSM de alguna manera.<br/>Para más información sobre esta funcionalidad ver la <a href="//wiki.openstreetmap.org/wiki/Taginfo/Projects" class="extlink">wiki</a>.
     key:
         description_from_wiki: Descripción de esta clave desde la wiki (si está disponible en su idioma elegido, si no en Inglés).
         no_description_in_wiki: No hay descripción en el idioma Inglés para esta clave en la wiki. (Véase también la pestaña "Wiki".)
         filter:
             label: |
-                 Filtro:
+                Filtro:
             none: Sin filtro
             nodes: Sólo los nodos
             ways: Sólo las vías
@@ -425,7 +500,7 @@ pages:
             count_all_tooltip: Número de objetos en la base de datos con esta clave/etiqueta
             objects_tooltip: Los tipos de objeto que el proyecto utiliza
 
-flexigrid:
+dynamic_table:
     pagetext: Página
     pagestat: Mostrando {from} a {to} de {total} elementos
     outof: de
@@ -451,7 +526,7 @@ sources:
         description: Estadísticas globales a través del tiempo.
     db:
         name: Base de datos
-        description: Estadísticas sobre cada clave y cada etiqueta de la base de datos principal de OSM (archivo del planeta).
+        description: Estadísticas sobre cada clave y cada etiqueta de la base de datos principal de OSM.
     wiki:
         name: Wiki
         description: Datos de las páginas de etiqueta y clave de la wiki de OSM.
@@ -540,24 +615,6 @@ reports:
             title: Todas las otras claves
             intro: |
                 <p>Las claves que no encajan en ninguna de las otras categorías.</p>
-    database_statistics:
-        name: Estadísticas de la base de datos
-        objects_in_db: Número de objetos en la base de datos
-        tags_in_db: Número de etiquetas en la base de datos
-        distinct_keys: Número de claves distintas
-        distinct_tags: Número de etiquetas distintas
-        nodes_in_db: Número de nodos en la base de datos
-        nodes_with_tags_in_db: Número de nodos con al menos una etiqueta
-        nodes_with_tags_in_db_percent: Porcentaje de nodos con al menos una etiqueta
-        tags_on_nodes: Número de etiquetas en los nodos
-        avg_tags_per_tagged_node: Número promedio de etiquetas por nodo etiquetado
-        ways_in_db: Número de vías en la base de datos
-        closed_ways_in_db: Número de vías cerradas
-        tags_on_ways: Número de etiquetas en las vías
-        avg_tags_per_way: Número promedio de etiquetas por vía
-        relations_in_db: Número de relaciones en la base de datos
-        tags_on_relations: Número de etiquetas en las relaciones
-        avg_tags_per_relation: Número promedio de etiquetas por relación
     frequently_used_keys_without_wiki_page:
         name: Claves de uso frecuente sin página wiki
         intro: |
@@ -582,15 +639,6 @@ reports:
             intro: Este histograma muestra cuántas claves hay de cada longitud.
             key_length: Longitud de la clave
             number_of_keys: Número de claves
-    language_comparison_table_for_keys_in_the_wiki:
-        name: Tabla de comparación de idioma para las claves en la wiki
-        icons:
-            template: Página wiki disponible y contiene la plantilla estándar.
-            error: Página wiki disponible y contiene la plantilla estándar, pero no pudo ser analizado.
-            page: Página wiki disponible pero no contiene la plantilla estándar.
-            redirect: La página es una redirección.
-        intro: |
-            Esta tabla muestra todas las claves de la etiquetas para los cuales hay páginas wiki disponibles y en qué idiomas están.
     languages:
         name: Idiomas
         intro: |
@@ -619,31 +667,6 @@ reports:
         overview:
             tab: Resumen
             title: Resumen
-        bcp47:
-            tab: Subetiquetas BCP47
-            title: Subetiquetas BCP47
-            filter:
-                label: Mostrar sólo las subetiquetas de tipo
-                all: Todos
-                language: Idioma
-                script: Escritura
-                region: Región
-                variant: Variante
-            intro: |
-                <p>El <a href="https://www.ietf.org/">IETF</a> define <i>etiquetas
-                de idioma</i> en sus estándares
-                <a href="https://tools.ietf.org/html/bcp47">Etiquetas para Identificación de Idiomas
-                (BCP47)</a>. Las etiquetas
-                de idioma consisten en una o más <i>subetiquetas</i> describiendo el idioma,
-                escritura, variantes, etc. La siguiente lista muestra las subetiquetas registradas
-                actualmente que son relevantes para la OSM. Para más información véase también el
-                <a href="https://en.wikipedia.org/wiki/IETF_language_tag">artículo de la Wikipedia
-                sobre etiquetas de idioma IETF</a> y el sitio <a
-                href="http://www.langtag.net/">langtag.net</a>.</p>
-                <p>Tenga en cuenta que los datos mostrados en esta tabla <b>no</b> son de OpenStreetMap,
-                sólo muestran los bloques que pueden utilizarse para describir idiomas
-                independientemente de si en realidad son utilizados en OSM.
-                </p>
     similar_keys:
         name: Claves similares
         intro: |
@@ -670,26 +693,3 @@ reports:
             title: Etiquetas únicas
         relation_types:
             title: Tipos de relación únicos
-    wiki_images:
-        name: Imágenes wiki
-        intro: |
-            Las imágenes utilizadas en el wiki para simbolizar las claves en
-            diferentes idiomas. A veces, la imagen de una u otra variante de
-            idioma es mejor. Pero a veces tiene sentido tener diferentes
-            imágenes a causa de diferentes trasfondos culturales o algo así.
-    wiki_problems:
-        name: Problemas de análisis de la wiki
-        intro: |
-            Taginfo lee todas las páginas wiki utilizadas para describir las
-            claves, etiquetas y relaciones para encontrar información sobre las
-            etiquetas. Este reporte muestra una lista de problemas encontrados
-            durante la lectura de esas páginas.  Estos no son necesariamente
-            errores en la wiki, sólo significan que algo en las páginas wiki no
-            está formateado en una forma que taginfo entienda. O bien la página
-            tiene que ser corregida o taginfo tiene que ser corregido.
-        location: Ubicación
-        reason: Razón
-        wiki_page: Página wiki
-        lang: Idioma
-        info: Información adicional
-

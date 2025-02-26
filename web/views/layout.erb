@@ -6,22 +6,29 @@
     <meta name="content-language" content="<%= r18n.locale.code %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link rel="stylesheet" type="text/css" href="/css/taginfo.css" />
-    <link rel="stylesheet" type="text/css" href="/css/smoothness/jquery-ui-1.8.10.custom-minified.css" />
-    <link rel="stylesheet" type="text/css" href="/css/flexigrid/flexigrid-minified.css" />
-    <link rel="stylesheet" type="text/css" href="/css/slicknav.min.css" />
-    <link rel="search" type="application/opensearchdescription+xml" href="/search/opensearch.xml" title="<%= TaginfoConfig.get('opensearch.shortname') %>" />
+    <link rel="search" type="application/opensearchdescription+xml" href="/search/opensearch.xml" title="<%= @taginfo_config.get('opensearch.shortname') %>" />
 <% if @css %>
     <style type="text/css"><!--
 <%= @css %>
 --></style>
 <% end %>
+    <script id="context" type="application/json">
+<%= data_as_script(@context) %>
+    </script>
 <%= javascript_tags %>
 </head>
 <body>
+    <div id="tooltip"></div>
+    <div id="menu-button-wrapper">
+        <div id="menu-button"></div>
+    </div>
     <header>
-        <div id="header_date" title="<%= h(t.taginfo.data_from_description) %>" tipsy="<%= r18n.locale.ltr? ? 'ne' : 'nw' %>"><%= h(t.taginfo.data_from) %>: <%= @data_until %> UTC</div>
-        <div id="header_forms" class="no-print">
-            <form id="set_language" action="/switch_locale">
+        <div class="header-logo key-tooltip">
+            <a href="/"><img width="49" height="49" src="<%= @taginfo_config.get('instance.icon', '/img/logo/world.png') %>" alt="taginfo"/></a>
+            <a href="/"><img width="129" height="49" src="/img/logo/taginfo.png" alt="taginfo"/></a>
+        </div>
+        <div class="no-print">
+            <form class="header-language-switcher" id="set_language" action="<%= build_link('/switch_locale') %>">
                 <input type="hidden" id="url" name="url" value="<%= request.path %>"/>
                 <select id="locale" name="locale">
 <% r18n.available_locales.sort{ |a,b| a.title <=> b.title }.select{ |locale| ::Language.has?(locale.code) }.each do |locale| %>
@@ -29,57 +36,57 @@
 <% end %>
                 </select>
             </form>
-<% unless @nosearch %>
-            <form id="search_form" action="/search"><input type="text" id="search" name="q" value="<%= h(params[:q]) %>"/></form>
-<% end %>
         </div>
-        <div id="header_logo">
-            <a href="/"><img width="49" height="49" src="<%= TaginfoConfig.get('instance.icon', '/img/logo/world.png') %>" alt="taginfo"/></a>
-            <a href="/"><img width="129" height="49" src="/img/logo/taginfo.png" alt="taginfo"/></a>
+        <div>
+            <div class="header-date" title="<%= h(t.taginfo.data_from_description) %>" data-tooltip-position="OnLeft"><%= h(t.taginfo.data_from) %>: <%= @data_until %> UTC</div>
+<% unless @nosearch %>
+            <form id="search_form" class="key-tooltip" action="<%= build_link('/search') %>">
+                <input type="text" id="search" name="q" value="<%= h(params[:q]) %>" autocomplete="off" autocapitalize="off" placeholder="[<%= h(t.osm.key.upcase) %>][=<%= h(t.osm.value.upcase) %>]"/>
+                <div id="suggestions"></div>
+            </form>
+<% end %>
         </div>
     </header>
     <nav>
-    <ul id="menu">
-        <li><a <%= in_section('keys') %>href="/keys"><%= h(t.osm.keys) %></a></li>
-        <li><a <%= in_section('tags') %>href="/tags"><%= h(t.osm.tags) %></a></li>
-        <li><a <%= in_section('relations') %>href="/relations"><%= h(t.osm.relations) %></a></li>
-        <li><a <%= in_section('projects') %>href="/projects"><%= h(t.taginfo.projects) %></a></li>
-        <li><a <%= in_section('reports') %>href="/reports"><%= h(t.taginfo.reports) %></a></li>
-        <li><a <%= in_section('about') %>href="/about"><%= h(t.taginfo.about) %></a></li>
+    <ul id="menu" class="no-print">
+        <li class="key-tooltip" id="menu-keys"><a <%= in_section('keys') %>href="<%= build_link('/keys') %>"><%= h(t.osm.keys) %></a></li>
+        <li class="key-tooltip" id="menu-tags"><a <%= in_section('tags') %>href="<%= build_link('/tags') %>"><%= h(t.osm.tags) %></a></li>
+        <li class="key-tooltip" id="menu-relations"><a <%= in_section('relations') %>href="<%= build_link('/relations') %>"><%= h(t.osm.relations) %></a></li>
+        <li class="key-tooltip" id="menu-projects"><a <%= in_section('projects') %>href="<%= build_link('/projects') %>"><%= h(t.taginfo.projects) %></a></li>
+        <li class="key-tooltip" id="menu-reports"><a <%= in_section('reports') %>href="<%= build_link('/reports') %>"><%= h(t.taginfo.reports) %></a></li>
+        <li class="key-tooltip" id="menu-sources"><a <%= in_section('sources') %>href="<%= build_link('/sources') %>"><%= h(t.taginfo.sources) %></a></li>
+        <li id="menu-about"><a <%= in_section('about') %>href="<%= build_link('/about') %>"><%= h(t.taginfo.about) %></a></li>
 <% if @section == 'taginfo' %>
-        <li><a <%= in_section('taginfo') %>href="/taginfo"><%= h(t.taginfo.meta) %></a></li>
+        <li id="menu-taginfo"><a <%= in_section('taginfo') %>href="<%= build_link('/taginfo') %>"><%= h(t.taginfo.meta) %></a></li>
 <% end %>
     </ul>
     </nav>
     <main>
 <% if under_section %>
         <div class="section_title">
-            <a class="section" href="/<%= @section %>"><%= @section_title %></a>
+            <a class="section" href="<%= build_link('/' + @section) %>"><%= @section_title %></a>
         </div>
 <% end %>
 <%= yield %>
     </main>
     <footer class="no-print">
-        <div id="footer_left"><span id="osmlink"><a class="extlink" href="//www.openstreetmap.org/"><b>OpenStreetMap</b></a> &middot;</span>
+        <div class="footer-start"><span id="osmlink"><a class="extlink" href="//www.openstreetmap.org/"><b>OpenStreetMap</b></a> &middot;</span>
             <a href="//www.openstreetmap.org/copyright">Data &copy; OSM contributors (ODbL)</a></div>
-        <div id="footer_right">
-            <a href="/sources"><%= h(t.taginfo.sources) %></a> &middot;
+        <div class="footer-end">
 <% if SECTIONS[:download] %>
-            <a href="/download"><%= h(t.taginfo.download) %></a> &middot;
+            <a href="<%= build_link('/download') %>"><%= h(t.taginfo.download) %></a> &middot;
 <% end %>
 <% if SECTIONS[:taginfo] %>
-            <a href="/taginfo/apidoc">API</a> &middot;
+            <a href="<%= build_link('/taginfo/apidoc') %>">API</a> &middot;
 <% end %>
-            <a id="help_link" href="#help"><%= h(t.misc.help) %></a> &middot;
+            <a id="help-link" target="_blank" href="<%= build_link('/help') %>"><%= h(t.misc.help) %></a> &middot;
             <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo"><%= h(t.taginfo.wiki) %></a>
+        </div>
+        <div class="footer-middle">
+            <span class="key">?</span> <%= h(t.help.keyboard.show_keys) %>
         </div>
     </footer>
     <div id="javascriptmsg">This website only works with Javascript! Please enable Javascript in your browser.</div>
-    <div id="help"><div id="help_tabs">
-        <ul>
-            <li><a href="/help/search"><%= h(t.help.search.title) %></a></li>
-            <li><a href="/help/keyboard"><%= h(t.help.keyboard.title) %></a></li>
-        </ul>
-    </div></div>
+    <script>document.getElementById('javascriptmsg').remove();</script>
 </body>
 </html>

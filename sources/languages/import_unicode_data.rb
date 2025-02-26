@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# coding: utf-8
 #------------------------------------------------------------------------------
 #
 #  Taginfo source: Languages
@@ -8,7 +7,7 @@
 #
 #------------------------------------------------------------------------------
 #
-#  Copyright (C) 2013-2021  Jochen Topf <jochen@topf.org>
+#  Copyright (C) 2013-2025  Jochen Topf <jochen@topf.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -36,7 +35,9 @@ database.results_as_hash = true
 unicode_data_file = "#{dir}/UnicodeData.txt"
 
 mappings = database.execute("SELECT codepoint_from, codepoint_to, script FROM unicode_codepoint_script_mapping").map do |row|
-   [(row['codepoint_from'].to_i .. row['codepoint_to'].to_i), row['script']]
+    from = row['codepoint_from'].to_i
+    to = row['codepoint_to'].to_i
+    [(from..to), row['script']]
 end
 
 def get_script(mappings, codepoint)
@@ -49,7 +50,7 @@ def get_script(mappings, codepoint)
 end
 
 database.transaction do |db|
-    open(unicode_data_file) do |file|
+    File.open(unicode_data_file) do |file|
         file.each do |line|
             line.chomp!
             (codepoint, name, category) = line.split(';')
@@ -59,6 +60,5 @@ database.transaction do |db|
         end
     end
 end
-
 
 #-- THE END -------------------------------------------------------------------

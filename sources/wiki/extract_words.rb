@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# coding: utf-8
 #------------------------------------------------------------------------------
 #
 #  extract_words.rb [DIR]
@@ -10,7 +9,7 @@
 #
 #------------------------------------------------------------------------------
 #
-#  Copyright (C) 2013-2017  Jochen Topf <jochen@topf.org>
+#  Copyright (C) 2013-2025  Jochen Topf <jochen@topf.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -31,13 +30,14 @@ require 'sqlite3'
 
 #------------------------------------------------------------------------------
 
+# A list of words found in wiki pages.
 class Words
 
     def initialize
-        @words = Hash.new
+        @words = {}
     end
 
-    def add(key, value, lang, word)
+    def add(key, value, _lang, word)
         entry = [key, value]
         if @words[word]
             @words[word] << entry
@@ -48,7 +48,7 @@ class Words
 
     # Remove words that appear too often
     def cleanup
-        @words.delete_if do |k, v|
+        @words.delete_if do |_, v|
             v.size >= 10
         end
     end
@@ -85,25 +85,26 @@ end
 
 #------------------------------------------------------------------------------
 
+# Extracts words out of wiki pages and adds them to a word list.
 class WordExtractor
 
     def initialize(words)
         @words = words
     end
 
-    def interested_in(word, key, value, lang)
+    def interested_in(word, _key, _value, _lang)
         # not interested in very short words
         return false if word.size <= 2
 
         # digits make for bad words
         return false if word =~ /\d/
 
-#        # not interested if word == key or == value
-#        key.downcase!
-#        value.downcase! unless value.nil?
-#        return false if word == key || word == value
+        ## not interested if word == key or == value
+        # key.downcase!
+        # value.downcase! unless value.nil?
+        # return false if word == key || word == value
 
-        return true
+        true
     end
 
     def parse(key, value, lang, text)
@@ -130,22 +131,21 @@ words = Words.new
 we = WordExtractor.new(words)
 
 database.execute("SELECT * FROM wikipages") do |row|
-#    puts "key=#{ row['key'] } value=#{ row['value'] } lang=#{ row['lang'] }"
+    # puts "key=#{ row['key'] } value=#{ row['value'] } lang=#{ row['lang'] }"
     we.parse(row['key'], row['value'], row['lang'], row['body'])
 end
 
 words.cleanup
 words.invert
 
-#words.dump do |key, value, words|
-#    puts "#{key}=#{value}: #{words}"
-#end
+# words.dump do |key, value, words|
+#     puts "#{key}=#{value}: #{words}"
+# end
 
 database.transaction do |db|
     words.dump do |key, value, wordlist|
         db.execute('INSERT INTO words (key, value, words) VALUES (?, ?, ?)', [key, value, wordlist])
     end
 end
-
 
 #-- THE END -------------------------------------------------------------------

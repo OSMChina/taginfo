@@ -9,7 +9,9 @@
 
 set -euo pipefail
 
-readonly SRCDIR=$(dirname "$(readlink -f "$0")")
+SRCDIR=$(dirname "$(readlink -f "$0")")
+readonly SRCDIR
+
 readonly DATADIR=$1
 
 if [ -z "$DATADIR" ]; then
@@ -18,7 +20,9 @@ if [ -z "$DATADIR" ]; then
 fi
 
 readonly DATABASE=$DATADIR/taginfo-wiki.db
-readonly CACHEDB=$DATADIR/wikicache.db
+readonly CACHE_PAGES_DB=$DATADIR/wikicache.db
+readonly CACHE_IMAGES_DB=$DATADIR/wikicache-images.db
+readonly LOGFILE_GET_PAGE_LIST=$DATADIR/get_page_list.log
 readonly LOGFILE_WIKI_DATA=$DATADIR/get_wiki_data.log
 readonly LOGFILE_IMAGE_INFO=$DATADIR/get_image_info.log
 
@@ -26,8 +30,11 @@ readonly LOGFILE_IMAGE_INFO=$DATADIR/get_image_info.log
 source "$SRCDIR/../util.sh" wiki
 
 initialize_cache() {
-    if [ ! -e "$CACHEDB" ]; then
-        run_sql "$CACHEDB" "$SRCDIR/cache.sql"
+    if [ ! -e "$CACHE_PAGES_DB" ]; then
+        run_sql "$CACHE_PAGES_DB" "$SRCDIR/cache.sql"
+    fi
+    if [ ! -e "$CACHE_IMAGES_DB" ]; then
+        run_sql "$CACHE_IMAGES_DB" "$SRCDIR/cache-images.sql"
     fi
 }
 
@@ -35,7 +42,7 @@ get_page_list() {
     print_message "Getting page list..."
     rm -f "$DATADIR/all_wiki_pages.list"
     rm -f "$DATADIR/interesting_wiki_pages.list"
-    run_ruby "$SRCDIR/get_page_list.rb" "$DATADIR"
+    run_ruby "-l$LOGFILE_GET_PAGE_LIST" "$SRCDIR/get_page_list.rb" "$DATADIR"
 }
 
 get_wiki_data() {

@@ -1,24 +1,15 @@
-<div class="pre ui-helper-clearfix">
-    <div id="pre-text">
+<div>
+    <div>
         <h1><%= h(t.reports.frequently_used_keys_without_wiki_page.name) %></h1>
         <%= t.reports.frequently_used_keys_without_wiki_page.intro %>
     </div>
 </div>
-<div class="box resize">
-    <div class="boxpre">
+<div class="box">
+    <div>
         <form method="" type="GET" style="margin-bottom: 10px;">
             <input type="checkbox" name="english" id="english"<%= params[:english] == '1' ? ' checked="checked"' : '' %>/>
             <%= h(t.reports.frequently_used_keys_without_wiki_page.also_show_keys) %>
         </form>
     </div>
-    <table id="grid-keys">
-    </table>
+    <div id="grid-keys"></div>
 </div>
-<% javascript do
-    JS.raw(<<"JAVASCRIPT")
-function page_init2() {
-    create_flexigrid_with_option(#{ params[:english] == '1' ? '1' : '0' });
-}
-JAVASCRIPT
-end
-%>

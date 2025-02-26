@@ -1,0 +1,79 @@
+<%
+@css = <<'CSS'
+.tagstatuslist-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 4px 10px;
+    gap: 4px;
+}
+
+.tagstatuslist-item {
+    min-width: 8em;
+}
+
+CSS
+
+count_all = @db.select("SELECT count(distinct(image)) AS count FROM wiki.wikipages").execute()[0]['count']
+count_small = @db.select("SELECT count(distinct(image)) AS count FROM wiki.wikipages WHERE image IN (SELECT image FROM wiki.wiki_images WHERE width * height < 64 * 64)").execute()[0]['count']
+count_tall = @db.select("SELECT count(distinct(image)) AS count FROM wiki.wikipages WHERE image IN (SELECT image FROM wiki.wiki_images WHERE height > width * 2)").execute()[0]['count']
+count_wide = @db.select("SELECT count(distinct(image)) AS count FROM wiki.wikipages WHERE image IN (SELECT image FROM wiki.wiki_images WHERE width > height *2)").execute()[0]['count']
+count_large = @db.select("SELECT count(distinct(image)) AS count FROM wiki.wikipages WHERE image IN (SELECT image FROM wiki.wiki_images WHERE size > 20000000)").execute()[0]['count']
+%>
+<div class="fbox">
+    <h2><%= h(t.pages.sources.statistics) %></h2>
+    <div>
+        <table class="desc">
+            <tr><th>Pages for keys:</th><td><%= @db.stats('wiki_pages_for_keys') %></td></tr>
+            <tr><th>Pages for tags:</th><td><%= @db.stats('wiki_pages_for_tags') %></td></tr>
+            <tr><th>Pages for relation types:</th><td><%= @db.stats('wiki_pages_for_relation_types') %></td></tr>
+            <tr><th>Images:</th><td><%= @db.stats('wiki_images') %></td></tr>
+            <tr><th>Languages:</th><td><%= @db.stats('wiki_languages') %></td></tr>
+        </table>
+    </div>
+</div>
+<div class="fbox">
+    <h2>Tag Status</h2>
+    <div>
+        <p>Tag status from the wiki info boxes.</p>
+        <div class="tagstatuslist-container">
+<% @db.select('SELECT approval_status AS status, count(*) AS count FROM wikipages WHERE approval_status IS NOT NULL GROUP BY approval_status HAVING count > 10 ORDER BY count DESC').execute do |row| %>
+            <div class="tagstatuslist-item"><%= TagStatus[row['status']].badge %>: <%= row['count'] %></div>
+<% end %>
+        </div>
+        <p><a href="wiki/tag_status">More...</a></p>
+    </div>
+</div>
+<div class="fbox">
+    <h2>Image sizes</h2>
+    <div>
+        <p>There a a total of <b><%= count_all %></b> distinct images used as reference images on Key:/Tag:/Relation: pages. Of these...</p>
+        <ul>
+            <li><b><%= count_small %></b> are smaller than 64&#x78;64 pixels.</li>
+            <li><b><%= count_tall %></b> are more than twice as tall as they are wide.</li>
+            <li><b><%= count_wide %></b> are more than twice as wide as they are tall.</li>
+            <li><b><%= count_large %></b> have more than 20 MB.</li>
+        </ul>
+        <p><a href="wiki/image_size">Show images...</a></p>
+    </div>
+</div>
+<div class="fbox">
+    <h2><%= h(t.pages.sources.wiki.image_comparison.name) %></h2>
+    <div>
+        <p><%= h(t.pages.sources.wiki.image_comparison.intro) %></p>
+        <p><a href="wiki/image_comparison">Show images...</a></p>
+    </div>
+</div>
+<div class="fbox">
+    <h2><%= h(t.sources.languages.name) %></h2>
+    <div>
+        <p><%= h(t.pages.sources.wiki.language_comparison_table_for_keys.intro) %></p>
+        <p><a href="wiki/language_comparison_table_for_keys"><%= h(t.pages.sources.wiki.language_comparison_table_for_keys.name) %></a></p>
+    </div>
+</div>
+<div class="fbox">
+    <h2><%= h(t.pages.sources.wiki.parsing_problems.name) %></h2>
+    <div>
+        <p><%= h(t.pages.sources.wiki.parsing_problems.intro) %></p>
+        <p><a href="wiki/parsing_problems">See report...</a></p>
+    </div>
+</div>

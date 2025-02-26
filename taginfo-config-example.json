@@ -91,7 +91,7 @@
         // Note that this will NOT work for the "db" source! Well, you can download it,
         // but it will fail later, because the database is changed by the master.sql
         // scripts.
-        "download": "languages projects wiki chronology",
+        "download": "languages projects wiki chronology sw",
         // These sources will be created from the actual sources.
         "create": "db",
         "db": {
@@ -131,8 +131,6 @@
         // size of OSM file, but may need a bit more memory than other values.
         // For really large OSM files (whole planet or large continent)
         // this should be "DenseMmapArray" (or "DenseMemArray" on OSX), otherwise "SparseMemArray".
-        "geodistribution": "FlexMem",
-        // C++ type used for geodistribution
-        "geodistribution_int": "uint16_t"
+        "geodistribution": "FlexMem"
     }
 }

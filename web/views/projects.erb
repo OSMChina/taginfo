@@ -1,8 +1,6 @@
-<div class="pre ui-helper-clearfix">
-    <div id="pre-text">
-        <h1 class="section"><%= h(t.taginfo.projects) %></h1>
-        <p><%= t.pages.projects.intro %></p>
-    </div>
+<div>
+    <h1 class="section"><%= h(t.taginfo.projects) %></h1>
+    <p><%= t.pages.projects.intro %></p>
 </div>
 <div id="tabs">
     <ul class="no-print">
@@ -12,17 +10,14 @@
     </ul>
     <div id="projects">
         <h2><%= h(t.taginfo.projects) %></h2>
-        <table id="grid-projects">
-        </table>
+        <div id="grid-projects"></div>
     </div>
     <div id="keys">
         <h2><%= h(t.osm.keys) %></h2>
-        <table id="grid-keys">
-        </table>
+        <div id="grid-keys"></div>
     </div>
     <div id="tags">
         <h2><%= h(t.osm.tags) %></h2>
-        <table id="grid-tags">
-        </table>
+        <div id="grid-tags"></div>
     </div>
 </div>

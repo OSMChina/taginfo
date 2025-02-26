@@ -2,53 +2,34 @@
 #
 # SQL database wrapper with convenience methods for query building.
 module SQL
-
     # Wrapper for a database connection.
     class Database
 
-        # This has to be called once to initialize the context for the database
-        def self.init(dir)
-            @@dir = dir
-
-            db = SQL::Database.new
-
-            db.select('SELECT * FROM sources ORDER BY no').execute().each do |source|
-                Source.new(source['id'], source['name'], source['data_until'], source['update_start'], source['update_end'], source['visible'].to_i == 1)
-            end
-
-            data_until = db.select("SELECT min(data_until) FROM sources WHERE id='db'").get_first_value()
-
-            db.close
-
-            data_until
-        end
-
-        def initialize
-            filename = @@dir + '/taginfo-master.db'
+        def initialize(taginfo_config)
+            @dir = taginfo_config.get('paths.data_dir', '../../data')
+            filename = @dir + '/taginfo-master.db'
             @db = SQLite3::Database.new(filename, { :readonly => true })
             @db.results_as_hash = true
 
-            pcre_extension = TaginfoConfig.get('paths.sqlite3_pcre_extension')
+            pcre_extension = taginfo_config.get('paths.sqlite3_pcre_extension')
             if pcre_extension
+                @db.enable_load_extension(true)
                 @db.load_extension(pcre_extension)
+                @db.enable_load_extension(false)
             end
+
             @db.execute('PRAGMA journal_mode = OFF')
+
             @db.execute('SELECT * FROM languages') do |row|
                 Language.new(row)
             end
+
+            @min_duration = taginfo_config.get('logging.min_duration', 0)
         end
 
         def attach_source(filename, name)
-            @db.execute('ATTACH DATABASE ? AS ?', "#{ @@dir }/#{ filename }", name)
+            @db.execute('ATTACH DATABASE ? AS ?', "file:#{ @dir }/#{ filename }?mode=ro", name)
             @db.execute("PRAGMA #{ name }.journal_mode = OFF")
-        end
-
-        def attach_sources
-            Source.each do |source|
-                attach_source(source.dbname, source.id.to_s)
-            end
-            attach_source('taginfo-history.db', 'history')
-            self
         end
 
         def close
@@ -61,14 +42,13 @@ module SQL
             out = yield
             duration = Time.now - t1
 
-            min_duration = TaginfoConfig.get('logging.min_duration', 0)
-            if duration > min_duration
-                if params.size > 0
-                    p = ' params=[' + params.map{ |param| "'#{param}'" }.join(', ') + ']'
-                else
-                    p = ''
-                end
-                ($queries_log||$stderr).puts %Q{SQL duration=#{ duration.round(2) } query="#{ query };"} + p
+            if duration > @min_duration
+                p = if params.empty?
+                        ''
+                    else
+                        ' params=[' + params.map{ |param| "'#{param}'" }.join(', ') + ']'
+                    end
+                ($queries_log || $stderr).puts %(SQL duration=#{ duration.round(2) } query="#{ query };") + p
             end
 
             out
@@ -103,7 +83,7 @@ module SQL
         end
 
         def stats(key)
-            get_first_value('SELECT value FROM master_stats WHERE key=?', key).to_i
+            get_first_value('SELECT value FROM master_stats WHERE key=?', key.force_encoding('UTF-8')).to_i
         end
 
         def quote(data)
@@ -124,6 +104,9 @@ module SQL
 
             @query      = [query]
             @conditions = []
+            @limit      = nil
+            @group_by   = nil
+            @order_by   = nil
 
             @params = params
         end
@@ -134,7 +117,7 @@ module SQL
             self
         end
 
-        def is_null(attribute)
+        def is_null(attribute) # rubocop:disable Naming/PredicateName
             condition("#{attribute} IS NULL")
             self
         end
@@ -161,12 +144,7 @@ module SQL
         end
 
         def order_by(values, direction, &block)
-            if values.is_a?(Array)
-                values = values.compact
-            else
-                values = [values]
-            end
-
+            values = values.is_a?(Array) ? values.compact : [values]
             o = Order.new(values, &block)
 
             if direction != 'ASC' && direction != 'DESC'
@@ -181,10 +159,10 @@ module SQL
             end
 
             unless values.empty?
-                @order_by = "ORDER BY " + values.map{ |value|
+                @order_by = "ORDER BY " + values.map do |value|
                     value = o.default if value.nil?
                     o[value.to_s].map{ |oel| oel.to_s(direction) }.join(',')
-                }.join(',')
+                end.join(',')
             end
 
             self
@@ -195,14 +173,14 @@ module SQL
             self
         end
 
-        def paging(ap)
-            if ap.do_paging?
-                limit(ap.results_per_page, ap.first_result)
+        def paging(params)
+            if params.do_paging?
+                limit(params.results_per_page, params.first_result)
             end
             self
         end
 
-        def limit(limit, offset=0)
+        def limit(limit, offset = 0)
             @limit = "LIMIT #{limit} OFFSET #{offset}"
             self
         end
@@ -219,28 +197,29 @@ module SQL
         end
 
         def execute(&block)
-            q = build_query()
+            q = build_query
             @db.execute(q, *@params, &block)
         end
 
         def get_first_row
-            q = build_query()
+            q = build_query
             @db.get_first_row(q, *@params)
         end
 
         def get_first_value
-            q = build_query()
+            q = build_query
             @db.get_first_value(q, *@params)
         end
 
         def get_first_i
-            get_first_value().to_i
+            get_first_value.to_i
         end
 
         def get_columns(*columns)
-            q = build_query()
+            q = build_query
             row = @db.get_first_row(q, *@params)
-            return [nil] * columns.size if row.nil?;
+            return [nil] * columns.size if row.nil?
+
             columns.map{ |column| row[column.to_s].to_i }
         end
 
@@ -248,7 +227,7 @@ module SQL
 
     class OrderElement
 
-        @@DIRECTION = { 'ASC' => 'DESC', 'DESC' => 'ASC' }
+        @@direction = { 'ASC' => 'DESC', 'DESC' => 'ASC' }
 
         def initialize(column, reverse)
             @column  = column
@@ -256,7 +235,7 @@ module SQL
         end
 
         def to_s(direction)
-            dir = @reverse ? @@DIRECTION[direction.upcase] : direction.upcase
+            dir = @reverse ? @@direction[direction.upcase] : direction.upcase
             "#{@column} #{dir}"
         end
 
@@ -266,8 +245,8 @@ module SQL
 
         attr_reader :default
 
-        def initialize(values, &block)
-            @allowed = Hash.new
+        def initialize(values)
+            @allowed = {}
             if block_given?
                 yield self
             else
@@ -278,32 +257,35 @@ module SQL
         end
 
         def _allowed(field)
-            @allowed.has_key?(field.to_s)
+            @allowed.key?(field.to_s)
         end
 
         def [](field)
             @allowed[field]
         end
 
-        def _add(field, attribute=nil)
+        def _add(field, attribute = nil)
             field = field.to_s
             @default = field unless defined? @default
             if field =~ /^(.*)!$/
-                field = $1
+                field = ::Regexp.last_match(1)
                 reverse = true
             else
                 reverse = false
             end
             attribute = field if attribute.nil?
 
-            @allowed[field] ||= Array.new
+            @allowed[field] ||= []
             @allowed[field] << OrderElement.new(attribute.to_s, reverse)
         end
 
-        def method_missing(field, attribute=nil)
+        def method_missing(field, attribute = nil)
             _add(field, attribute)
         end
 
-    end
+        def respond_to_missing?(_name, _include_private)
+            true
+        end
 
+    end
 end

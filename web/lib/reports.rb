@@ -1,40 +1,30 @@
 # web/lib/reports.rb
 class Report
 
-    @@reports = Array.new
+    @@reports = []
 
     attr_reader :title, :sources
 
-    def self.each
-        @@reports.sort_by{ |report| report.title }.each do |report|
-            yield report
-        end
+    def self.each(&block)
+        @@reports.sort_by(&:title).each(&block)
     end
 
-    def self.each_visible
-        @@reports.select{ |report| report.visible? }.sort_by{ |report| report.title }.each do |report|
-            yield report
-        end
-    end
-
-    def self.each_visible_with_index
-        @@reports.select{ |report| report.visible? }.sort_by{ |report| report.title }.each_with_index do |report, idx|
-            yield report, idx
-        end
+    def self.each_visible_with_index(sources, &block)
+        @@reports.select{ |report| report.visible?(sources) }.sort_by(&:title).each_with_index(&block)
     end
 
     def initialize(title, *sources)
         @@reports << self
         @title = title
-        @sources = Hash.new
-        @visible = sources.size > 0
+        @sources = {}
+        @visible = !sources.empty?
         sources.each do |id|
             @sources[id] = 1
         end
     end
 
     def uses_source?(id)
-        sources.has_key? id
+        sources.key?(id)
     end
 
     def name
@@ -45,22 +35,18 @@ class Report
         '/reports/' + name
     end
 
-    def visible?
-        @visible
+    def visible?(sources)
+        @visible && @sources.all? { |s| sources.get(s[0]) }
     end
 
 end
 
-Report.new 'Database statistics', :db
 Report.new 'Characters in keys', :db
 Report.new 'Frequently used keys without wiki page', :db, :wiki
 Report.new 'Key lengths', :db
-Report.new 'Language comparison table for keys in the wiki', :wiki
 Report.new 'Languages', :wiki
 Report.new 'Wiki pages about non-existing keys', :db, :wiki
-Report.new 'Name tags' #disabled
+Report.new 'Name tags' # disabled
 Report.new 'Similar keys', :db
 Report.new 'Historic development', :db
-Report.new 'Wiki images', :wiki
-#Report.new 'Wiki problems', :wiki
-
+Report.new 'Discardable tags', :db, :wiki, :sw

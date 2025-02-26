@@ -9,7 +9,7 @@
 #
 #------------------------------------------------------------------------------
 #
-#  Copyright (C) 2010-2021  Jochen Topf <jochen@topf.org>
+#  Copyright (C) 2010-2025  Jochen Topf <jochen@topf.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,9 +26,9 @@
 #
 #------------------------------------------------------------------------------
 
-v=RUBY_VERSION.split('.').map{ |x| x.to_i }
-if v[0] < 2 or v[1] < 4
-    STDERR.puts "You need at least Ruby 2.4 to run taginfo"
+v = RUBY_VERSION.split('.').map(&:to_i)
+if v[0] < 3
+    STDERR.puts "You need at least Ruby 3.0 to run taginfo"
     exit(1)
 end
 
@@ -45,31 +45,28 @@ require 'sinatra/base'
 require 'sinatra/r18n'
 require 'rack/contrib'
 
-require 'lib/utils.rb'
-require 'lib/taglinks.rb'
-require 'lib/config.rb'
-require 'lib/javascript.rb'
-require 'lib/language.rb'
-require 'lib/sql.rb'
-require 'lib/sources.rb'
-require 'lib/reports.rb'
-require 'lib/api.rb'
-require 'lib/langtag/bcp47.rb'
+require 'lib/utils'
+require 'lib/taglinks'
+require 'lib/config'
+require 'lib/javascript'
+require 'lib/language'
+require 'lib/sql'
+require 'lib/sources'
+require 'lib/tagstatus'
+require 'lib/reports'
+require 'lib/api'
+require 'lib/langtag/bcp47'
 
 #------------------------------------------------------------------------------
 
-TaginfoConfig.read
+TAGINFO_CONFIG = TaginfoConfig.new(File.expand_path(File.dirname(__FILE__)) + '/../../taginfo-config.json')
 
 #------------------------------------------------------------------------------
 
-ALL_SECTIONS = %w(download taginfo test)
-SECTIONS = Hash[TaginfoConfig.get('instance.sections', ALL_SECTIONS).collect { |s| [s.to_sym, s] } ]
-
-DATA_UNTIL = SQL::Database.init(TaginfoConfig.get('paths.data_dir', '../../data'));
+ALL_SECTIONS = %w[download taginfo test].freeze
+SECTIONS = Hash[TAGINFO_CONFIG.get('instance.sections', ALL_SECTIONS).collect{ |s| [s.to_sym, s] }]
 
 class Taginfo < Sinatra::Base
-
-    register Sinatra::R18n
 
     use Rack::JSONP
 
@@ -77,6 +74,7 @@ class Taginfo < Sinatra::Base
 
     configure do
         set :app_file, __FILE__
+        #set :bind, '0.0.0.0'
 
         # Disable rack-protection library because it messes up embedding
         # taginfo in an iframe. This should probably be done more
@@ -93,23 +91,28 @@ class Taginfo < Sinatra::Base
 
     # make trimming \n after %> the default in erb templates
     alias_method :erb_orig, :erb
-    def erb(template, options={}, locals={})
+    def erb(template, options = {}, locals = {}, &block)
         options[:trim] = '>' unless options[:trim]
-        erb_orig template, options, locals
+        erb_orig template, options, locals, &block
     end
 
     # when do we expect the next data update
     def next_update
         # 7 hours after midnight UTC
-        ((Time.utc(Time.now.year(), Time.now.month(), Time.now.day(), 7, 0, 0) + (Time.now.hour < 7 ? 0 : 24)*60*60)-Time.now).to_i.to_i
+        ((Time.utc(Time.now.year, Time.now.month, Time.now.day, 7, 0, 0) + (Time.now.hour < 7 ? 0 : 24) * 60 * 60) - Time.now).to_i.to_i
     end
 
     before do
-        if request.cookies['taginfo_locale'] && request.path != '/switch_locale'
-            params[:locale] = request.cookies['taginfo_locale']
-        end
+        @taginfo_config = TAGINFO_CONFIG
 
-        javascript_for(:common)
+        if request.cookies['taginfo_locale'] && request.path != '/switch_locale'
+            session[:locale] = request.cookies['taginfo_locale']
+        end
+    end
+
+    register Sinatra::R18n
+
+    before do
         javascript_for(:taginfo)
         javascript r18n.locale.code + '/texts'
 
@@ -117,11 +120,18 @@ class Taginfo < Sinatra::Base
         # (otherwise switching languages doesn't work)
         expires 0, :no_cache
 
-        @db = SQL::Database.new.attach_sources
+        @db = SQL::Database.new(@taginfo_config)
+        @sources = Sources.new(@taginfo_config, @db)
         $WIKIPEDIA_SITES = @db.execute('SELECT prefix FROM wikipedia_sites').map{ |row| row['prefix'] }
 
-        @data_until = DATA_UNTIL.sub(/:..$/, '')
-        @data_until_m = DATA_UNTIL.sub(' ', 'T') + 'Z'
+        data_until_raw = @db.select("SELECT min(data_until) FROM sources WHERE id='db'").get_first_value
+        @data_until = data_until_raw.sub(/:..$/, '')
+        @data_until_m = data_until_raw.sub(' ', 'T') + 'Z'
+
+        @context = {
+            instance: @taginfo_config.id,
+            lang: r18n.locale.code || 'en'
+        }
     end
 
     after do
@@ -131,17 +141,18 @@ class Taginfo < Sinatra::Base
     #-------------------------------------
 
     before '/api/*' do
-        content_type :json, :charset => 'UTF-8'
         expires next_update
-        cors = TaginfoConfig.get('instance.access_control_allow_origin', '')
+        cors = @taginfo_config.get('instance.access_control_allow_origin', '')
         if cors != ""
             headers['Access-Control-Allow-Origin'] = cors
         end
         begin
             @ap = APIParameters.new(params)
-        rescue ArgumentError => ex
-            halt 412, { :error => ex.message }.to_json
+        rescue ArgumentError => e
+            halt 412, { :error => e.message }.to_json
         end
+        content_type @ap.format, :charset => 'UTF-8'
+        @api = API.complete_paths[request.path_info]
     end
 
     #-------------------------------------
@@ -156,42 +167,55 @@ class Taginfo < Sinatra::Base
     #-------------------------------------
 
     get '/' do
-        javascript "#{ r18n.locale.code }/index"
+        javascript "pages/index"
         erb :index
     end
 
-    get '/test-index' do
-        javascript "#{ r18n.locale.code }/test-index"
-        erb :'test-index'
-    end
-
     #-------------------------------------
 
-    %w(about sources).each do |page|
-        get '/' + page do
-            @title = t.taginfo[page]
-            section page
-            erb page.to_sym
-        end
+    get '/about' do
+        @title = t.taginfo.about
+        section :about
+        erb :about
     end
 
-    %w(keys tags relations).each do |page|
+    get '/help' do
+        @title = t.misc.help
+        section :help
+        erb :help
+    end
+
+    %w[keys tags relations].each do |page|
         get '/' + page do
             @title = t.osm[page]
             section page
-            javascript_for(:flexigrid)
-            javascript "#{ r18n.locale.code }/#{ page }"
+            javascript "/pages/#{ page }"
             erb page.to_sym
         end
     end
 
     #-------------------------------------
 
-    get %r{/js/([a-z][a-z](-[a-zA-Z]+)?)/(.*).js} do |lang, dummy, js|
+    get %r{/js/([a-z][a-z](-[a-zA-Z]+)?)/texts.js} do |lang, _|
+        trans = R18n::I18n.new(lang, 'i18n').t.to_hash
+
+        trans.delete('human_time')
+        trans.each_key do |item|
+            if trans[item].is_a?(String)
+                trans.delete(item)
+            end
+        end
+
+        expires next_update
+        content_type 'text/javascript'
+        'const texts = ' + JSON.generate(trans, { indent: '  ', object_nl: "\n" }) + ';'
+    end
+
+    get %r{/js/([a-z][a-z](-[a-zA-Z]+)?)/(.*).js} do |lang, _, js|
         expires next_update
         @lang = lang
         @trans = R18n::I18n.new(lang, 'i18n')
-        erb :"#{js}.js", :layout => false, :content_type => 'text/javascript', :views => 'viewsjs'
+        erb :"#{js}.js", :layout => false, :content_type => 'text/javascript'
     end
 
     #--------------------------------------------------------------------------
@@ -206,6 +230,7 @@ class Taginfo < Sinatra::Base
     # current API (version 4)
     load 'lib/api/v4/key.rb'
     load 'lib/api/v4/keys.rb'
+    load 'lib/api/v4/languages.rb'
     load 'lib/api/v4/project.rb'
     load 'lib/api/v4/projects.rb'
     load 'lib/api/v4/relation.rb'
@@ -216,6 +241,7 @@ class Taginfo < Sinatra::Base
     load 'lib/api/v4/tags.rb'
     load 'lib/api/v4/unicode.rb'
     load 'lib/api/v4/wiki.rb'
+    load 'lib/api/v4/wikidata.rb'
 
     # test API (unstable, do not use)
     load 'lib/api/test/langtag.rb'
@@ -223,20 +249,19 @@ class Taginfo < Sinatra::Base
     # user interface
     load 'lib/ui/compare.rb'
     load 'lib/ui/embed.rb'
-    load 'lib/ui/help.rb'
     load 'lib/ui/keys.rb'
     load 'lib/ui/projects.rb'
     load 'lib/ui/relation.rb'
     load 'lib/ui/reports.rb'
     load 'lib/ui/search.rb'
+    load 'lib/ui/sources.rb'
     load 'lib/ui/tags.rb'
 
-    SECTIONS.keys.each do |section|
+    SECTIONS.each_key do |section|
         load "lib/ui/#{ section }.rb"
     end
 
     # run application
-    run! if app_file == $0
+    run! if app_file == $PROGRAM_NAME
 
 end
-

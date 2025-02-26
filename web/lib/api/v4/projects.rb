@@ -3,12 +3,13 @@ class Taginfo < Sinatra::Base
 
     api(4, 'projects/all', {
         :description => 'Get list of all projects using OSM tags known to taginfo.',
+        :formats => [:json, :csv],
         :parameters => {
             :status => 'Only show projects with given status (default is "OK")',
             :query => 'Only show projects where name or description matches this query (substring match, optional).'
         },
         :paging => :optional,
-        :sort => %w( name unique_keys unique_values ),
+        :sort => %w[ name unique_keys unique_values ],
         :result => paging_results([
             [:id,          :STRING, 'Project id'],
             [:name,        :STRING, 'Project name'],
@@ -36,21 +37,23 @@ class Taginfo < Sinatra::Base
             condition_if("name LIKE ? ESCAPE '@' OR description LIKE ? ESCAPE '@'", q, q).
             get_first_i
 
-        res = @db.select('SELECT * FROM projects.projects').
+        res = @db.select('SELECT id, name, project_url, icon_url, doc_url, description, key_entries, tag_entries, unique_keys, unique_tags FROM projects.projects').
             condition("status=?", status).
             condition_if("name LIKE ? ESCAPE '@' OR description LIKE ? ESCAPE '@'", q, q).
-            order_by(@ap.sortname, @ap.sortorder) { |o|
+            order_by(@ap.sortname, @ap.sortorder) do |o|
                 o.name 'lower(name)'
                 o.unique_keys
                 o.unique_keys :unique_tags
                 o.unique_tags
                 o.unique_tags :unique_keys
-            }.
+            end.
             paging(@ap).
-            execute()
+            execute
 
-        return generate_json_result(total,
-            res.map{ |row| {
+        @attachment = "projects.csv"
+
+        return generate_result(@api, total,
+            res.map do |row| {
                 :id          => row['id'],
                 :name        => row['name'],
                 :project_url => row['project_url'],
@@ -61,15 +64,17 @@ class Taginfo < Sinatra::Base
                 :tag_entries => row['tag_entries'],
                 :unique_keys => row['unique_keys'],
                 :unique_tags => row['unique_tags']
-            }}
+            }
+            end
         )
     end
 
     api(4, 'projects/keys', {
         :description => 'Get list of all keys used by at least one project.',
+        :formats => [:json, :csv],
         :parameters => { :query => 'Only show keys matching this query (substring match, optional).' },
         :paging => :optional,
-        :sort => %w( key projects in_wiki count_all ),
+        :sort => %w[ key projects in_wiki count_all ],
         :result => paging_results([
             [:key,                :STRING, 'Key'],
             [:projects,           :INT,    'Number of projects using this key'],
@@ -81,13 +86,13 @@ class Taginfo < Sinatra::Base
         :ui => '/projects#keys'
     }) do
         q = like_contains(params[:query])
-        total = @db.count('projects.project_unique_keys').
+        total = @db.count('project_unique_keys').
             condition_if("key LIKE ? ESCAPE '@'", q).
             get_first_i
 
-        res = @db.select('SELECT * FROM projects.project_unique_keys').
+        res = @db.select('SELECT * FROM project_unique_keys').
             condition_if("key LIKE ? ESCAPE '@'", q).
-            order_by(@ap.sortname, @ap.sortorder) { |o|
+            order_by(@ap.sortname, @ap.sortorder) do |o|
                 o.key
                 o.projects
                 o.projects :key
@@ -95,26 +100,30 @@ class Taginfo < Sinatra::Base
                 o.in_wiki :key
                 o.count_all
                 o.count_all :key
-            }.
+            end.
             paging(@ap).
-            execute()
+            execute
 
-        return generate_json_result(total,
-            res.map{ |row| {
+        @attachment = "projects-keys.csv"
+
+        return generate_result(@api, total,
+            res.map do |row| {
                 :key                => row['key'],
                 :projects           => row['projects'],
                 :in_wiki            => row['in_wiki'],
                 :count_all          => row['count_all'],
                 :count_all_fraction => (row['count_all'].to_f / @db.stats('objects')).round(4)
-            }}
+            }
+            end
         )
     end
 
     api(4, 'projects/tags', {
         :description => 'Get list of all tags used by at least one project.',
+        :formats => [:json, :csv],
         :parameters => { :query => 'Only show tags matching this query (substring match, optional).' },
         :paging => :optional,
-        :sort => %w( key value projects in_wiki count_all ),
+        :sort => %w[ key value projects in_wiki count_all ],
         :result => paging_results([
             [:key,                :STRING, 'Key'],
             [:value,              :STRING, 'Value'],
@@ -123,17 +132,17 @@ class Taginfo < Sinatra::Base
             [:count_all,          :INT,    'Number of objects in the OSM database with this tag.'],
             [:count_all_fraction, :FLOAT,  'Number of objects in relation to all objects.']
         ]),
-        :example => { :page => 1, :rp => 10, :sortname => 'key', :sortorder => 'asc' },
+        :example => { :page => 1, :rp => 10, :sortname => 'tag', :sortorder => 'asc' },
         :ui => '/projects#tags'
     }) do
         q = like_contains(params[:query])
-        total = @db.count('projects.project_unique_tags').
+        total = @db.count('project_unique_tags').
             condition_if("key LIKE ? ESCAPE '@' OR value LIKE ? ESCAPE '@'", q, q).
             get_first_i
 
-        res = @db.select('SELECT * FROM projects.project_unique_tags').
+        res = @db.select('SELECT * FROM project_unique_tags').
             condition_if("key LIKE ? ESCAPE '@' OR value LIKE ? ESCAPE '@'", q, q).
-            order_by(@ap.sortname, @ap.sortorder) { |o|
+            order_by(@ap.sortname, @ap.sortorder) do |o|
                 o.tag :key
                 o.tag :value
                 o.projects
@@ -142,19 +151,22 @@ class Taginfo < Sinatra::Base
                 o.in_wiki :key
                 o.count_all
                 o.count_all :key
-            }.
+            end.
             paging(@ap).
-            execute()
+            execute
 
-        return generate_json_result(total,
-            res.map{ |row| {
+        @attachment = "projects-tags.csv"
+
+        return generate_result(@api, total,
+            res.map do |row| {
                 :key                => row['key'],
                 :value              => row['value'],
                 :projects           => row['projects'],
                 :in_wiki            => row['in_wiki'],
                 :count_all          => row['count_all'],
                 :count_all_fraction => (row['count_all'].to_f / @db.stats('objects')).round(4)
-            }}
+            }
+            end
         )
     end
 

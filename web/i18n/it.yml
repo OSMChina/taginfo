@@ -1,6 +1,6 @@
 osm:
     tag: Tag
-    tags: Tags
+    tags: Tag
     key: Chiave
     keys: Chiavi
     value: Valore
@@ -8,16 +8,16 @@ osm:
     node: Nodo
     nodes: Nodi
     way: Way
-    ways: Ways
+    ways: Way
     relation: Relazione
     relations: Relazioni
-    relation_type: Tipo di Relazione
-    relation_types: Tipi di Relazioni
-    relation_member: Membro della Relazione
-    relation_members: Membri della Relazione
-    relation_member_nodes: Nodi membro della relazione
-    relation_member_ways: Ways membro della relazione
-    relation_member_relations: Relazioni membro della relazione
+    relation_type: Tipo di relazione
+    relation_types: Tipi di relazioni
+    relation_member: Membro della relazione
+    relation_members: Membri della relazione
+    relation_member_nodes: Membri di tipo nodo
+    relation_member_ways: Membri di tpo way
+    relation_member_relations: Membri di tipo relazione
     relation_member_role: Ruolo
     relation_member_roles: Ruoli
     object: Oggetto
@@ -30,12 +30,12 @@ taginfo:
     source: Fonte
     sources: Fonti
     download: Download
-    about: Riguardo a Taginfo
+    about: Informazioni su Taginfo
     contact: Contatti
     meta: Meta
     wiki: Wiki
-    report: Report
-    reports: Reports
+    report: Rapporto
+    reports: Rapporti
     international: International
     apidoc: API Documentation
     project: Progetto
@@ -46,25 +46,26 @@ taginfo:
     maps: Mappe
     relations: Relazioni
     combinations: Combinazioni
-    key_combinations: Combinazioni delle Chiavi
-    comparison: Confronto Chiavi/Valori
+    key_combinations: Combinazioni delle chiavi
+    comparison: Confronto chiavi/valori
     overview: Panoramica
+    characters: Caratteri
     links: Collegamenti
-    data_from: Fonte Dati
+    data_from: Fonte dati
     data_from_description: Ultimo aggiornamento al database taginfo
     instance:
         title: Informazioni sul sito taginfo
         other: Vedere <a href="//wiki.openstreetmap.org/wiki/Taginfo/Sites">OSM wiki</a> per gli altri siti.
 
 misc:
-    values_less_than_one_percent: Nessuno dei valori con più dell' 1%
+    values_less_than_one_percent: Nessuno dei valori con più dell'1%
     empty_string: stringa vuota
     unknown: sconosciuto
     count: Conteggio
     image: Immagine
-    no_image: Nessuna Immagine
+    no_image: Nessuna immagine
     all: Tutto
-    object_type: Tipo Oggetto
+    object_type: Tipo oggetto
     description: Descrizione
     help: Aiuto
     length: Lunghezza
@@ -73,9 +74,9 @@ misc:
     area: Area
     language: Lingua
     search_for: Ricerca per
-    objects_tooltip: Numero di oggetti (come valore assoluto e come percentuale di tutti i nodi, ways, e relazioni).
-    nodes_tooltip: Numero di nodi (come valore assoluto e come percentuale di nodi taggati, per es. i nodi senza nessun tags vengono ignorati).
-    ways_tooltip: Numero di ways (come valore e percentuale di tutte le ways).
+    objects_tooltip: Numero di oggetti (come valore assoluto e come percentuale di tutti i nodi, way, e relazioni).
+    nodes_tooltip: Numero di nodi (come valore assoluto e come percentuale di nodi taggati, per es. i nodi senza nessun tag vengono ignorati).
+    ways_tooltip: Numero di way (come valore e percentuale di tutte le way).
     relations_tooltip: Numero delle relazioni (come valore assoluto e come percentuale di tutte le relazioni).
     values_tooltip: Numero dei valori differenti per questa chiave.
     users_tooltip: Numero di singoli utenti che hanno usato recentemente questa chiave.
@@ -84,20 +85,28 @@ misc:
     in_wiki_tooltip: La chiave ha almeno una pagina nel wiki.
     status: Stato
     approval_status: Stato di approvazione
+    other: Altro
+    software:
+        id:
+            name: iD
+        josm:
+            name: JOSM
+        wiki:
+            name: Wiki
 
 help:
     search:
         title: Ricerca
-        intro: Utilizza la casella di ricerca nell'angolo in alto a destra per cercare Chiavi e Valori dei tag.
-        string: Puoi cercare le Chiavi e i Valori dei tag
-        substring: Funziona anche se inserisci solo una parte della Chiave/Valore
+        intro: Utilizza la casella di ricerca nell'angolo in alto a destra per cercare chiavi e valori dei tag.
+        string: Puoi cercare le chiavi e i valori dei tag
+        substring: Funziona anche se inserisci solo una parte della chiave/valore
         complete_tags: Puoi cercare tag completi
-        values_only: Puoi anche cercare solo tra i Valori dei tag
+        values_only: Puoi anche cercare solo tra i valori dei tag
         suggestions: |
-            Per tua comodità mentre scrivi ti verranno suggerite le Chiavi e
+            Per tua comodità mentre scrivi ti verranno suggerite le chiavi e
             tag più frequenti. Usa i tasti freccia della tastiera per
             sceglierne una e premi <span class="key">Invio</span>. Verrai
-            portato direttamente alla pagine di quella Chiave o tag.
+            portato direttamente alla pagine di quella chiave o tag.
     keyboard:
         title: Scorciatoie con la tastiera
         site_navigation: Naviga nel sito
@@ -111,12 +120,13 @@ help:
             esc: Esc
             tab: TAB
         home_page: Pagina principale
-        keys_page: Pagina delle Chiavi
-        tags_page: Pagina dei Valori
-        relations_page: Pagina delle Relazioni
-        reports_page: Pagina dei Report
-        projects_page: Pagina dei Progetti
-        compare_page: Pagina dei Confronti
+        keys_page: Pagina delle chiavi
+        tags_page: Pagina dei valori
+        relations_page: Pagina delle relazioni
+        projects_page: Pagina dei progetti
+        reports_page: Pagina dei rapporti
+        sources_page: Pagina delle fonti
+        compare_page: Pagina dei confronti
         first_page: Prima pagina
         prev_page: Pagina precedente
         next_page: Pagina successiva
@@ -131,6 +141,8 @@ help:
         deactivate: Disattiva la casella d'inserimento
         up: Vai alla pagina più in alto nella gerarchia
         switch_input: Spostati tra le caselle d'inserimento
+        show_keys: Mostra le scorciatoie da tastiera disponibili
+        add_to_comparison: Aggiungi la chiave/tag corrente alla lista di confronto
 
 pages:
     not_found:
@@ -172,26 +184,24 @@ pages:
                 tag posso utilizzare per la caratteristica Y perché appaia in
                 maniera corretta sulla mappa? Il tag Z descritto nella pagina
                 wiki è veramente utilizzato e dove?</p> <p>Taginfo ti fornisce
-                un aiuto mostrandoti delle statistiche a riguardo di quali tags
+                un aiuto mostrandoti delle statistiche a riguardo di quali tag
                 sono realmente nel database, quante persone usano questi tag,
                 dove sono utilizzati e altre informazioni analoghe. Raccogli
                 informazioni sui tag anche dal sito wiki e da altre fonti.
                 Taginfo cerca di mettere assieme tutte le informazioni sui tag
                 per aiutarti a comprendere come sono usati e cosa significano.
-                Vedi la <a href="/sources">lista delle fonti</a> che taginfo
+                Vedi la <a href="sources">lista delle fonti</a> che taginfo
                 utilizza.</p>
         about_site:
             title: Informazioni su questo sito
         building_on_taginfo:
             title: Sviluppare con taginfo
-            pre: |
-                <p>Puoi usare i dati ottenuti con taginfo nei tuoi
-                progetti:</p>
+            pre: 'Puoi usare i dati ottenuti con taginfo nei tuoi progetti:'
             api: |
                 <h3>API</h3>
                 <p>Puoi accedere ai dati di Taginfo
                 tramite una REST API. Vedi la <a
-                href="/taginfo/apidoc">documentazione sull'API</a> per maggiori
+                href="taginfo/apidoc">documentazione sull'API</a> per maggiori
                 dettagli, alcune informazioni generali sono presenti <a
                 class="extlink"
                 href="//wiki.openstreetmap.org/wiki/Taginfo/API">sul sito wiki
@@ -206,7 +216,7 @@ pages:
                 ai dati usati da taginfo, puoi scaricare i file del database
                 Sqlite che vengono regolarmente aggiornati. Tutto il lavoro di
                 preprocessing è già stato fatto per te. Vedi la <a
-                href="/download">pagina dei download</a> per una lista dei
+                href="download">pagina dei download</a> per una lista dei
                 file. Si noti che alcuni di questi possono essere
                 particolarmente grandi. Se vuoi scaricarli frequentemente,
                 contatta un responsabile del sito che stai usando o discuti la
@@ -227,7 +237,7 @@ pages:
                 href="https://ctd-studio.co.uk/">Christian Topf</a>.</p>
                 <h3>Traduzioni</h3> <p>Abbiamo bisogno di traduttori per
                 tradurre l'interfaccia utente di taginfo. Vedi la pagina <a
-                href="/taginfo/translations">introduttiva sulle traduzioni</a>
+                href="taginfo/translations">introduttiva sulle traduzioni</a>
                 per informazioni su quali lingue hanno bisogno di lavoro di
                 traduzione. Maggiori informazioni su come aiutare sono
                 disponibili nella <a class="extlink"
@@ -258,13 +268,13 @@ pages:
                 mailing list</a> se avete domanda o avete bisogno di aiuto.</p>
     sources:
         intro: |
-            <p>Taginfo prende i dati dai tags OSM da diverse fonti e li fonde
-            insieme per una facile navigazione e scoperta.</p> <p>Da notare che
-            Taginfo visualizza solo i dati. Se volete cambiarli, dovete tornare
-            alla fonte dei dati.</p>
-        list:
-            title: Lista delle fonti
-            intro: In questa lista sono elencate le fonti attualmente utilizzate. Ulteriori fonti potrebbero essere aggiunte in futuro.
+            Taginfo prende i dati dai tag OSM da diverse fonti e li fonde
+            insieme per una facile navigazione e scoperta. In questa lista sono
+            elencate le fonti attualmente utilizzate. Ulteriori fonti
+            potrebbero essere aggiunte in futuro.
+        display_only: |
+            Da notare che Taginfo visualizza solo i dati. Se volete cambiarli,
+            dovete tornare alla fonte dei dati.
         description:
             db: |
                 <p>Le statistiche sulle chiavi, tag e sui tipi di relazioni
@@ -286,10 +296,13 @@ pages:
                 class="extlink" href="https://www.unicode.org/">Unicode</a>.</p>
             projects: |
                 <p>Progetti che usano i tag di OSM in qualche modo, come
-                strumenti di modifica, mappe, navigatori, ecc. Vedi <a
-                href="/projects">la lista dei progetti</a>.</p>
+                strumenti di modifica, mappe, navigatori, ecc.</p>
             chronology: |
                 <p>Numero di chiavi/tag nel tempo da <a class="extlink" href="https://planet.openstreetmap.org/planet/full-history/">file di planet storico</a>.</p>
+            wikidata: |
+                <p>Il <a class="extlink" href="https://www.wikidata.org/">database wikidata di Wikimedia</a> collega le chiavi, i tag e le relazioni di OSM con altre idee.</p>
+            sw: |
+                <p>Configurazioni da vari programmi OSM (come gli editor).</p>
         updates:
             title: Aggiornamenti
             intro: I dati di taginfo vengono aggiornati regolarmente dalle loro fonti.
@@ -297,6 +310,132 @@ pages:
         last_update_run: Ultimo aggiornamento eseguito
         data_until_explanation: Tutte le modifiche eseguite fino a questo orario saranno presenti nei dati, le modifiche successive potrebbero esserci.
         to: a
+        data: Dati
+        database_size: Dimensioni del database
+        minutes: min
+        statistics: Statistiche
+        import_errors: Errori di importazione
+        languages:
+            subtags:
+                title: I sotto-tag BCP47
+                filter:
+                    label: Mostra solo i sotto-tag di tipo
+                    all: Tutti
+                    language: Lingua
+                    script: Script
+                    region: Regione
+                    variant: Variante
+                columns:
+                    type: Tipo
+                    subtag: Sotto-tag
+                    description: Descrizione
+                    added: Aggiunto
+                    notes: Note
+                intro: |
+                    <p>Lo <a href="https://www.ietf.org/">IETF</a> definisce i
+                    <i>tag delle lingue</i> in un suo standard <a
+                    href="https://tools.ietf.org/html/bcp47">Tags for Identifying
+                    Languages (BCP47)</a>. I tag delle lingue consistono in uno o
+                    più <i>sotto-tag</i> che descrivono le lingua, gli script, le
+                    varianti, ecc. Per maggiori informazioni vedi anche la <a
+                    href="https://en.wikipedia.org/wiki/IETF_language_tag">pagina
+                    di Wikipedia sui tag per le lingue di IETF</a> e il sito <a
+                    href="http://www.langtag.net/">langtag.net</a>.</p>
+                note: |
+                    Nota che i dati mostrati in questa tabella non provengono da
+                    OpenStreetMap, vengono soltanto mostrati i blocchetti da unire
+                    che possono essere usati per descrivere le lingue
+                    indipendentemente dal fatto che siano realmente utilizzati in
+                    OSM.
+                show: Mostra tutti i sotto-tag delle lingue…
+            wikipedia_sites:
+                title: Siti Wikipedia
+        wikidata:
+            index:
+                show_items: Mostra tutti gli elementi Wikidata…
+                show_errors: Mostra tutti gli errori…
+            stats:
+                keys: Elementi chiave
+                tags: Elementi tag
+                relations: Elementi relazione
+                roles: Elementi ruolo
+                qcode: Elementi con codice Q
+                pcode: Elementi con codice P
+            items:
+                title: Elementi
+                description: |
+                    Questi sono tutti gli elementi Wikidta con proprietà P1282
+                    e le chiavi, i tag e le relazioni OSM a cui sono collegati.
+                    Nono vengono mostrate tutte le proprietà di tipo "ruolo" e
+                    le proprietà che non sono nel formato corretto.
+                columns:
+                    type: Tipo
+                    ktr: Chiave/Tag/Relazione
+                    item: Elemento Wikidata
+            errors:
+                description: |
+                    Questi sono tutti gli errori avvenuti durante
+                    l'importazione degli elementi Wikidata con proprietà
+                    P1282.
+                columns:
+                    item: Elemento Wikidata
+                    p1282: Valore della proprietà P1282
+                    error: Messaggio di errore
+
+        wiki:
+            language_comparison_table_for_keys:
+                name: Tabella comparativa dele lingue per le chiavi nella Wiki
+                icons:
+                    template: Una pagina è disponibile sul sito wiki e contiene un template standard.
+                    error: Una pagina è disponibile sul sito wiki e contiene un template standard, ma non si riesce ad estrarne il significato.
+                    page: Una pagina è disponibile sul sito wiki, ma non contiene un template standard.
+                    redirect: La pagina è un redirect.
+                intro: |
+                    Questa tabella mostra i valori di tutti i tag usati per le chiavi
+                    per cui è disponibile una pagina sul sito wiki e in che lingua è la
+                    pagina.
+            parsing_problems:
+                name: Problemi nella analisi
+                intro: |
+                    Taginfo legge tutte le pagine sul sito wiki utilizzate per
+                    descrivere le chiavi, i tag e le relazioni per trovare informazioni
+                    sui tag. Questo rapporto mostra una lista dei problemi riscontrati
+                    mentre queste pagine vengono lette. Questi non sono necessariamente
+                    degli errori nel wiki, vuole semplicemente dire che le pagine non
+                    sono formattate in una maniera che taginfo riesca a comprendere.
+                    Può essere sia che la pagina vada corretta oppure che taginfo vada
+                    sistemato.
+                location: Località
+                reason: Ragione
+                wiki_page: Pagina wiki
+                lang: Lingua
+                info: Informazioni aggiuntive
+            image_comparison:
+                name: Immagini wiki
+                intro: |
+                    Le immagini utilizzate nel sito wiki come simbolo per le chiavi in
+                    diverse lingue. A volte c'è un'immagine in una delle varie lingue
+                    che è la migliore. Tuttavia in alcuni casi ha senso avere diverse
+                    immagini a causa del diverso background culturale o simili motivi.
+        db:
+            stats:
+                name: Statistiche del database
+                objects_in_db: Numero di oggetti nel database
+                tags_in_db: Numero di tag nel database
+                distinct_keys: Numero di chiavi univoche
+                distinct_tags: Numero di tag univoci
+                nodes_in_db: Numero di nodi nel database
+                nodes_with_tags_in_db: Numero di nodi nel database con almeno un tag
+                nodes_with_tags_in_db_percent: Percentuale di nodi con almeno un tag
+                tags_on_nodes: Numero di tag sui nodi
+                avg_tags_per_tagged_node: Numero medio di tag per ogni nodo con dei tag
+                ways_in_db: Numero di way nel database
+                closed_ways_in_db: Numero di way chiuse nel database
+                tags_on_ways: Numero tag sulle way
+                avg_tags_per_way: Numero medio di tag per ogni way
+                relations_in_db: Numero di relazioni nel database
+                tags_on_relations: Numero di tag sulle relazione
+                avg_tags_per_relation: Numero medio di tag per ogni relazione
     download:
         intro: |
             <p>Qui potete scaricare il database usato da Taginfo. Tutti i dati
@@ -306,7 +445,7 @@ pages:
             href="http://www.bzip.org/">bzip2</a>.</p> <p>Se non volete
             scaricare questi database, ma avete bisogno di avere un accesso
             automatizzato ai dati, potete anche usare le <a
-            href="/about">API</a>.</p>
+            href="about">API</a>.</p>
         file: File
         packed: Compressi
         unpacked: Decompressi
@@ -314,10 +453,10 @@ pages:
         note: Alcuni indici non sono presenti nel database disponibile qui per il download. La dimensione 'compressa' è la dimensione senza questi indici, la dimensione 'decompressa' include gli indici che probabilmente vorrai creare dopo il download.
     reports:
         intro: |
-            I Reports mostrano i dati da prospettive differenti. Spesso
+            I rapporti mostrano i dati da prospettive differenti. Spesso
             riuniscono i dati da diverse fonti in modi interessanti. Alcuni di
-            questi reports possono aiutare a trovare certi tipi di errori, come
-            ad esempio chiavi popolari senza una pagina nel wiki.
+            questi rapporti possono aiutare a trovare certi tipi di errori, come
+            ad esempio le chiavi popolari che non hanno una pagina nel wiki.
         list: Lista di tutti i rapporti
         data_sources: Fonti di dati utilizzate
     search:
@@ -339,7 +478,7 @@ pages:
             Questa tabella mostra i tag più comuni presenti nel database.
     relations:
         name: Tipi di relazioni
-        intro: Informazioni sui diversi tipi di relazioni (indicati dal tag <a href="/keys/type?filter=relations">type</a>).
+        intro: Informazioni sui diversi tipi di relazioni (indicati dal tag <a href="keys/type?filter=relations">type</a>).
         relations_of_type_tooltip: Numero delle relazioni di questo tipo (e percentuale rispetto al totale delle relazioni).
         prevalent_roles: Ruoli maggiormente presenti
         prevalent_roles_tooltip: Ruoli maggiormente presenti per questo tipo di relazioni.
@@ -358,10 +497,10 @@ pages:
         no_description_in_wiki: Nessuna descrizione nel wiki
         filter:
             label: |
-                 Filtro:
+                Filtro:
             none: Nessun filtro
             nodes: Solo nodi
-            ways: Solo percorsi (Ways)
+            ways: Solo percorsi (way)
             relations: Solo relazioni
         button_disabled: Pulsante disabilitato, perché ci sono troppi oggetti con questa chiave.
         number_objects: Numero degli oggetti
@@ -370,8 +509,16 @@ pages:
         tag_description_from_wiki: Descrizione di questo questo tag dalla pagina wiki (se disponibile nella lingua selezionata, altrimenti in inglese).
         overview:
             objects_last_edited_by: Oggetti con questa chiave che sono stati modificati l'ultima volta da %1 utenti differenti.
-            no_endorsement: (Questo non significa che tutti questi utenti riconoscano questa chiave.)
+            no_endorsement: (questo non significa che tutti questi utenti riconoscano questa chiave.)
             distribution_of_values: Distribuzione dei valori
+            all_other_values: Tutti gli altri valori
+            known_projects: Taginfo conosce %1 progetti che fanno riferimento a questa chiave.
+            status:
+                from_wiki: 'Stato del tag dalle pagine wiki:'
+                unknown: Stato del tag sulla wiki sconosciuto o ambiguo.
+                see_wiki_tab: Per i dettagli vedi la scheda dalla wiki.
+                marked_discardable: 'Il tag è marcato come scartabile da:'
+
         other_keys_used:
             title: Altre chiavi utilizzate assieme a questa chiave
             other: Altre chiavi
@@ -386,7 +533,7 @@ pages:
             relations: Le relazioni non hanno una localizzazione geografica, pertanto una mappa non può essere mostrata.
         wiki_pages:
             title: Pagine wiki su questa chiave
-            none_found: Non ci sono pagine wiki disponibili su questa chiave.
+            none_found: Non ci sono pagine wiki disponibili per questa chiave.
             create: Crea una pagina wiki per questa chiave
             wiki_page: Pagina wiki
             implied_tags: Tag impliciti
@@ -402,6 +549,8 @@ pages:
             count_all_tooltip: Numero degli oggetti con la chiave simile
             similarity: Somiglianza
             similarity_tooltip: Un numero più basso indica una maggiore somiglianza
+        characters:
+            title: Caratteri Unicode in questa chiave
     tag:
         description_from_wiki: Descrizione di questo tag dalla pagina wiki (se disponibile nella lingua selezionata, altrimenti in inglese).
         no_description_in_wiki: Nessuna descrizione nel wiki
@@ -409,11 +558,12 @@ pages:
         number_objects: Numero degli oggetti
         overview:
             see_also: Vedi anche la pagina del tipo di relazione
+            known_projects: Taginfo conosce %1 progetti che si riferiscono a questo tag.
         other_tags_used:
             title: Altri tag utilizzati assieme a questo tag.
             other: Altri tag
             to_count_tooltip: Numero degli oggetti con questo tag che hanno anche l'altro tag o chiave.
-            other_key_tooltip: Tags o chiave utilizzata assieme a questo tag.
+            other_key_tooltip: Chiave utilizzata assieme a questo tag.
             from_count_tooltip: Numero di oggetti con l'altro tag o chiave che hanno anche questo tag.
         combinations:
             title: Combinazioni
@@ -439,10 +589,12 @@ pages:
         projects:
             title: Progetti che utilizzano questo tag
             description: Come questo tag è utilizzato nel progetto
+        characters:
+            title: Caratteri Unicode in questo valore del tag
     relation:
         name: Tipo di relazione
         description_from_wiki: La descrizione di questo tipo di relazione è preso dalla pagina wiki (se disponibile nella lingua selezionata, altrimenti in inglese).
-        no_description_in_wiki: Nessuna descrizione in lingua inglese per questo tipo di relazione. (Vedi anche nella scheda "Wiki".)
+        no_description_in_wiki: Nessuna descrizione in lingua inglese per questo tipo di relazione. (vedi anche nella scheda "Wiki".)
         button_disabled: Pulsante disabilitato, perché ci sono troppi oggetti con questo tipo di relazione.
         overview:
             tab: Anteprima
@@ -450,6 +602,7 @@ pages:
             member_type: tipo del membro della relazione
             member_count: Numero del membro della relazione
             see_also: Vedi anche la pagina dei tag
+            known_projects: Taginfo conosce %1 progetti che fanno riferimento a questo tipo di relazione.
         roles:
             tab: Ruoli
             title: Ruoli del membro della relazione
@@ -469,6 +622,8 @@ pages:
         projects:
             title: Progetti che utilizzano questo tipo di relazione
             description: Come questo tipo di relazione viene utilizzato nel progetto
+        characters:
+            title: Caratteri Unicode nel tipo di relazione
     project:
         overview:
             project_name: Nome del progetto
@@ -479,20 +634,21 @@ pages:
             json_url: file JSON del progetto
             info: Questi dati sono forniti dal progetto a taginfo attraverso il 'JSON project file' (file JSON del progetto) indicato nel collegamento qui sopra. Vedi la <a href="//wiki.openstreetmap.org/wiki/Taginfo/Projects" class="extlink">pagina wiki</a> per una descrizione del formato.
         tags:
-            title: Tags usati da questo progetto
+            title: Tag usati da questo progetto
             intro: Questi dati sono forniti dal progetto e non sono necessariamente completi. Per favore consulta la documentazione del progetto per dettagli.
             description: Come questa chiave/tag viene utilizzata nel progetto
             count_all_tooltip: Numero di oggetti nel database con questa chiave/tag
             objects_tooltip: Tipo di oggetti che il progetto utilizza
 
-flexigrid:
+dynamic_table:
     pagetext: Pagina
     pagestat: Visualizzazione da {from} a {to} di {total} oggetti
     outof: di
     findtext: Trova
     procmsg: Elaborazione, attendere prego...
     nomsg: Nessun oggetto
-    errormsg: Errore di Connessione
+    errormsg: Errore di connessione
+    filter_nothing_found: Nessun risultato corrispondente alla tua richiesta
 
 comparison:
     list: Lista dei confronti
@@ -505,13 +661,13 @@ comparison:
 sources:
     master:
         name: Master
-        description: Statistiche aggregate e dati eterogenei sono necessari per l'interfaccia utente di Taginfo.
+        description: Statistiche aggregate e dati eterogenei richiesti per l'interfaccia utente di Taginfo.
     history:
         name: Storico
         description: Statistiche aggregate rispetto al tempo.
     db:
         name: Database
-        description: Le statistiche riguardanti ogni chiave e tag dal database principale di OSM (file di planet).
+        description: Le statistiche riguardanti ogni chiave e tag dal database principale di OSM.
     wiki:
         name: Wiki
         description: Dati dalle pagine della wiki OSM dei tag e delle chiavi.
@@ -524,6 +680,18 @@ sources:
     chronology:
         name: Cronologia
         description: Numero di chiavi/tag nel tempo da file planet storico.
+    wikidata:
+        name: Wikidata
+        description: Il database wikidata di Wikimedia collega le chiavi, i tag e le relazioni di OSM con altre idee.
+    sw:
+        name: Software
+        description: Configurazioni da alcuni programmi OSM (come gli editor).
+unicode:
+    character: Carattere
+    codepoint: Codice univoco
+    script: Scrittura
+    general_category: Categoria generale
+    name: Nome del codice univoco Unicode
 
 reports:
     characters_in_keys:
@@ -611,26 +779,8 @@ reports:
             intro: |
                 <p>chiavi che non rientrano in nessuna delle altre
                 categorie.</p>
-    database_statistics:
-        name: Statistiche del Database
-        objects_in_db: Numero di oggetti nel database
-        tags_in_db: Numero di tag nel database
-        distinct_keys: Numero di chiavi univoche
-        distinct_tags: Numero di tag univoci
-        nodes_in_db: Numero di nodi nel database
-        nodes_with_tags_in_db: Numero di nodi nel database con almeno un tag
-        nodes_with_tags_in_db_percent: Percentuale di nodi con almeno un tag
-        tags_on_nodes: Numero di tag sui nodi
-        avg_tags_per_tagged_node: Numero medio di tag per ogni nodo con dei tag
-        ways_in_db: Numero di way nel database
-        closed_ways_in_db: Numero di way chiuse nel database
-        tags_on_ways: Numero tag sulle way
-        avg_tags_per_way: Numero medio di tag per ogni way
-        relations_in_db: Numero di relazioni nel database
-        tags_on_relations: Numero di tag sulle relazione
-        avg_tags_per_relation: Numero medio di tag per ogni relazione
     frequently_used_keys_without_wiki_page:
-        name: Chiavi Usate Frequentemente Senza una Pagina Wiki
+        name: Chiavi usate frequentemente senza una pagina Wiki
         intro: |
             <p>Questa tabella mostra le chiavi che compaiono più di
             10&thinsp;000 volte nel database OSM, ma che non hanno una pagina
@@ -646,7 +796,7 @@ reports:
         table:
             create_wiki_page: Crea una pagina wiki...
     key_lengths:
-        name: Lunghezze Chiavi
+        name: Lunghezze chiavi
         intro: |
             I tag delle chiavi possono essere lunghi da 0 a 255 caratteri
             (Unicode). Le chiavi molto corte o molto lunghe sono spesso, ma non
@@ -655,22 +805,11 @@ reports:
             number_of_objects: Numero degli oggetti
         histogram:
             name: Istogramma
-            intro: Questo istogramma mostra quante chiavi ci sono con ogni lunghezza.
+            intro: Questo istogramma mostra quante chiavi sono presenti per ogni lunghezza.
             key_length: Lunghezza della chiave
             number_of_keys: Numero delle chiavi
-    language_comparison_table_for_keys_in_the_wiki:
-        name: Tabella Comparativa Linguaggi per le Chiavi nella Wiki
-        icons:
-            template: Una pagina è disponibile sul sito wiki e contiene un template standard.
-            error: Una pagina è disponibile sul sito wiki e contiene un template standard, ma non si riesce ad estrarne il significato.
-            page: Una pagina è disponibile sul sito wiki, ma non contiene un template standard.
-            redirect: La pagina è un redirect.
-        intro: |
-            Questa tabella mostra i valori di tutti i tag usati per le chiavi
-            per cui è disponibile una pagina sul sito wiki e in che lingua è la
-            pagina.
     languages:
-        name: Linguaggi
+        name: Lingue
         intro: |
             OpenStreetMap è un progetto internazionale. I tag e le loro
             descrizioni possono essere in una qualsiasi lingua.
@@ -683,7 +822,7 @@ reports:
         wiki_key_pages: Pagine wiki per le chiavi
         wiki_tag_pages: Pagine wiki per i tag
     wiki_pages_about_non_existing_keys:
-        name: Pagine della Wiki Riguardanti Chiavi Non-Esistenti
+        name: Pagine della Wiki riguardanti chiavi non-esistenti
         intro: |
             Questa tabella mostra le chiavi per le quali esiste una pagina wiki,
             ma per le quali non ci sia neppure una singola presenza nel database.
@@ -702,33 +841,6 @@ reports:
         overview:
             tab: Anteprima
             title: Anteprima
-        bcp47:
-            tab: I sotto-tag BCP47
-            title: I sotto-tag BCP47
-            filter:
-                label: Mostra solo i sotto-tag di tipo
-                all: Tutti
-                language: Lingua
-                script: Script
-                region: Regione
-                variant: Variante
-            intro: |
-                <p>Lo <a href="https://www.ietf.org/">IETF</a> definisce i
-                <i>tag delle lingue</i> in un suo standard <a
-                href="https://tools.ietf.org/html/bcp47">Tags for Identifying
-                Languages (BCP47)</a>. I tag delle lingue consistono in uno o
-                più <i>sotto-tag</i> che descrivono le lingua, gli script, le
-                varianti, ecc. La lista seguente mostrai sotto-tag attualmente
-                registrati che sono rilevanti per OSM. Per maggiori
-                informazioni vedi anche la <a
-                href="https://en.wikipedia.org/wiki/IETF_language_tag">pagina
-                di Wikipedia sui tag per le lingue di IETF</a> e il sito <a
-                href="http://www.langtag.net/">langtag.net</a>.</p> <p>Nota che
-                i dati mostrati in questa tabella <b>non</b> provengono da
-                OpenStreetMap, vengono soltanto mostrati i blocchetti da unire
-                che possono essere usati per descrivere le lingue
-                indipendentemente dal fatto che siano realmente utilizzati in
-                OSM.</p>
     similar_keys:
         name: Chiavi simili
         intro: |
@@ -745,7 +857,7 @@ reports:
         count_rare: Conteggio
         similarity: Somiglianza
     historic_development:
-        name: Analisi dello Storico
+        name: Analisi dello storico
         intro: |
             Analisi di alcune statistiche rispetto al tempo. Questi dati sono
             stati raccolti da taginfo, è possibile che siano presenti delle
@@ -757,27 +869,11 @@ reports:
             title: Tag univoci
         relation_types:
             title: Tipo di relazioni univoci
-    wiki_images:
-        name: Immagini wiki
+    discardable_tags:
+        name: Tag scartabili
         intro: |
-            Le immagini utilizzate nel sito wiki come simbolo per le chiavi in
-            diverse lingue. A volte c'è un'immagine in una delle varie lingue
-            che è la migliore. Tuttavia in alcuni casi ha senso avere diverse
-            immagini a causa del diverso background culturale o simili motivi.
-    wiki_problems:
-        name: Problemi nella analisi (parsing) del wiki
-        intro: |
-            Taginfo legge tutte le pagine sul sito wiki utilizzate per
-            descrivere le chiavi, i tag e le relazioni per trovare informazioni
-            sui tag. Questo rapporto mostra una lista dei problemi riscontrati
-            mentre queste pagine vengono lette. Questi non sono necessariamente
-            degli errori nel wiki, vuole semplicemente dire che le pagine non
-            sono formattate in una maniera che taginfo riesca a comprendere.
-            Può essere sia che la pagina vada corretta oppure che taginfo vada
-            sistemato.
-        location: Località
-        reason: Ragione
-        wiki_page: Pagina wiki
-        lang: Lingua
-        info: Informazioni aggiuntive
-
+            I tag scartabili sono quei tag che la comunità OpenStreetMap ha
+            reputato non essere utili. Gli editor potrebbero rimuovere tali tag
+            automaticamente e in maniera silente durante il salvataggio della
+            nuova versione di un oggetto.
+        more_on_wiki: 'Più informazioni sulla wiki:'

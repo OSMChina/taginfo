@@ -1,8 +1,21 @@
+<% @css = <<'CSS'
+.apidoc-container {
+    display: flex;
+    gap: 20px;
+}
+
+.apidoc-menu {
+}
+CSS
+%>
 <div lang="en" dir="ltr">
 
 <h1 class="section">API Documentation</h1>
 
 <p>See <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo/API">the OSM wiki</a> for general information about the API.</p>
+
+<div class="apidoc-container">
+<div>
 
 <h2>Table of Contents</h2>
 
@@ -16,6 +29,9 @@
         end
     end %>
 </ul>
+
+</div>
+<div>
 
 <%  API.paths.keys.sort.each do |version|
         if version > 0
@@ -32,6 +48,10 @@
     <tr>
         <th>Description:</th>
         <td><%= doc.description %></td>
+    </tr>
+    <tr>
+        <th>Formats:</th>
+        <td><%= doc.formats.join(', ') %></td>
     </tr>
     <tr>
         <th>Parameters:</th>
@@ -55,11 +75,11 @@
     </tr>
     <tr>
         <th>Example:</th>
-        <td><a rel="nofollow" href="<%= h(doc.show_example) %>" target="_blank"><%= h(doc.show_example) %></a></td>
+        <td><a rel="nofollow" href="<%= build_link(h(doc.show_example)) %>" target="_blank"><%= h(doc.show_example) %></a></td>
     </tr>
     <tr>
         <th title="User interface page where this API is used">UI Example:</th>
-        <td><a href="<%= h(doc.show_ui) %>" target="_blank"><%= h(doc.show_ui) %></a></td>
+        <td><a href="<%= build_link(h(doc.show_ui)) %>" target="_blank"><%= h(doc.show_ui) %></a></td>
     </tr>
 <% if doc.notes %>
     <tr>
@@ -72,4 +92,5 @@
         end
     end %>
 
+</div>
 </div>
