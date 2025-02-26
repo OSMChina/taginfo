@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# coding: utf-8
 #------------------------------------------------------------------------------
 #
 #  get_links.rb [DIR]
@@ -17,7 +16,7 @@
 #
 #------------------------------------------------------------------------------
 #
-#  Copyright (C) 2015-2017  Jochen Topf <jochen@topf.org>
+#  Copyright (C) 2015-2025  Jochen Topf <jochen@topf.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -37,9 +36,8 @@
 require 'net/http'
 require 'uri'
 require 'json'
-require 'pp'
 
-require 'mediawikiapi.rb'
+require 'mediawikiapi'
 
 #------------------------------------------------------------------------------
 
@@ -55,11 +53,10 @@ def what_links_to(api, title)
             bl['title'].gsub!(/\s/, '_')
             puts "#{bl['title']}\t#{title}"
         end
-        if data['query-continue']
-            blcontinue = data['query-continue']['backlinks']['blcontinue'].gsub(/\s/, '_')
-        else
-            return
-        end
+
+        return unless data['query-continue']
+
+        blcontinue = data['query-continue']['backlinks']['blcontinue'].gsub(/\s/, '_')
     end
 end
 
@@ -72,10 +69,9 @@ api = MediaWikiAPI::API.new
 File.open(dir + '/interesting_wiki_pages.list') do |tagpages|
     tagpages.each do |line|
         line.chomp!
-        (type, timestamp, namespace, title) = line.split("\t")
+        (_type, _timestamp, _namespace, title) = line.split("\t")
         what_links_to(api, title)
     end
 end
-
 
 #-- THE END -------------------------------------------------------------------

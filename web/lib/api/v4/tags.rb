@@ -4,7 +4,7 @@ def add_image_data(images, data, image_type)
     unless data[image_type].nil?
         data_title = data[image_type]['image']
         if images[data_title] != 1
-            %w(width height mime image_url thumb_url_prefix thumb_url_suffix).each do |arg|
+            %w[ width height mime image_url thumb_url_prefix thumb_url_suffix ].each do |arg|
                 data[image_type][arg] = images[data_title][arg]
             end
         end
@@ -89,13 +89,13 @@ class Taginfo < Sinatra::Base
                             info = { 'description' => w['description'] }
                             unless w['image'].nil?
                                 images[w['image']] = 1
-                                info['image'] = {'image' => w['image']}
+                                info['image'] = { 'image' => w['image'] }
                             end
                             data['wiki'][w['lang']] = info
                         end
 
                         wiki_default = wiki.select{ |w| w['lang'] == 'en' }[0] || wiki[0]
-                        %w(on_node on_way on_area on_relation).each do |arg|
+                        %w[ on_node on_way on_area on_relation ].each do |arg|
                             data[arg] = wiki_default[arg]
                         end
                     end
@@ -113,17 +113,17 @@ class Taginfo < Sinatra::Base
                             info = { 'description' => w['description'] }
                             unless w['image'].nil?
                                 images[w['image']] = 1
-                                info['image'] = {'image' => w['image']}
+                                info['image'] = { 'image' => w['image'] }
                             end
                             unless w['osmcarto_rendering'].nil?
                                 images[w['osmcarto_rendering']] = 1
-                                info['osmcarto_rendering'] = {'image' => w['osmcarto_rendering']}
+                                info['osmcarto_rendering'] = { 'image' => w['osmcarto_rendering'] }
                             end
                             data['wiki'][w['lang']] = info
                         end
 
                         wiki_default = wiki.select{ |w| w['lang'] == 'en' }[0] || wiki[0]
-                        %w(on_node on_way on_area on_relation).each do |arg|
+                        %w[ on_node on_way on_area on_relation ].each do |arg|
                             data[arg] = wiki_default[arg]
                         end
                     end
@@ -144,7 +144,7 @@ class Taginfo < Sinatra::Base
 
         res.each do |data|
             unless data['wiki'].nil?
-                data['wiki'].values.each do |data_for_lang|
+                data['wiki'].each_value do |data_for_lang|
                     add_image_data(images, data_for_lang, 'image')
                     add_image_data(images, data_for_lang, 'osmcarto_rendering')
                 end
@@ -152,7 +152,7 @@ class Taginfo < Sinatra::Base
         end
 
         return generate_json_result(res.size,
-            res.map{ |row| {
+            res.map do |row| {
                 :key                      => row['key'],
                 :value                    => row['value'],
                 :in_wiki                  => row['in_wiki'],
@@ -170,15 +170,17 @@ class Taginfo < Sinatra::Base
                 :on_area                  => row['on_area'].to_i     == 1,
                 :on_relation              => row['on_relation'].to_i == 1,
                 :projects                 => row['projects'].to_i
-            } }
+            }
+            end
         )
     end
 
     api(4, 'tags/popular', {
         :description => 'Get list of most often used tags.',
+        :formats => [:json, :csv],
         :parameters => { :query => 'Only show tags matching this query (substring match in key and value, optional).' },
         :paging => :optional,
-        :sort => %w( tag count_all count_nodes count_ways count_relations ),
+        :sort => %w[ tag count_all count_nodes count_ways count_relations ],
         :result => paging_results([
             [:key,                      :STRING, 'Key'],
             [:value,                    :STRING, 'Value'],
@@ -203,7 +205,7 @@ class Taginfo < Sinatra::Base
 
         res = @db.select('SELECT * FROM top_tags').
             condition_if("(skey LIKE ? ESCAPE '@') OR (svalue LIKE ? ESCAPE '@')", like_contains(params[:query]), like_contains(params[:query])).
-            order_by(@ap.sortname, @ap.sortorder) { |o|
+            order_by(@ap.sortname, @ap.sortorder) do |o|
                 o.tag :skey
                 o.tag :svalue
                 o.in_wiki
@@ -213,12 +215,14 @@ class Taginfo < Sinatra::Base
                 o.count_nodes
                 o.count_ways
                 o.count_relations
-            }.
+            end.
             paging(@ap).
-            execute()
+            execute
 
-        return generate_json_result(total,
-            res.map{ |row| {
+        @attachment = "tags.csv"
+
+        return generate_result(@api, total,
+            res.map do |row| {
                 :key                      => row['skey'],
                 :value                    => row['svalue'],
                 :in_wiki                  => row['in_wiki'],
@@ -231,7 +235,8 @@ class Taginfo < Sinatra::Base
                 :count_relations          => row['count_relations'].to_i,
                 :count_relations_fraction => (row['count_relations'].to_f / @db.stats('relations')).round(4),
                 :projects                 => row['projects'].to_i
-            } }
+            }
+            end
         )
     end
 

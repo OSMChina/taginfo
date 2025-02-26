@@ -1,4 +1,6 @@
 <%
+javascript_for(:d3)
+
 categories = [
     { category: 'A', name: 'plain',   color: '#2ca02c' },
     { category: 'B', name: 'colon',   color: '#98df8a' },
@@ -7,10 +9,19 @@ categories = [
     { category: 'E', name: 'problem', color: '#ff9896' },
     { category: 'F', name: 'rest',    color: '#aec7e8' },
 ]
+
+@context[:numKeys] = @db.stats('num_keys')
+
+i = '@';
+@context[:data] = %w(plain colon letters space problem rest).map{ |type|
+    i = i.next;
+    { label: i, value: @db.stats('characters_in_keys_' + type) }
+}
+
 %>
 
-<div class="pre ui-helper-clearfix">
-    <div id="pre-text">
+<div>
+    <div>
         <h1><%= h(t.reports.characters_in_keys.name) %></h1>
         <p><%= h(t.reports.characters_in_keys.intro) %></p>
     </div>
@@ -25,7 +36,7 @@ categories = [
     </ul>
     <div id="statistics">
         <h2><%= h(t.reports.characters_in_keys.statistics.title) %></h2>
-        <div class="canvas boxpre" id="canvas" style="margin: 20px 0;"></div>
+        <div class="canvas" id="canvas" style="margin: 20px 0;"></div>
         <table class="list">
             <tr>
                 <th>&nbsp;</th>
@@ -52,12 +63,8 @@ categories = [
 <% categories.map{ |c| c[:name] }.each do |category| %>
     <div id="<%= category %>">
         <h2><%= h(t.reports.characters_in_keys[category].title) %></h2>
-        <div class="boxpre">
-            <%= t.reports.characters_in_keys[category].intro %>
-        </div>
-        <table id="grid-<%= category %>">
-        </table>
+        <div><%= t.reports.characters_in_keys[category].intro %></div>
+        <div id="grid-<%= category %>"></div>
     </div>
 <% end %>
 </div>
-<% javascript_for(:d3) %>

@@ -1,10 +1,9 @@
-<div class="pre ui-helper-clearfix">
-    <div id="pre-text">
-        <h1 class="section"><%= h(t.taginfo.download) %></h1>
-        <%= t.pages.download.intro %>
-    </div>
-</div>
-<div class="box resize">
+<h1 class="section"><%= h(t.taginfo.download) %></h1>
+<%= t.pages.download.intro %>
+<div class="fboxes">
+    <div class="fbox">
+        <h2><%= h(t.taginfo.download) %></h2>
+        <div>
     <table class="list">
         <tr>
             <th class="tl"><%= h(t.pages.download.file) %></th>
@@ -14,24 +13,26 @@
         </tr>
         <tr>
             <td class="tl"><a rel="nofollow" href="/download/taginfo-master.db.bz2">taginfo-master.db.bz2</a></td>
-            <td class="tr"><%= File.size("#{ TaginfoConfig.get('paths.download_dir', '../../download') }/taginfo-master.db.bz2").to_bytes rescue "<span class='empty'>#{ h(t.misc.unknown) }</span>" %></td>
-            <td class="tr"><%= File.size("#{ TaginfoConfig.get('paths.data_dir', '../../data') }/taginfo-master.db").to_bytes rescue "<span class='empty'>#{ h(t.misc.unknown) }</span>" %></td>
+            <td class="tr"><%= File.size("#{ @taginfo_config.get('paths.download_dir', '../../download') }/taginfo-master.db.bz2").to_bytes rescue "<span class='empty'>#{ h(t.misc.unknown) }</span>" %></td>
+            <td class="tr"><%= File.size("#{ @taginfo_config.get('paths.data_dir', '../../data') }/taginfo-master.db").to_bytes rescue "<span class='empty'>#{ h(t.misc.unknown) }</span>" %></td>
             <td class="tl"><%= h(t.sources.master.description) %></td>
         </tr>
         <tr>
             <td class="tl even"><a rel="nofollow" href="/download/taginfo-history.db.bz2">taginfo-history.db.bz2</a></td>
-            <td class="tr even"><%= File.size("#{ TaginfoConfig.get('paths.download_dir', '../../download') }/taginfo-history.db.bz2").to_bytes rescue "<span class='empty'>#{ h(t.misc.unknown) }</span>" %></td>
-            <td class="tr even"><%= File.size("#{ TaginfoConfig.get('paths.data_dir', '../../data') }/taginfo-history.db").to_bytes rescue "<span class='empty'>#{ h(t.misc.unknown) }</span>" %></td>
+            <td class="tr even"><%= File.size("#{ @taginfo_config.get('paths.download_dir', '../../download') }/taginfo-history.db.bz2").to_bytes rescue "<span class='empty'>#{ h(t.misc.unknown) }</span>" %></td>
+            <td class="tr even"><%= File.size("#{ @taginfo_config.get('paths.data_dir', '../../data') }/taginfo-history.db").to_bytes rescue "<span class='empty'>#{ h(t.misc.unknown) }</span>" %></td>
             <td class="tl even"><%= h(t.sources.history.description) %></td>
         </tr>
-<% Source.visible.each_with_index do |source, n| c = (n%2==0) ? '' : ' even' %>
+<% @sources.visible.each_with_index do |source, n| c = (n%2==0) ? '' : ' even' %>
         <tr>
             <td class="tl<%= c %>"><%= source.link_download %></td>
-            <td class="tr<%= c %>"><%= source.dbpack != 0 ? source.dbpack : "<span class='empty'>#{ t.misc.unknown }</span>" %></td>
-            <td class="tr<%= c %>"><%= source.dbsize != 0 ? source.dbsize : "<span class='empty'>#{ t.misc.unknown }</span>" %></td>
+            <td class="tr<%= c %>"><%= source.dbpack ? source.dbpack : "<span class='empty'>#{ t.misc.unknown }</span>" %></td>
+            <td class="tr<%= c %>"><%= source.dbsize ? source.dbsize : "<span class='empty'>#{ t.misc.unknown }</span>" %></td>
             <td class="tl<%= c %>"><%= t.sources[source.id].description %></td>
         </tr>
 <% end %>
     </table>
-    <p class="note">* <%= h(t.pages.download.note) %></p>
+            <p class="note">* <%= h(t.pages.download.note) %></p>
+        </div>
+    </div>
 </div>

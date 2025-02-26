@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# coding: utf-8
 #------------------------------------------------------------------------------
 #
 #  get_page_list.rb [DIR]
@@ -30,7 +29,7 @@
 #
 #------------------------------------------------------------------------------
 #
-#  Copyright (C) 2013-2017  Jochen Topf <jochen@topf.org>
+#  Copyright (C) 2013-2025  Jochen Topf <jochen@topf.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -51,14 +50,14 @@ require 'net/http'
 require 'uri'
 require 'json'
 
-require 'mediawikiapi.rb'
+require 'mediawikiapi'
 
 #------------------------------------------------------------------------------
 
 def get_namespaces(api)
     data = api.query(:meta => 'siteinfo', :siprop => 'namespaces')
     namespaces = {}
-    data['query']['namespaces'].values.each do |ns|
+    data['query']['namespaces'].each_value do |ns|
         if ns['canonical'] =~ /^[A-Z]{2}$/
             namespaces[ns['canonical']] = ns['id']
         end
@@ -71,16 +70,14 @@ def get_page_list(api, namespaceid, options)
     gapcontinue = ''
     loop do
         data = api.query(:generator => 'allpages', :gaplimit => 'max', :gapcontinue => gapcontinue, :continue => continue, :gapnamespace => namespaceid, :gapfilterredir => options[:redirect] ? 'redirects' : 'nonredirects', :prop => 'info')
-        data['query']['pages'].each do |k,v|
+        data['query']['pages'].each do |_, v|
             yield v['touched'], v['title'].gsub(/\s/, '_')
         end
-        if data['continue']
-            continue = data['continue']['continue']
-            gapcontinue = data['continue']['gapcontinue']
-#            puts "apfrom=#{apfrom}"
-        else
-            return
-        end
+        return unless data['continue']
+
+        continue = data['continue']['continue']
+        gapcontinue = data['continue']['gapcontinue']
+        # puts "apfrom=#{apfrom}"
     end
 end
 
@@ -100,6 +97,7 @@ tagpages = File.open(dir + '/interesting_wiki_pages.list', 'w')
 
 namespaces.keys.sort.each do |namespace|
     id = namespaces[namespace]
+    puts "Reading namespace '#{ namespace }' with id '#{ id }'..."
 
     get_page_list(api, id, :redirect => false) do |timestamp, page|
         line = ['page', timestamp, namespace, page].join("\t")
@@ -120,6 +118,5 @@ end
 
 tagpages.close
 allpages.close
-
 
 #-- THE END -------------------------------------------------------------------

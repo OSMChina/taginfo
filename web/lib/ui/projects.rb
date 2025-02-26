@@ -4,20 +4,23 @@ class Taginfo < Sinatra::Base
     get '/projects' do
         @title = t.taginfo.projects
         section :projects
-        javascript_for(:flexigrid)
-        javascript "#{ r18n.locale.code }/projects"
+        javascript "pages/projects"
         erb :projects
     end
 
     get %r{/projects/(.*)} do |project|
-        if params[:project].nil?
-            @project_id = project
-        else
-            @project_id = params[:project]
+        @project_id = if params[:project].nil?
+                          project
+                      else
+                          params[:project]
+                      end
+
+        if @project_id.nil? || (@project_id == '')
+            redirect(build_link('/projects'))
         end
 
         @project = @db.select("SELECT * FROM projects.projects").
-            condition("id = ?", @project_id).execute()[0]
+            condition("id = ?", @project_id).execute[0]
 
         if !@project
             halt 404
@@ -27,8 +30,9 @@ class Taginfo < Sinatra::Base
 
         section :projects
 
-        javascript_for(:flexigrid)
-        javascript "#{ r18n.locale.code }/project"
+        @context[:project] = @project_id
+
+        javascript "pages/project"
         erb :project
     end
 

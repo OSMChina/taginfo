@@ -1,4 +1,3 @@
-
 osm:
     tag: 태그
     tags: 태그
@@ -50,6 +49,7 @@ taginfo:
     key_combinations: 조합
     comparison: 키/태그 비교
     overview: 개요
+    characters: 문자
     links: 링크
     data_from: 최근
     data_from_description: taginfo 데이터베이스를 마지막으로 갱신한 날
@@ -147,7 +147,7 @@ pages:
         reports:
             listreports: 모든 보고서를 표시...
         about:
-            intro:
+            intro: |
                 <p>OpenStreetMap은 지리적 요소에 의미를 부여하기 위해 <b>키=값</b>의 형태인 <b>태그</b>를 사용합니다.
                 taginfo는 어떻게 태그가 사용되고 태그의 의미가 무엇인지 이해하는 것을
                 돕기 위해 정보를 여러 출처에서 가져와 수집합니다.</p>
@@ -170,17 +170,16 @@ pages:
                 또한 taginfo는 위키와 다른 곳에서 태그에 대한 정보를 얻습니다.
                 taginfo는 어떻게 태그가 사용되고 태그의 의미가 무엇인지 이해하는 것을
                 돕기 위해 태그에 대한 모든 정보를 같이 가져오려 합니다.
-                taginfo가 사용한 <a href="/sources">출처 목록</a>을 참조하세요.</p>
+                taginfo가 사용한 <a href="sources">출처 목록</a>을 참조하세요.</p>
         about_site:
             title: 이 사이트에 대해서
         building_on_taginfo:
             title: taginfo를 사용한 개발
-            pre: |
-                <p>taginfo의 데이터를 자신의 프로젝트에 사용할 수 있습니다.</p>
+            pre: 'taginfo의 데이터를 자신의 프로젝트에 사용할 수 있습니다.'
             api: |
                 <h3>API</h3>
                 <p>taginfo의 데이터는 REST API를 통해서 접근할 수 있습니다.
-                자세한 사항은 <a href="/taginfo/apidoc">API 문서</a>를 참조하세요. 몇 가지 일반적인 정보는
+                자세한 사항은 <a href="taginfo/apidoc">API 문서</a>를 참조하세요. 몇 가지 일반적인 정보는
                 <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo/API">OSM 위키</a>를 참조하세요.
                 taginfo API를 사용하는 서버는 무제한적인 자원이 있는 것이 아닙니다.
                 API를 책임감을 갖고 사용해 주세요. 확신이 서지 않는다면 사용하고 있는 사이트의 관리자에게 연락하거나
@@ -189,7 +188,7 @@ pages:
                 <h3>다운로드</h3>
                 <p>taginfo에서 사용된 데이터를 가지고 여러가지 테스트를 하고 싶다면,
                 정기적으로 업데이트되는 Sqlite 데이터베이스 파일을 다운로드할 수 있습니다. 모든 사전 처리는 이미 끝내 놓았습니다.
-                파일 목록은 <a href="/download">다운로드 페이지</a>를 참조하세요.
+                파일 목록은 <a href="download">다운로드 페이지</a>를 참조하세요.
                 몇몇 파일은 꽤나 클 수 있다는 점을 알아 두세요. 만약 정기적으로 다운로드받고 싶다면,
                 사용하고 있는 사이트의 관리자에게 연락하거나 메일링 리스트에서 우리에게 연락하세요.</p>
             license: |
@@ -204,7 +203,7 @@ pages:
                 웹 디자인은 <a class="extlink" href="https://ctd-studio.co.uk/">Christian Topf</a>가 제작했습니다.</p>
                 <h3>번역</h3>
                 <p>우리는 taginfo 사용자 인터페이스 번역자가 필요합니다. 작업이 필요한 언어는
-                <a href="/taginfo/translations">번역 개요</a>를 참조하세요.
+                <a href="taginfo/translations">번역 개요</a>를 참조하세요.
                 어떻게 도울 수 있는지에 대한 자세한 정보는 <a class="extlink"
                 href="//wiki.openstreetmap.org/wiki/Taginfo/I18N">OSM 위키</a>에 있습니다.</p>
                 <h3>코드</h3>
@@ -226,11 +225,10 @@ pages:
                 href="//lists.openstreetmap.org/listinfo/taginfo-dev">taginfo-dev 메일링 리스트</a>로 우리에게 연락하세요.</p>
     sources:
         intro: |
-            <p>taginfo는 여러 출처에서 OSM 태그에 대한 데이터를 수집하고, 쉬운 탐색과 가독성을 위해 조합합니다.</p>
-            <p>taginfo는 데이터를 보여주기만 한다는 것을 명심하세요. 만약 이를 바꾸고 싶다면, 출처로 돌아가야 합니다.</p>
-        list:
-            title: 출처 목록
-            intro: 현재 사용하는 출처의 목록입니다. 나중에 새로운 출처가 추가될지도 모릅니다.
+            taginfo는 여러 출처에서 OSM 태그에 대한 데이터를 수집하고, 쉬운 탐색과 가독성을 위해 조합합니다.
+            현재 사용하는 출처의 목록입니다. 나중에 새로운 출처가 추가될지도 모릅니다.
+        display_only: |
+            taginfo는 데이터를 보여주기만 한다는 것을 명심하세요. 만약 이를 바꾸고 싶다면, 출처로 돌아가야 합니다.
         description:
             db: |
                 <p>키, 태그, 관계의 종류에 대한 통계와 노드와 길의 지리적 분포를 보여주는 지도는 <a class="extlink" href="https://planet.openstreetmap.org/">OSM 데이터베이스</a>(또는 데이터베이스의 발췌물)로 작성되었습니다.</p>
@@ -239,7 +237,7 @@ pages:
             languages: |
                 <p>taginfo는 전 세계의 언어에 관한 코드와 명칭 등의 정보를 <a class="extlink" href="https://www.iana.org/">IANA</a>와 <a class="extlink" href="https://www.unicode.org/">Unicode</a> 레지스트리에서 받고 있습니다.</p>
             projects: |
-                <p>편집기, 지도, 경로 탐색기 등의 몇 가지 방법으로 OSM 태그를 사용하는 프로젝트는 <a href="/projects">프로젝트 목록</a>을 참조하세요.</p>
+                <p>편집기, 지도, 경로 탐색기 등의 몇 가지 방법으로 OSM 태그를 사용하는 프로젝트는 프로젝트 목록을 참조하세요.</p>
             chronology: |
                 <p>과거 <a class="extlink" href="https://planet.openstreetmap.org/planet/full-history/">OSM 데이터</a>에 존재하는 키/태그의 개수.</p>
         updates:
@@ -249,13 +247,81 @@ pages:
         last_update_run: 마지막 갱신
         data_until_explanation: 이 시각까지의 모든 편집이 데이터에 반영되며, 이후 편집이 반영될 수도 있습니다.
         to: ～
+        languages:
+            subtags:
+                title: BCP47 하위 태그
+                filter:
+                    label: 유형의 하위 태그만 표시
+                    all: 전체
+                    language: 언어
+                    script: 문자 체계
+                    region: 지역
+                    variant: 변이형
+                intro: |
+                    <p><a href="https://www.ietf.org/">IETF</a>는 <a
+                    href="https://tools.ietf.org/html/bcp47">Tags for Identifying Languages(BCP47)</a>로
+                    표준 <i>언어 태그</i>를 정의합니다.
+                    언어 태그는 언어, 문자 체계, 변이형 등을 설명하는 하나 이상의 <i>하위 태그</i>로 구성되어 있습니다.
+                    다음 목록은 OSM과 관련되어 있으면서 현재 등록된 하위 태그를 나타냅니다.
+                    자세한 정보는 <a href="https://ko.wikipedia.org/wiki/IETF_%EC%96%B8%EC%96%B4_%ED%83%9C%EA%B7%B8">IETF
+                    언어 태그 위키피디아 문서</a>와 <a href="http://www.langtag.net/">langtag.net</a> 사이트 참조.</p>
+                note: |
+                    이 표의 데이터는 OpenStreetMap에서 가져온 것이 아니고, 어디서 설명하든 상관없이
+                    언어를 설명할 때 사용할 수 있는 구성 요소만 나타낸다는 점을 명심하세요.
+        wiki:
+            language_comparison_table_for_keys:
+                name: 키를 설명하는 위키 문서 간 언어 비교표
+                icons:
+                    template: 이용 가능하면서 표준 틀을 갖추고 있는 위키 문서.
+                    error: 이용 가능하면서 표준 틀을 갖추고 있지만 분석할 수 없는 위키 문서.
+                    page: 이용 가능하지만 표준 틀을 갖추고 있지 않는 위키 문서.
+                    redirect: 리다이렉트 문서.
+                intro: |
+                    이 표는 이용 가능한 위키 문서가 있는 모든 태그 키를 언어별로 나타냅니다.
+            parsing_problems:
+                name: 위키 분석 문제
+                intro: |
+                    taginfo는 태그에 대한 정보를 찾기 위해 키, 태그, 관계를 설명하는 데 사용한 모든 위키 문서를 읽습니다.
+                    이 보고서는 문서를 읽어들이면서 발생한 문제를 목록으로 나타냅니다.
+                    무조건 위키의 문제만은 아니고, 단지 위키 문서에 taginfo가 이해하는 방식으로 서식이 만들어지지 않았다는 것를 의미합니다.
+                    그럴 때는 문서를 교정하거나 taginfo를 고쳐야 합니다.
+                location: 장소
+                reason: 이유
+                wiki_page: 위키 문서
+                lang: 언어
+                info: 비고
+            image_comparison:
+                name: 위키 이미지
+                intro: |
+                    서로 다른 언어에서 키를 이미지로 나타내기 위해 위키에서 사용하는 이미지.
+                    때때로 다른 언어에서 사용된 이미지가 더 좋을 수 있습니다.
+                    하지만 서로 다른 문화적 배경 때문에 서로 다른 이미지를 갖는 것이 좋은 경우가 많습니다.
+        db:
+            stats:
+                name: 데이터베이스 통계
+                objects_in_db: 데이터베이스 상에서 요소의 개수
+                tags_in_db: 데이터베이스 상에서 태그의 개수
+                distinct_keys: 서로 다른 키의 개수
+                distinct_tags: 서로 다른 태그의 개수
+                nodes_in_db: 데이터베이스 상에서 노드의 개수
+                nodes_with_tags_in_db: 적어도 태그가 1개 이상 달린 노드의 개수
+                nodes_with_tags_in_db_percent: 적어도 태그가 1개 이상 달린 노드의 비율
+                tags_on_nodes: 노드에 달린 태그의 개수
+                avg_tags_per_tagged_node: 태그가 달린 노드 1개당 평균 태그 수
+                ways_in_db: 데이터베이스 상에서 길의 개수
+                closed_ways_in_db: 닫힌 길의 개수
+                tags_on_ways: 길에 달린 태그의 개수
+                avg_tags_per_way: 태그가 달린 길 1개당 평균 태그 수
+                relations_in_db: 데이터베이스 상에서 관계의 개수
+                tags_on_relations: 관계에 달린 태그의 개수
+                avg_tags_per_relation: 태그가 달린 관계 1개당 평균 태그 수
     download:
         intro: |
             <p>taginfo가 사용하는 데이터베이스를 여기에서 다운로드받을 수 있습니다. 모든 데이터는 <a class="extlink"
             href="https://www.sqlite.org/">Sqlite</a> 데이터베이스에 저장되어 있습니다.
             데이터베이스 파일은 <a class="extlink" href="http://www.bzip.org/">bzip2</a>로 압축되어 있습니다.</p>
             <p>만약 이러한 데이터베이스 파일을 다운로드하길 원치 않고, 데이터로 자동 접속이 필요하다면,
-            <a href="/about">API</a>를 사용할 수 있습니다.</p>
+            <a href="about">API</a>를 사용할 수 있습니다.</p>
         file: File
         packed: 압축 후
         unpacked: 압축 전
@@ -285,7 +351,7 @@ pages:
             이 표는 데이터베이스 상에서 자주 쓰이는 태그를 나타냅니다.
     relations:
         name: 관계 유형
-        intro: 관계의 유형에 대한 정보(<a href="/keys/type?filter=relations">type</a> 태그로 표현합니다).
+        intro: 관계의 유형에 대한 정보(<a href="keys/type?filter=relations">type</a> 태그로 표현합니다).
         relations_of_type_tooltip: 이 유형인 관계의 개수(모든 관계의 사용 비율 포함).
         prevalent_roles: 자주 쓰이는 역할
         prevalent_roles_tooltip: 이 유형인 관계에서 자주 쓰이는 역할입니다.
@@ -344,6 +410,8 @@ pages:
             count_all_tooltip: 비슷한 키를 사용하는 요소의 수
             similarity: 유사성
             similarity_tooltip: 수치가 낮을수록 더 비슷합니다
+        characters:
+            title: 키를 구성하는 유니코드 문자
     tag:
         description_from_wiki: 이 태그에 대한 위키에서 가져온 설명(현재 선택한 언어로 존재하면 현재 언어, 그렇지 않으면 영어).
         no_description_in_wiki: 이 태그에 대한 영어 설명이 위키에 없습니다("Wiki" 탭 참조).
@@ -381,6 +449,8 @@ pages:
         projects:
             title: 이 키를 사용하는 프로젝트
             description: 프로젝트에서 이 키를 사용한 방법
+        characters:
+            title: 태그 값을 구성하는 유니코드 문자
     relation:
         name: 관계 유형
         description_from_wiki: 이 관계 유형에 대한 위키에서 가져온 설명(현재 선택한 언어로 존재하면 현재 언어, 그렇지 않으면 영어).
@@ -411,6 +481,8 @@ pages:
         projects:
             title: 이 관계 유형을 사용하는 프로젝트
             description: 프로젝트에서 이 관계 유형을 사용한 방법
+        characters:
+            title: 관계 유형의 유니코드 문자
     project:
         overview:
             project_name: 프로젝트 이름
@@ -427,7 +499,7 @@ pages:
             count_all_tooltip: 데이터베이스 상에 있는 이 키/태그를 가진 요소의 수
             objects_tooltip: 이 프로젝트에서 사용한 요소의 유형
 
-flexigrid:
+dynamic_table:
     pagetext: 페이지
     pagestat: |
         {total} 항목 중 {from}번째부터 {to}번째까지 표시
@@ -467,6 +539,13 @@ sources:
     chronology:
         name: Chronology
         description: 과거 OSM 데이터에 존재하는 키/태그의 개수.
+
+unicode:
+    character: 문자
+    codepoint: 부호
+    script: 문자 체계
+    general_category: 일반 범주
+    name: 유니코드 부호의 명칭
 
 reports:
     characters_in_keys:
@@ -531,24 +610,6 @@ reports:
             title: 나머지 키
             intro: |
                 <p>다른 범주에 들지 않은 키.</p>
-    database_statistics:
-        name: 데이터베이스 통계
-        objects_in_db: 데이터베이스 상에서 요소의 개수
-        tags_in_db: 데이터베이스 상에서 태그의 개수
-        distinct_keys: 서로 다른 키의 개수
-        distinct_tags: 서로 다른 태그의 개수
-        nodes_in_db: 데이터베이스 상에서 노드의 개수
-        nodes_with_tags_in_db: 적어도 태그가 1개 이상 달린 노드의 개수
-        nodes_with_tags_in_db_percent: 적어도 태그가 1개 이상 달린 노드의 비율
-        tags_on_nodes: 노드에 달린 태그의 개수
-        avg_tags_per_tagged_node: 태그가 달린 노드 1개당 평균 태그 수
-        ways_in_db: 데이터베이스 상에서 길의 개수
-        closed_ways_in_db: 닫힌 길의 개수
-        tags_on_ways: 길에 달린 태그의 개수
-        avg_tags_per_way: 태그가 달린 길 1개당 평균 태그 수
-        relations_in_db: 데이터베이스 상에서 관계의 개수
-        tags_on_relations: 관계에 달린 태그의 개수
-        avg_tags_per_relation: 태그가 달린 관계 1개당 평균 태그 수
     frequently_used_keys_without_wiki_page:
         name: 자주 사용하지만 위키 문서가 없는 키
         intro: |
@@ -572,15 +633,6 @@ reports:
             intro: 이 막대 그래프는 각각의 길이에 얼마나 많은 키가 있는지를 나타냅니다.
             key_length: 키의 길이
             number_of_keys: 키의 개수
-    language_comparison_table_for_keys_in_the_wiki:
-        name: 키를 설명하는 위키 문서 간 언어 비교표
-        icons:
-            template: 이용 가능하면서 표준 틀을 갖추고 있는 위키 문서.
-            error: 이용 가능하면서 표준 틀을 갖추고 있지만 분석할 수 없는 위키 문서.
-            page: 이용 가능하지만 표준 틀을 갖추고 있지 않는 위키 문서.
-            redirect: 리다이렉트 문서.
-        intro: |
-            이 표는 이용 가능한 위키 문서가 있는 모든 태그 키를 언어별로 나타냅니다.
     languages:
         name: 언어
         intro: |
@@ -606,26 +658,6 @@ reports:
         overview:
             tab: 개요
             title: 개요
-        bcp47:
-            tab: BCP47 하위 태그
-            title: BCP47 하위 태그
-            filter:
-                label: 유형의 하위 태그만 표시
-                all: 전체
-                language: 언어
-                script: 문자 체계
-                region: 지역
-                variant: 변이형
-            intro: |
-                <p><a href="https://www.ietf.org/">IETF</a>는 <a
-                href="https://tools.ietf.org/html/bcp47">Tags for Identifying Languages(BCP47)</a>로
-                표준 <i>언어 태그</i>를 정의합니다.
-                언어 태그는 언어, 문자 체계, 변이형 등을 설명하는 하나 이상의 <i>하위 태그</i>로 구성되어 있습니다.
-                다음 목록은 OSM과 관련되어 있으면서 현재 등록된 하위 태그를 나타냅니다.
-                자세한 정보는 <a href="https://ko.wikipedia.org/wiki/IETF_%EC%96%B8%EC%96%B4_%ED%83%9C%EA%B7%B8">IETF
-                언어 태그 위키피디아 문서</a>와 <a href="http://www.langtag.net/">langtag.net</a> 사이트 참조.</p>
-                <p>이 표의 데이터는 OpenStreetMap에서 가져온 것이 <b>아니고</b>, 어디서 설명하든 상관없이
-                언어를 설명할 때 사용할 수 있는 구성 요소만 나타낸다는 점을 명심하세요.</p>
     similar_keys:
         name: 비슷한 키
         intro: |
@@ -649,22 +681,3 @@ reports:
             title: 태그의 개수
         relation_types:
             title: 관계 유형의 개수
-    wiki_images:
-        name: 위키 이미지
-        intro: |
-            서로 다른 언어에서 키를 이미지로 나타내기 위해 위키에서 사용하는 이미지.
-            때때로 다른 언어에서 사용된 이미지가 더 좋을 수 있습니다.
-            하지만 서로 다른 문화적 배경 때문에 서로 다른 이미지를 갖는 것이 좋은 경우가 많습니다.
-    wiki_problems:
-        name: 위키 분석 문제
-        intro: |
-            taginfo는 태그에 대한 정보를 찾기 위해 키, 태그, 관계를 설명하는 데 사용한 모든 위키 문서를 읽습니다.
-            이 보고서는 문서를 읽어들이면서 발생한 문제를 목록으로 나타냅니다.
-            무조건 위키의 문제만은 아니고, 단지 위키 문서에 taginfo가 이해하는 방식으로 서식이 만들어지지 않았다는 것를 의미합니다.
-            그럴 때는 문서를 교정하거나 taginfo를 고쳐야 합니다.
-        location: 장소
-        reason: 이유
-        wiki_page: 위키 문서
-        lang: 언어
-        info: 비고
-

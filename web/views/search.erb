@@ -1,8 +1,6 @@
-<div class="pre ui-helper-clearfix">
-    <div id="pre-text">
-        <h1 class="section"><%= h(@title) %></h1>
-        <p><b><%= h(t.pages.search.you_were_searching_for) %>:</b> <%= escape_html(@query) %></p>
-    </div>
+<div>
+    <h1 class="section"><%= h(@title) %></h1>
+    <p><b><%= h(t.pages.search.you_were_searching_for) %>:</b> <span id="query"><%= h(@query) %></span></p>
 </div>
 <div id="tabs">
     <ul>
@@ -14,36 +12,23 @@
     </ul>
     <div id="keys">
         <h2><%= h(t.osm.keys) %></h2>
-        <table id="grid-keys">
-        </table>
+        <div id="grid-keys"></div>
     </div>
     <div id="values">
         <h2><%= h(t.osm.values) %></h2>
-        <table id="grid-values">
-        </table>
+        <div id="grid-values"></div>
     </div>
     <div id="relations">
         <h2><%= h(t.osm.relation_types) %></h2>
-        <table id="grid-relations">
-        </table>
+        <div id="grid-relations"></div>
     </div>
     <div id="roles">
         <h2><%= h(t.osm.relation_member_roles) %></h2>
-        <table id="grid-roles">
-        </table>
+        <div id="grid-roles"></div>
     </div>
     <div id="fulltext">
         <h2><%= h(t.pages.search.fulltext) %></h2>
-        <p class="boxpre" style="color: #f00000;">This search is experimental. It shows keys and tags that might be related to the word you searched for. This doesn't work if there are several words.</p>
-        <table id="grid-fulltext">
-        </table>
+        <p style="color: #f00000;">This search is experimental. It shows keys and tags that might be related to the word you searched for. This doesn't work if there are several words.</p>
+        <div id="grid-fulltext"></div>
     </div>
 </div>
-<% javascript do
-    JS.raw(%Q{
-function page_init2() {
-    init_tabs([#{ @query.to_json }]);
-}
-    })
-end
-%>

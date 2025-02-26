@@ -1,8 +1,18 @@
-<div class="pre ui-helper-clearfix">
-    <div id="pre-text">
-        <h1><%= h(t.reports.key_lengths.name) %></h1>
-        <p><%= h(t.reports.key_lengths.intro) %></p>
-    </div>
+<%
+javascript_for(:d3)
+
+hist = []
+max_length = 60
+@db.execute("SELECT min(length(key), #{ max_length }) AS length, count(*) AS count FROM db.keys GROUP BY 1 ORDER BY 1") do |row|
+    hist[row['length'].to_i] = row['count'].to_i
+end
+
+@context[:maxLength] = max_length
+@context[:data] = hist.map{ |item| item.nil? ? 0 : item }
+%>
+<div>
+    <h1><%= h(t.reports.key_lengths.name) %></h1>
+    <p><%= h(t.reports.key_lengths.intro) %></p>
 </div>
 <div id="tabs">
     <ul>
@@ -11,8 +21,7 @@
     </ul>
     <div id="keys">
         <h2><%= h(t.osm.keys) %></h2>
-        <table id="grid-keys">
-        </table>
+        <div id="grid-keys"></div>
     </div>
     <div id="histogram">
         <h2><%= h(t.reports.key_lengths.histogram.name) %></h2>
@@ -20,4 +29,3 @@
         <div class="canvas" id="canvas-histogram"></div>
     </div>
 </div>
-<% javascript_for(:d3) %>

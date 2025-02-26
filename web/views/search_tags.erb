@@ -1,8 +1,6 @@
-<div class="pre ui-helper-clearfix">
-    <div id="pre-text">
-        <h1 class="section"><%= h(@title) %></h1>
-        <p><b><%= h(t.pages.search.you_were_searching_for) %>:</b> <%= escape_html(@query) %></p>
-    </div>
+<div>
+    <h1 class="section"><%= h(@title) %></h1>
+    <p><b><%= h(t.pages.search.you_were_searching_for) %>:</b> <span id="query"><%= h(@query) %></span></p>
 </div>
 <div id="tabs">
     <ul>
@@ -10,15 +8,6 @@
     </ul>
     <div id="tags">
         <h2><%= h(t.osm.tags) %></h2>
-        <table id="grid-tags">
-        </table>
+        <div id="grid-tags"></div>
     </div>
 </div>
-<% javascript do
-    JS.raw(%Q{
-function page_init2() {
-    init_tabs([#{ @query.to_json }]);
-}
-    })
-end
-%>

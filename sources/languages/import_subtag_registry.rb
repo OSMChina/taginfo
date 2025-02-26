@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# coding: utf-8
 #------------------------------------------------------------------------------
 #
 #  Taginfo source: Languages
@@ -8,7 +7,7 @@
 #
 #------------------------------------------------------------------------------
 #
-#  Copyright (C) 2013-2020  Jochen Topf <jochen@topf.org>
+#  Copyright (C) 2013-2025  Jochen Topf <jochen@topf.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,6 +26,8 @@
 
 require 'sqlite3'
 
+# A subtag of type language, script, region, or variant from the language
+# subtag registry.
 class Subtag
 
     @@entries = []
@@ -70,21 +71,21 @@ database = SQLite3::Database.new(dir + '/taginfo-languages.db')
 
 registry_file = "#{dir}/language-subtag-registry"
 
-#file_date = nil
+# file_date = nil
 
 begin
     subtag = nil
     last_key = nil
-    open(registry_file) do |file|
+    File.open(registry_file) do |file|
         file.each do |line|
             line.chomp!
             if line == '%%'
                 subtag = Subtag.new
             elsif subtag.nil? && line =~ /^File-Date: ([0-9]{4}-[0-9]{2}-[0-9]{2})$/
-#                file_date = $1
+                # file_date = $1
             elsif line =~ /^\s+(.*)/
                 if subtag.respond_to?(last_key)
-                    subtag.send(last_key, $1)
+                    subtag.send(last_key, Regexp.last_match(1))
                 end
             else
                 (key, value) = line.split(/: /)
@@ -100,27 +101,27 @@ begin
     end
 end
 
-SUBTAG_TYPES = %w( language script region variant )
+SUBTAG_TYPES = %w[ language script region variant ].freeze
 
 database.transaction do |db|
     Subtag.entries.each do |entry|
-        if SUBTAG_TYPES.include?(entry.type) &&
-            entry.description != 'Private use' &&
-            (entry.type != 'language' || (entry.scope != 'special' && entry.scope != 'collection')) &&
-            (entry.type != 'script'   || !entry.subtag.match(%r{^Z}) ) &&
-            (entry.type != 'region'   || entry.subtag.match(%r{^[A-Z]{2}$}) )
-            db.execute("INSERT INTO subtags (stype, subtag, added, suppress_script, scope, description, prefix) VALUES (?, ?, ?, ?, ?, ?, ?)", [
-                entry.type,
-                entry.subtag,
-                entry.added,
-                entry.suppress_script,
-                entry.scope,
-                entry.description,
-                entry.prefix
-            ])
-        end
+        next unless SUBTAG_TYPES.include?(entry.type)
+        next if entry.description == 'Private use'
+        next if entry.type == 'language' && (entry.scope == 'special' || entry.scope == 'collection')
+        next if entry.type == 'script'   && entry.subtag.match(%r{^Z})
+        next if entry.type == 'region'   && !entry.subtag.match(%r{^[A-Z]{2}$})
+
+        db.execute("INSERT INTO subtags (stype, subtag, added, suppress_script, scope, description, prefix) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                   [
+                       entry.type,
+                       entry.subtag,
+                       entry.added,
+                       entry.suppress_script,
+                       entry.scope,
+                       entry.description,
+                       entry.prefix
+                   ])
     end
 end
-
 
 #-- THE END -------------------------------------------------------------------

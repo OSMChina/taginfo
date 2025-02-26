@@ -20,22 +20,12 @@ var taginfo_taglist = (function(){
     }
 
     function url_for_wiki(title) {
-        var path = 'https://wiki.openstreetmap.org/wiki/';
+        const path = 'https://wiki.openstreetmap.org/wiki/';
         return path + encodeURIComponent(title);
     }
 
     function url_for_taginfo(path) {
         return 'https://taginfo.openstreetmap.org/' + path;
-    }
-
-    function taginfo_key_link(key) {
-        return link_to(url_for_taginfo('keys/?') +
-                       jQuery.param({ 'key': key }), key);
-    }
-
-    function taginfo_tag_link(key, value) {
-        return link_to(url_for_taginfo('tags/?') +
-                       jQuery.param({ 'key': key, 'value': value }), value);
     }
 
     function type_image(type) {
@@ -60,7 +50,7 @@ var taginfo_taglist = (function(){
     }
 
     function column_name(lang, column) {
-        var names = {
+        const names = {
             'cs': {
                 'key': 'Klíč',
                 'value': 'Hodnota',
@@ -69,6 +59,15 @@ var taginfo_taglist = (function(){
                 'image': 'Ilustrace',
                 'osmcarto_rendering': 'Ikona',
                 'count': 'Počet'
+            },
+            'da': {
+                'key': 'Nøgle',
+                'value': 'Værdi',
+                'element': 'Element',
+                'description': 'Beskrivelse',
+                'image': 'Billede',
+                'osmcarto_rendering': 'Rendering',
+                'count': 'Antal'
             },
             'de': {
                 'key': 'Key',
@@ -141,6 +140,15 @@ var taginfo_taglist = (function(){
                 'image': '画像',
                 'osmcarto_rendering': 'アイコン',
                 'count': '件数'
+            },
+            'ko': {
+                'key': '키',
+                'value': '값',
+                'element': '요소',
+                'description': '설명',
+                'image': '사진',
+                'osmcarto_rendering': '아이콘',
+                'count': '사용 횟수'
             },
             'pl': {
                 'key': 'Klucz',
@@ -232,7 +240,7 @@ var taginfo_taglist = (function(){
             return wiki_tag_link(get_lang(data, lang), data.key, data.value);
         },
         'element': function(lang, data) {
-            var types = '';
+            let types = '';
             if (data.on_node)     { types += type_image('node');     }
             if (data.on_way)      { types += type_image('way');      }
             if (data.on_area)     { types += type_image('area');     }
@@ -241,7 +249,7 @@ var taginfo_taglist = (function(){
         },
         'description': function(lang, data) {
             if (data.wiki) {
-                var d = data.wiki[lang] || data.wiki['en'];
+                const d = data.wiki[lang] || data.wiki['en'];
                 if (d && d.description) {
                     return html_escape(d.description);
                 }
@@ -250,7 +258,7 @@ var taginfo_taglist = (function(){
         },
         'image': function(lang, data) {
             if (data.wiki) {
-                var d = data.wiki[lang] || data.wiki['en'];
+                const d = data.wiki[lang] || data.wiki['en'];
                 if (d && d.image) {
                     return link_to_noescape(url_for_wiki(d.image.image),
                                             '<img src="' + d.image.thumb_url_prefix + '100' + d.image.thumb_url_suffix + '"/>');
@@ -260,7 +268,7 @@ var taginfo_taglist = (function(){
         },
         'osmcarto_rendering': function(lang, data) {
             if (data.wiki) {
-                var d = data.wiki[lang] || data.wiki['en'];
+                const d = data.wiki[lang] || data.wiki['en'];
                 if (d && d.osmcarto_rendering) {
                     return link_to_noescape(url_for_wiki(d.osmcarto_rendering.image),
                                             '<img style="max-width: 120px; max-height: 120px;" src="' +
@@ -278,8 +286,8 @@ var taginfo_taglist = (function(){
         },
         'count': function(lang, data) {
             return ['node', 'way', 'relation'].map(function(type) {
-                var value = data['count_' + type + 's'].toString().
-                            replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1&#x202f;');
+                const value = data['count_' + type + 's'].toString().
+                              replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1&#x202f;');
                 return '<div style="text-align: right; white-space: nowrap;">' +
                        value + ' ' + type_image(type) + '</div>';
             }).join('');
@@ -291,7 +299,7 @@ var taginfo_taglist = (function(){
     function tr(content) { return '<tr>' + content + '</tr>'; }
 
     function create_table(data, options) {
-        var columns = ['key', 'value', 'element', 'description'];
+        let columns = ['key', 'value', 'element', 'description'];
 
         if (options.with_rendering) {
             columns.push('osmcarto_rendering');
@@ -315,21 +323,26 @@ var taginfo_taglist = (function(){
     }
 
     function insert_table(element, tags, options) {
-        var url = url_for_taginfo('api/4/tags/list?');
+        let url = url_for_taginfo('api/4/tags/list?');
 
         if (! options.lang) {
             options.lang = 'en';
         }
 
         if (tags.match(/=/)) {
-            url += 'tags=' + encodeURIComponent(tags);
+            url += 'tags=';
         } else {
-            url += 'key=' + encodeURIComponent(tags);
+            url += 'key=';
         }
+        url += encodeURIComponent(tags);
 
-        jQuery.getJSON(url, function(json) {
-            element.html(create_table(json.data, options));
-            jQuery("td a img", element).parent().parent().css("text-align", "center");
+        fetch(url).
+            then(response => response.json()).
+            then(function(json) {
+                element.innerHTML = create_table(json.data, options);
+                for (const img of element.querySelectorAll('td a img')) {
+                    img.parentNode.parentNode.style.textAlign = 'center';
+                }
         });
     }
 
@@ -337,26 +350,25 @@ var taginfo_taglist = (function(){
 
         show_table: function(element, tags, options) {
             if (typeof(element) === 'string') {
-                element = jQuery(element);
+                element = document.getElementById(element);
             }
             insert_table(element, tags, options);
         },
 
         convert_to_taglist: function(elements) {
             if (typeof(elements) === 'string') {
-                elements = jQuery(elements);
+                elements = document.querySelectorAll(elements);
             }
-            elements.each(function() {
-                var element = jQuery(this),
-                    tags = element.data("taginfo-taglist-tags"),
-                    options = element.data("taginfo-taglist-options");
+            for (const element of elements) {
+                const tags = element.dataset.taginfoTaglistTags;
+                let options = JSON.parse(element.dataset.taginfoTaglistOptions);
 
                 if (typeof(options) !== 'object') {
                     options = {};
                 }
 
                 insert_table(element, tags, options);
-            });
+            }
         }
 
     };

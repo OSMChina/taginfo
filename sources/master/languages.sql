@@ -17,6 +17,7 @@ CREATE TABLE languages (
     wiki_tag_pages INTEGER  -- count of wiki pages with the title "code:Tag:*" (or "Tag:*" for code='en')
 );
 
+INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('af',      'af', 'Afrikaans', 'Afrikaans');
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('ar',      'ar', 'Arabic', 'العربية');
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('az',      'az', 'Azerbaijani', 'Azərbaycan dili');
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('bg',      'bg', 'Bulgarian', 'Български език');
@@ -59,6 +60,7 @@ INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('ru', 
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('sh',      'sh', 'Serbo-Croatian', 'Serbo-Croatian');
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('sk',      'sk', 'Slovak', 'Slovenský');
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('sq',      'sq', 'Albanian', 'Shqip');
+INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('sr',      'sr', 'Serbian', 'српски језик / srpski jezik');
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('sv',      'sv', 'Swedish', 'Svenska');
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('tr',      'tr', 'Turkish', 'Türkçe');
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('uk',      'uk', 'Ukrainian', 'Українська');
@@ -67,6 +69,9 @@ INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('zh-ha
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('zh-hant', NULL, 'Traditional Chinese', '繁體中文');
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('zh-cn',   NULL, 'Simplified Chinese', '简体中文');
 INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('zh-tw',   NULL, 'Traditional Chinese', '繁體中文');
+INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('gcf',     NULL, 'Guadeloupean Creole French', 'Gwadloupéyen');
+INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('pnb',     NULL, 'Western Panjabi', 'پَن٘جابی');
+INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('yue',     'zh', 'Yue Chinese/Cantonese', '粤语');
 -- INSERT INTO languages (code, iso639_1, english_name, native_name) VALUES ('', '', '', '');
 
 ANALYZE languages;

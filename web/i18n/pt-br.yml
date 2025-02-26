@@ -1,4 +1,3 @@
-
 osm:
     tag: Etiqueta
     tags: Etiquetas
@@ -144,7 +143,7 @@ pages:
         reports:
             listreports: Ver todos os relatórios...
         about:
-            intro:
+            intro: |
                 <p>O OpenStreetMap usa <b>etiquetas</b> na forma <b>key=valor</b>
                 para dar significado a feições geográficos. Taginfo é um software
                 que coleta informação a respeito dessas etiquetas a partir de várias
@@ -157,13 +156,13 @@ pages:
             title: Sobre o taginfo
     sources:
         intro: |
-            <p>Taginfo obtém dados sobre etiquetas OSM a partir de diversas fontes, e os
-            unifica para facilitar navegação e consulta.</p>
-            <p>O sistema apenas exibe esses dados. Se você quer alterá-los, precisa
-            ir à fonte.</p>
-        list:
-            title: Lista de Fontes
-            intro: Aqui está uma lista das fontes usadas atualmente. Mais fontes poderão ser incorporadas no futuro.
+            Taginfo obtém dados sobre etiquetas OSM a partir de diversas
+            fontes, e os unifica para facilitar navegação e consulta. Aqui está
+            uma lista das fontes usadas atualmente. Mais fontes poderão ser
+            incorporadas no futuro.
+        display_only: |
+            O sistema apenas exibe esses dados. Se você quer alterá-los,
+            precisa ir à fonte.
         description:
             db: |
                 <p>Estatísticas sobre chaves, etiquetas e tipos de relação são geradas a partir da
@@ -180,7 +179,7 @@ pages:
                 <a class="extlink" href="https://www.unicode.org/">Unicode</a>.</p>
             projects: |
                 <p>Projetos que usam etiquetas OSM de alguma maneira, tais como editores, mapas,
-                aplicações de roteamento, etc. Veja a <a href="/projects">lista de projetos</a>.</p>
+                aplicações de roteamento, etc.</p>
         updates:
             title: Atualizações
             intro: Os dados do taginfo são atualizados periodicamente a partir dessas fontes.
@@ -188,6 +187,30 @@ pages:
         last_update_run: Data da última atualização
         data_until_explanation: Somente as edições realizadas até este momento serão processadas.
         to: a
+        languages:
+            subtags:
+                title: Subetiquetas BCP47
+                filter:
+                    label: Mostrar somente etiquetas do tipo
+                    all: Todas
+                    language: Idioma
+                    script: Script
+                    region: Região
+                    variant: Variante
+        wiki:
+            language_comparison_table_for_keys:
+                name: Tabela de comparação de idiomas para chaves no wiki
+                icons:
+                    template: Página disponível no wiki e contém predefinição padrão.
+                    error: Página no wiki disponível e contém predefinição padrão, porém ela não pode ser interpretada.
+                    page: Página no wiki disponível, porém não contém predefinição padrão.
+                    redirect: A página é um redirecionamento.
+                intro: |
+                    Esta tabela mostra todas as chaves de etiquetas que possuem páginas no wiki,
+                    e em que idiomas elas estão disponíveis.
+        db:
+            stats:
+                name: Estatísticas do banco de dados
     download:
         intro: |
             <p>Aqui você pode baixar os bancos de dados usados pelo taginfo. Todos os dados são
@@ -195,7 +218,7 @@ pages:
             Os arquivos de banco de dados são compactados com
             <a class="extlink" href="http://www.bzip.org/">bzip2</a>.</p>
             <p>Se você não quer baixá-los mas precisa acessar os dados
-            de forma automatizada, você pode usar a <a href="/about">API</a>.</p>
+            de forma automatizada, você pode usar a <a href="about">API</a>.</p>
         file: Arquivo
         packed: Compactado
         unpacked: Descompactado
@@ -219,13 +242,13 @@ pages:
         nothing_to_compare: Não há chaves/etiquetas para comparar. Vá para a página de algumas chaves ou etiquetas e adicione-as.
     keys:
         intro: |
-                Esta tabela mostra todas as etiquetas que existem no banco de dados ou em qualquer uma das outras fontes.
+            Esta tabela mostra todas as etiquetas que existem no banco de dados ou em qualquer uma das outras fontes.
     tags:
         intro: |
-                Esta tabela mostra as etiquetas mais comuns no banco de dados.
+            Esta tabela mostra as etiquetas mais comuns no banco de dados.
     relations:
         name: Tipos de relação
-        intro: Informação sobre os diferentes tipos de relação (indicados pela etiqueta <a href="/keys/type?filter=relations">type</a>).
+        intro: Informação sobre os diferentes tipos de relação (indicados pela etiqueta <a href="keys/type?filter=relations">type</a>).
         relations_of_type_tooltip: Número de relações deste tipo (e como percentual de todas as relações).
         prevalent_roles: Papéis prevalentes
         prevalent_roles_tooltip: Papéis prevalentes para este tipo de relação.
@@ -237,7 +260,7 @@ pages:
         no_description_in_wiki: Não há descrição em inglês para esta chave no wiki. (Veja também a guia "Wiki".)
         filter:
             label: |
-                 Filter:
+                Filter:
             none: Nenhum filtro
             nodes: Somente pontos
             ways: Somente linhas
@@ -344,7 +367,7 @@ pages:
             intro: Esses dados são disponibilizados pelo projeto e não são necessariamente completos. Por favor veja a documentação do projeto para mais detalhes.
             description: Como esta chave/etiqueta é utilizada no projeto
 
-flexigrid:
+dynamic_table:
     pagetext: Página
     pagestat: Exibindo de {from} à {to} de {total} itens
     outof: de
@@ -367,7 +390,7 @@ sources:
         description: Estatísticas agregadas e dados miscelâneos necessários para a interface de usuário do taginfo.
     db:
         name: Banco de dados
-        description: Estatísticas sobre cada chave e cada etiqueta a partir do banco de dados principal do OpenStreetMap (arquivo do planeta).
+        description: Estatísticas sobre cada chave e cada etiqueta a partir do banco de dados do OpenStreetMap.
     wiki:
         name: Wiki
         description: Dados colhidos das páginas de etiquetas e chaves da wiki do projeto OpenStreetMap.
@@ -399,8 +422,6 @@ reports:
         problem:
             tab: Problemático
             title: Chaves com caracteres possivelmente problemáticos
-    database_statistics:
-        name: Estatísticas do banco de dados
     frequently_used_keys_without_wiki_page:
         name: Chaves frequentemente usadas sem páginas no wiki
         also_show_keys: Também mostrar chaves que não tenham uma página em inglês no wiki, mas existem em outro idioma.
@@ -417,16 +438,6 @@ reports:
             intro: Este histograma mostra quantas chaves existem para cada comprimento.
             key_length: Comprimento da chave
             number_of_keys: Número de chaves
-    language_comparison_table_for_keys_in_the_wiki:
-        name: Tabela de comparação de idiomas para chaves no wiki
-        icons:
-            template: Página disponível no wiki e contém predefinição padrão.
-            error: Página no wiki disponível e contém predefinição padrão, porém ela não pode ser interpretada.
-            page: Página no wiki disponível, porém não contém predefinição padrão.
-            redirect: A página é um redirecionamento.
-        intro: |
-            Esta tabela mostra todas as chaves de etiquetas que possuem páginas no wiki,
-            e em que idiomas elas estão disponíveis.
     languages:
         name: Idiomas
         intro: |
@@ -456,13 +467,3 @@ reports:
         overview:
             tab: Visão geral
             title: Visão geral
-        bcp47:
-            tab: Subetiquetas BCP47
-            title: Subetiquetas BCP47
-            filter:
-                label: Mostrar somente etiquetas do tipo
-                all: Todas
-                language: Idioma
-                script: Script
-                region: Região
-                variant: Variante

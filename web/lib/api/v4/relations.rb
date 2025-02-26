@@ -7,7 +7,7 @@ class Taginfo < Sinatra::Base
             :query => 'Only show results where the relation type matches this query (substring match, optional).'
         },
         :paging => :optional,
-        :sort => %w( rtype count ),
+        :sort => %w[ rtype count ],
         :result => paging_results([
             [:rtype,           :STRING, 'Relation type'],
             [:count,           :INT,    'Number of relations with this type.'],
@@ -28,19 +28,19 @@ class Taginfo < Sinatra::Base
 
         res = @db.select('SELECT * FROM relation_types').
             condition_if("rtype LIKE ? ESCAPE '@'", like_contains(params[:query])).
-            order_by(@ap.sortname, @ap.sortorder) { |o|
+            order_by(@ap.sortname, @ap.sortorder) do |o|
                 o.rtype
                 o.count
-            }.
+            end.
             paging(@ap).
-            execute()
+            execute
 
         all_relations = @db.stats('relations').to_i
 
         prevroles = @db.select('SELECT rtype, role, count, fraction FROM db.prevalent_roles').
             condition("rtype IN (#{ res.map{ |row| "'" + SQLite3::Database.quote(row['rtype']) + "'" }.join(',') })").
             order_by([:count], 'DESC').
-            execute()
+            execute
 
         pr = {}
         res.each do |row|
@@ -56,12 +56,13 @@ class Taginfo < Sinatra::Base
         end
 
         return generate_json_result(total,
-            res.map{ |row| {
+            res.map do |row| {
                 :rtype           => row['rtype'],
                 :count           => row['count'].to_i,
                 :count_fraction  => row['count'].to_f / all_relations,
                 :prevalent_roles => row['members_all'] ? pr[row['rtype']][0,10] : nil
-            } }
+            }
+            end
         )
     end
 

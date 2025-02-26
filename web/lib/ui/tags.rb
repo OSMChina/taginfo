@@ -2,33 +2,33 @@
 class Taginfo < Sinatra::Base
 
     get %r{/tags/(.*)} do |tag|
-        if tag.match(/=/)
-            kv = tag.split('=', 2)
-        else
-            kv = [ tag, '' ]
-        end
-        if params[:key].nil?
-            @key = kv[0]
-        else
-            @key = params[:key]
-        end
-        if params[:value].nil?
-            @value = kv[1]
-        else
-            @value = params[:value]
-        end
+        kv = if tag.match(/=/)
+                 tag.split('=', 2)
+             else
+                 [ tag, '' ]
+             end
+        @key = if params[:key].nil?
+                   kv[0]
+               else
+                   params[:key]
+               end
+        @value = if params[:value].nil?
+                     kv[1]
+                 else
+                     params[:value]
+                 end
         @tag = @key + '=' + @value
 
-        @key_uri  = escape(@key)
-        @value_uri  = escape(@value)
+        @key_uri = escape(@key)
+        @value_uri = escape(@value)
 
         @title = [@key + '=' + @value, t.osm.tags]
         section :tags
 
-        @filter_type = get_filter()
+        @filter_type = get_filter
         @sel = Hash.new('')
         @sel[@filter_type] = ' selected="selected"'
-        @filter_xapi = { 'all' => '*', nil => '*', 'nodes' => 'node', 'ways' => 'way', 'relations' => 'relation' }[@filter_type];
+        @filter_xapi = { 'all' => '*', nil => '*', 'nodes' => 'node', 'ways' => 'way', 'relations' => 'relation' }[@filter_type]
 
         @wiki_count = @db.count('wiki.wikipages').condition('key=? AND value=?', @key, @value).get_first_i
         if @wiki_count == 0
@@ -39,7 +39,7 @@ class Taginfo < Sinatra::Base
         @desc = wrap_description(t.pages.tag, get_tag_description(@key, @value))
 
         @db.select("SELECT width, height, image_url, thumb_url_prefix, thumb_url_suffix FROM wiki.wikipages LEFT OUTER JOIN wiki.wiki_images USING(image) WHERE lang=? AND key=? AND value=? UNION SELECT width, height, image_url, thumb_url_prefix, thumb_url_suffix FROM wiki.wikipages LEFT OUTER JOIN wiki.wiki_images USING(image) WHERE lang='en' AND key=? AND value=? LIMIT 1", r18n.locale.code, @key, @value, @key, @value).
-            execute() do |row|
+            execute do |row|
                 @image_url = build_image_url(row)
             end
 
@@ -50,19 +50,40 @@ class Taginfo < Sinatra::Base
 
         @has_map = @db.count('tag_distributions').condition('key=? AND value=?', @key, @value).get_first_i > 0
 
-        if Source.get(:chronology)
+        if @sources.get(:chronology)
             @has_chronology = @db.count('tags_chronology').condition('key=? AND value=?', @key, @value).get_first_i > 0
         end
 
-        @img_width  = TaginfoConfig.get('geodistribution.width')  * TaginfoConfig.get('geodistribution.scale_image')
-        @img_height = TaginfoConfig.get('geodistribution.height') * TaginfoConfig.get('geodistribution.scale_image')
+        @img_width  = @taginfo_config.get('geodistribution.width')  * @taginfo_config.get('geodistribution.scale_image')
+        @img_height = @taginfo_config.get('geodistribution.height') * @taginfo_config.get('geodistribution.scale_image')
 
         @links = get_links(@key, @value)
 
-        javascript_for(:flexigrid, :d3)
-        javascript "#{ r18n.locale.code }/tag"
+        @context[:key] = @key
+        @context[:value] = @value
+
+        if @has_rtype_link || !@links.empty?
+            @has_link_box = true
+        end
+
+        @wikipages = @db.select("SELECT DISTINCT lang, title FROM wiki.wikipages WHERE key=? AND value=? ORDER BY lang", @key, @value).execute.map do |row|
+            lang = row['lang']
+            {
+                :lang    => lang,
+                :title   => row['title'],
+                :english => ::Language[lang].english_name,
+                :native  => ::Language[lang].native_name,
+                :dir     => direction_from_lang_code(lang)
+            }
+        end
+
+        @wikipage_en = @wikipages.find{ |row| row[:lang] == 'en' }
+
+        @projects_count = @db.select('SELECT count(distinct project_id) FROM projects.project_tags').condition('key=? AND value=?', @key, @value).get_first_i
+
+        javascript_for(:d3)
+        javascript "pages/tag"
         erb :tag
     end
 
 end
-

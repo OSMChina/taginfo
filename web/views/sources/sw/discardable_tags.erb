@@ -1,0 +1,19 @@
+<%
+@title.unshift('Discardable Tags')
+%>
+<div>
+    <div>
+        <h1><a href="<%= build_link("/sources/#{ @source.id }") %>"><%= @source.name %></a>: <%= h(t.reports.discardable_tags.name) %></h1>
+        <p><%= h(t.reports.discardable_tags.intro) %></p>
+        <p><%= h(t.reports.discardable_tags.more_on_wiki) %>
+           <a class="extlink" target="_blank" href="https://wiki.openstreetmap.org/wiki/Discardable_tags">Discardable tags</a></p>
+    </div>
+</div>
+<div class="box">
+    <p>This list does not show the discardable tag from the wiki. See <a href="<%= build_link('/reports/discardable_tags') %>">this report</a> instead.</p>
+    <ul>
+<% @db.select("SELECT key, max(source) FILTER (WHERE source = 'id') AS id, max(source) FILTER (WHERE source = 'josm') AS josm FROM discardable_tags GROUP BY key ORDER BY key").execute do |row| %>
+        <li><a href="<%= build_link('/keys/' + row['key']) %>"><%= row['key'] %></a> (<%= [row['id'], row['josm']].compact.join(', ') %>)</li>
+<% end %>
+    </ul>
+</div>

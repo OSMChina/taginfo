@@ -1,4 +1,3 @@
-
 osm:
     tag: Tag
     tags: Tags
@@ -86,6 +85,14 @@ misc:
     in_wiki_tooltip: Has at least one wiki page.
     status: Status
     approval_status: Approval status
+    other: Other
+    software:
+        id:
+            name: iD
+        josm:
+            name: JOSM
+        wiki:
+            name: Wiki
 
 help:
     search:
@@ -118,6 +125,7 @@ help:
         relations_page: Relations page
         projects_page: Projects page
         reports_page: Reports page
+        sources_page: Sources page
         compare_page: Comparison page
         first_page: First page
         prev_page: Previous page
@@ -133,6 +141,8 @@ help:
         deactivate: Deactivate input fields
         up: Up in page hierarchy
         switch_input: Switch between input fields
+        show_keys: Show available shortcut keys
+        add_to_comparison: Add current key/tag to comparison list
 
 pages:
     not_found:
@@ -149,7 +159,7 @@ pages:
         reports:
             listreports: See all reports...
         about:
-            intro:
+            intro: |
                 <p>OpenStreetMap uses <b>tags</b> of the form <b>key=value</b>
                 to add meaning to geographic objects. Taginfo collects information
                 about these tags from several sources to help you understand what
@@ -174,18 +184,17 @@ pages:
                 database, how many people use those tags, where they are used and so on. It
                 also gets information about tags from the wiki and from other places. Taginfo
                 tries to bring together all information about tags to help you understand
-                how they are used and what they mean. See a <a href="/sources">list of sources</a>
+                how they are used and what they mean. See a <a href="sources">list of sources</a>
                 taginfo uses.</p>
         about_site:
             title: About This Site
         building_on_taginfo:
             title: Building on taginfo
-            pre: |
-                <p>You can use the data from taginfo in your own projects:</p>
+            pre: 'You can use the data from taginfo in your own projects:'
             api: |
                 <h3>API</h3>
                 <p>Taginfo data can be accessed through a REST API. See the
-                <a href="/taginfo/apidoc">API documentation</a> for the details, some general information is
+                <a href="taginfo/apidoc">API documentation</a> for the details, some general information is
                 <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo/API">on the OSM wiki</a>.
                 The servers running the taginfo API do not have unlimited resources.
                 Please use the API responsibly. If in doubt contact the maintainers of the
@@ -194,7 +203,7 @@ pages:
                 <h3>Download</h3>
                 <p>If you want to play around with the data used by taginfo, you can download the
                 regularly updated Sqlite database files. All the preprocessing is done for you.
-                See the <a href="/download">download page</a> for a list of files. Note that
+                See the <a href="download">download page</a> for a list of files. Note that
                 some of these files can get quite large. If you want to download them regularly,
                 contact the maintainers of the site you are using or talk to us on the mailing list.</p>
             license: |
@@ -211,7 +220,7 @@ pages:
                 <a class="extlink" href="https://ctd-studio.co.uk/">Christian Topf</a>.</p>
                 <h3>Translations</h3>
                 <p>We need translators for the taginfo user interface. See the <a
-                href="/taginfo/translations">translations overview</a> for languages that need
+                href="taginfo/translations">translations overview</a> for languages that need
                 some work. More information on how to help is on the
                 <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo/I18N">OSM wiki</a>.</p>
                 <h3>Code</h3>
@@ -236,24 +245,28 @@ pages:
                 if you have questions or want to help.</p>
     sources:
         intro: |
-            <p>Taginfo collects data about OSM tags from several sources and brings them
-            together for easy browsing and discovery.</p>
-            <p>Note that taginfo only displays this data. If you want to change it, you
-            have to go back to the source.</p>
-        list:
-            title: List of Sources
-            intro: Here is a list of currently used sources. More sources might be integrated in the future.
+            Taginfo collects data about OSM tags from several sources and
+            brings them together for easy browsing and discovery. Here is a
+            list of currently used sources. More sources might be integrated in
+            the future.
+        display_only: |
+            Note that taginfo only displays this data. If you want to change it, you
+            have to go back to the source.
         description:
             db: |
                 <p>Statistics about keys, tags, and relation types are generated from the <a class="extlink" href="https://planet.openstreetmap.org/">OSM database</a> (or an extract) as well as the maps that show the geographic distribution of nodes and ways.</p>
             wiki: |
                 <p>The <a class="extlink" href="//wiki.openstreetmap.org/">OSM Wiki</a> is read and all Key:*, Tag:*, and Relation:* pages (in all the different languages) are analyzed. Descriptions, images, related tags, etc. are extracted from them.</p>
             languages: |
-                <p>Taginfo gets information about the different languages of the world, their codes, names, etc. from several <a class="extlink" href="https://www.iana.org/">IANA</a> and <a class="extlink" href="https://www.unicode.org/">Unicode</a> registries.</p>
+                <p>Taginfo gets information about the different languages of the world, their codes, names, etc. from several <a class="extlink" href="https://www.iana.org/">IANA</a> and <a class="extlink" href="https://www.unicode.org/">Unicode</a> registries and from Wikipedia.</p>
             projects: |
-                <p>Projects that use OSM tags in some way, such as editors, maps, routers, etc. See <a href="/projects">the project list</a>.</p>
+                <p>Projects that use OSM tags in some way, such as editors, maps, routers, etc.</p>
             chronology: |
                 <p>Number of keys/tags over time from <a class="extlink" href="https://planet.openstreetmap.org/planet/full-history/">history planet</a>.</p>
+            wikidata: |
+                <p>The <a class="extlink" href="https://www.wikidata.org/">Wikidata database</a> connects OSM keys, tags, and relations to other concepts using the property <a href="https://www.wikidata.org/wiki/Property:P1282">P1282</a>.</p>
+            sw: |
+                <p>Configurations from various OSM programs (such as editors).</p>
         updates:
             title: Updates
             intro: The taginfo data is updated regularly from the sources.
@@ -261,13 +274,133 @@ pages:
         last_update_run: Last update run
         data_until_explanation: All edits until this time will be in the data, later edits might be.
         to: to
+        data: Data
+        database_size: Database size
+        minutes: mins
+        statistics: Statistics
+        import_errors: Import errors
+        languages:
+            subtags:
+                title: BCP47 Subtags
+                filter:
+                    label: Show only subtags of type
+                    all: All
+                    language: Language
+                    script: Script
+                    region: Region
+                    variant: Variant
+                columns:
+                    type: Type
+                    subtag: Subtag
+                    description: Description
+                    added: Added
+                    notes: Notes
+                intro: |
+                    <p>The <a href="https://www.ietf.org/">IETF</a> defines
+                    <i>language tags</i> in its standard <a
+                    href="https://tools.ietf.org/html/bcp47">Tags for
+                    Identifying Languages (BCP47)</a>. Language tags consist of
+                    one or more <i>subtags</i> describing the languages,
+                    scripts, regions, and variants. For more information see
+                    also the <a
+                    href="https://en.wikipedia.org/wiki/IETF_language_tag">Wikipedia
+                    entry on IETF language tags</a> and the <a
+                    href="http://www.langtag.net/">langtag.net</a> site.</p>
+                note: |
+                    Note that the data shown in this table is not from
+                    OpenStreetMap, it just shows the building blocks that can
+                    be used to describe languages irrespective of whether they
+                    are actually used in OSM.
+                show: Show all language subtags...
+            wikipedia_sites:
+                title: Wikipedia sites
+        wikidata:
+            index:
+                show_items: Show all Wikidata items...
+                show_errors: Show all errors...
+            stats:
+                keys: Key items
+                tags: Tag items
+                relations: Relation items
+                roles: Role items
+                qcode: Items with Q code
+                pcode: Items with P code
+            items:
+                title: Items
+                description: |
+                    These are all Wikidata items with the property P1282 and
+                    the OSM key, tag, or relation they link to. Not shown are
+                    "Role" type properties and properties that don't have the
+                    correct format.
+                columns:
+                    type: Type
+                    ktr: Key/Tag/Relation
+                    item: Wikidata item
+            errors:
+                description: |
+                    These are all the issues encountered when importing the
+                    Wikidata items with property P1282.
+                columns:
+                    item: Wikidata item
+                    p1282: Value of P1282 property
+                    error: Error message
+        wiki:
+            language_comparison_table_for_keys:
+                name: Language comparison table for keys in the wiki
+                icons:
+                    template: Page in wiki available and contains standard template.
+                    error: Page in wiki available and contains standard template, but couldn't be parsed.
+                    page: Page in wiki available but doesn't contain standard template.
+                    redirect: Page is a redirect.
+                intro: |
+                    This table shows all tag keys for which there are wiki pages available and in what languages they are.
+            parsing_problems:
+                name: Parsing problems
+                intro: |
+                    Taginfo reads all wiki pages used to describe keys, tags, and
+                    relations to find information about tags. This report shows a list
+                    of problems encountered while reading those pages. These aren't
+                    necessarily errors in the wiki, they just mean that something in
+                    the wiki pages isn't formatted in a way taginfo understands. Either
+                    the page has to be corrected or taginfo has to be fixed.
+                location: Location
+                reason: Reason
+                wiki_page: Wiki page
+                lang: Lang.
+                info: Additional information
+            image_comparison:
+                name: Wiki images
+                intro: |
+                    Images used in the wiki to symbolize the keys in different
+                    languages. Sometimes the image from one or the other language
+                    variant is better. But sometimes it makes sense to have different
+                    images because of different cultural backgrounds or so.
+        db:
+            stats:
+                name: Database statistics
+                objects_in_db: Number of objects in the database
+                tags_in_db: Number of tags in the database
+                distinct_keys: Number of distinct keys
+                distinct_tags: Number of distinct tags
+                nodes_in_db: Number of nodes in the database
+                nodes_with_tags_in_db: Number of nodes with at least one tag
+                nodes_with_tags_in_db_percent: Percentage of nodes with at least one tag
+                tags_on_nodes: Number of tags on nodes
+                avg_tags_per_tagged_node: Average number of tags per tagged node
+                ways_in_db: Number of ways in the database
+                closed_ways_in_db: Number of closed ways
+                tags_on_ways: Number of tags on ways
+                avg_tags_per_way: Average number of tags per way
+                relations_in_db: Number of relations in the database
+                tags_on_relations: Number of tags on relations
+                avg_tags_per_relation: Average number of tags per relation
     download:
         intro: |
             <p>Here you can download the databases used by taginfo. All the data is stored
             in <a class="extlink" href="https://www.sqlite.org/">Sqlite</a> databases.
             The database files are then packed with <a class="extlink" href="http://www.bzip.org/">bzip2</a>.</p>
             <p>If you don't want to download these databases, but need automated access to
-            the data, you can also use the <a href="/about">API</a>.</p>
+            the data, you can also use the <a href="about">API</a>.</p>
         file: File
         packed: Packed
         unpacked: Unpacked
@@ -292,13 +425,13 @@ pages:
         nothing_to_compare: There are no keys/tags to compare. Go to any key or tag page and add them.
     keys:
         intro: |
-                This table shows all tag keys that exist in the database or in any of the other sources.
+            This table shows all tag keys that exist in the database or in any of the other sources.
     tags:
         intro: |
-                This table shows the most common tags in the database.
+            This table shows the most common tags in the database.
     relations:
         name: Relation types
-        intro: Information about the different types of relations (indicated by the <a href="/keys/type?filter=relations">type</a> tag).
+        intro: Information about the different types of relations (indicated by the <a href="keys/type?filter=relations">type</a> tag).
         relations_of_type_tooltip: Number of relations of this type (and as percentage of all relations).
         prevalent_roles: Prevalent roles
         prevalent_roles_tooltip: Prevalent roles for this type of relation.
@@ -307,13 +440,13 @@ pages:
         empty_role: empty role
     projects:
         intro: |
-                This table shows all projects known to taginfo that use OSM tags in some way.<br/>For more about this functionality see the <a href="//wiki.openstreetmap.org/wiki/Taginfo/Projects" class="extlink">wiki</a>.
+            This table shows all projects known to taginfo that use OSM tags in some way.<br/>For more about this functionality see the <a href="//wiki.openstreetmap.org/wiki/Taginfo/Projects" class="extlink">wiki</a>.
     key:
         description_from_wiki: Description of this key from the wiki (if available in your chosen language, otherwise in English).
         no_description_in_wiki: No English language description for this key in the wiki. (See also the "Wiki" tab.)
         filter:
             label: |
-                 Filter:
+                Filter:
             none: No filter
             nodes: Nodes only
             ways: Ways only
@@ -327,6 +460,13 @@ pages:
             objects_last_edited_by: Objects with this key were last edited by %1 different users.
             no_endorsement: (This does not mean that all those users endorse this key.)
             distribution_of_values: Distribution of values
+            all_other_values: All other values
+            known_projects: Taginfo knows %1 projects referencing this key.
+            status:
+              from_wiki: 'Tag status from wiki pages:'
+              unknown: Unknown or ambiguous tag status on the wiki.
+              see_wiki_tab: See Wiki tab for details.
+              marked_discardable: 'Tag is marked as discardable by:'
         other_keys_used:
             title: Other keys used together with this key
             other: Other keys
@@ -366,6 +506,7 @@ pages:
         number_objects: Number of objects
         overview:
             see_also: See also the relation type page
+            known_projects: Taginfo knows %1 projects referencing this tag.
         other_tags_used:
             title: Other tags used together with this tag
             other: Other tags
@@ -409,6 +550,7 @@ pages:
             member_type: Member type
             member_count: Number of members
             see_also: See also the tag page
+            known_projects: Taginfo knows %1 projects referencing this relation type.
         roles:
             tab: Roles
             title: Member roles
@@ -446,7 +588,7 @@ pages:
             count_all_tooltip: Number of objects in database with this key/tag
             objects_tooltip: Object types the project uses
 
-flexigrid:
+dynamic_table:
     pagetext: Page
     pagestat: Displaying {from} to {to} of {total} items
     outof: of
@@ -454,6 +596,7 @@ flexigrid:
     procmsg: Processing, please wait...
     nomsg: No items
     errormsg: Connection Error
+    filter_nothing_found: Nothing found matching your query.
 
 comparison:
     list: Comparison list
@@ -472,7 +615,7 @@ sources:
         description: Aggregate statistics over time.
     db:
         name: Database
-        description: Statistics about each key and each tag from the main OSM database (planet file).
+        description: Statistics about each key and each tag from OSM data.
     wiki:
         name: Wiki
         description: Data from the tag and key pages of the OSM wiki.
@@ -484,8 +627,13 @@ sources:
         description: External projects and the OSM keys/tags they use.
     chronology:
         name: Chronology
-        description: Number of keys/tags over time from history planet.
-
+        description: Number of keys/tags over time from OSM history data.
+    wikidata:
+        name: Wikidata
+        description: The Wikimedia wikidata database connects OSM keys, tags, and relations to other concepts.
+    sw:
+        name: Software
+        description: Configurations from various OSM programs (such as editors).
 unicode:
     character: Char
     codepoint: Code point
@@ -570,24 +718,6 @@ reports:
             title: All other keys
             intro: |
                 <p>Keys that don't fit in any of the other categories.</p>
-    database_statistics:
-        name: Database statistics
-        objects_in_db: Number of objects in the database
-        tags_in_db: Number of tags in the database
-        distinct_keys: Number of distinct keys
-        distinct_tags: Number of distinct tags
-        nodes_in_db: Number of nodes in the database
-        nodes_with_tags_in_db: Number of nodes with at least one tag
-        nodes_with_tags_in_db_percent: Percentage of nodes with at least one tag
-        tags_on_nodes: Number of tags on nodes
-        avg_tags_per_tagged_node: Average number of tags per tagged node
-        ways_in_db: Number of ways in the database
-        closed_ways_in_db: Number of closed ways
-        tags_on_ways: Number of tags on ways
-        avg_tags_per_way: Average number of tags per way
-        relations_in_db: Number of relations in the database
-        tags_on_relations: Number of tags on relations
-        avg_tags_per_relation: Average number of tags per relation
     frequently_used_keys_without_wiki_page:
         name: Frequently used keys without wiki page
         intro: |
@@ -612,15 +742,6 @@ reports:
             intro: This histogram shows how many keys there are of each length.
             key_length: Key length
             number_of_keys: Number of keys
-    language_comparison_table_for_keys_in_the_wiki:
-        name: Language comparison table for keys in the wiki
-        icons:
-            template: Page in wiki available and contains standard template.
-            error: Page in wiki available and contains standard template, but couldn't be parsed.
-            page: Page in wiki available but doesn't contain standard template.
-            redirect: Page is a redirect.
-        intro: |
-            This table shows all tag keys for which there are wiki pages available and in what languages they are.
     languages:
         name: Languages
         intro: |
@@ -649,31 +770,6 @@ reports:
         overview:
             tab: Overview
             title: Overview
-        bcp47:
-            tab: BCP47 Subtags
-            title: BCP47 Subtags
-            filter:
-                label: Show only subtags of type
-                all: All
-                language: Language
-                script: Script
-                region: Region
-                variant: Variant
-            intro: |
-                <p>The <a href="https://www.ietf.org/">IETF</a> defines <i>language
-                tags</i> in its standard
-                <a href="https://tools.ietf.org/html/bcp47">Tags for Identifying Languages
-                (BCP47)</a>. Language
-                tags consist of one or more <i>subtags</i> describing the language,
-                script, variants, etc. The following list shows the subtags currently
-                registered that are relevant for OSM. For more information see also the
-                <a href="https://en.wikipedia.org/wiki/IETF_language_tag">Wikipedia
-                entry on IETF language tags</a> and the <a
-                href="http://www.langtag.net/">langtag.net</a> site.</p>
-                <p>Note that the data shown in this table is <b>not</b> from OpenStreetMap,
-                it just shows the building blocks that can be used to describe languages
-                irrespective of whether they are actually used in OSM.
-                </p>
     similar_keys:
         name: Similar keys
         intro: |
@@ -699,25 +795,10 @@ reports:
             title: Unique tags
         relation_types:
             title: Unique relation types
-    wiki_images:
-        name: Wiki images
+    discardable_tags:
+        name: Discardable tags
         intro: |
-            Images used in the wiki to symbolize the keys in different
-            languages. Sometimes the image from one or the other language
-            variant is better. But sometimes it makes sense to have different
-            images because of different cultural backgrounds or so.
-    wiki_problems:
-        name: Wiki parsing problems
-        intro: |
-            Taginfo reads all wiki pages used to describe keys, tags, and
-            relations to find information about tags. This report shows a list
-            of problems encountered while reading those pages. These aren't
-            necessarily errors in the wiki, they just mean that something in
-            the wiki pages isn't formatted in a way taginfo understands. Either
-            the page has to be corrected or taginfo has to be fixed.
-        location: Location
-        reason: Reason
-        wiki_page: Wiki page
-        lang: Lang.
-        info: Additional information
-
+            Discardable tags are tags that the OpenStreetMap community has
+            found not to be useful. Editors may remove these tags automatically
+            and silently when they save new versions of an object.
+        more_on_wiki: 'More information on the wiki:'

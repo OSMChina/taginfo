@@ -1,34 +1,48 @@
 # web/lib/sources.rb
-class Source
+class Sources
 
-    @@sources = Hash.new
+    def initialize(taginfo_config, db)
+        data_dir = taginfo_config.get('paths.data_dir', '../../data')
+        download_dir = taginfo_config.get('paths.download_dir', '../../download')
 
-    attr_reader :id, :name, :data_until, :update_start, :update_end, :visible, :dbsize, :dbpack
+        @sources = {}
+        db.select('SELECT * FROM sources ORDER BY no').execute.each do |source|
+            @sources[source['id'].to_sym] = Source.new(data_dir, download_dir, source['id'], source['name'], source['data_until'], source['update_start'], source['update_end'], source['visible'].to_i == 1)
+        end
+        @sources.each_value do |source|
+            db.attach_source(source.dbname, source.id.to_s)
+        end
+        db.attach_source('taginfo-history.db', 'history')
+    end
 
     # Enumerate all available sources
-    def self.each
-        @@sources.values.each do |source|
-            yield source
-        end
+    def each(&block)
+        @sources.each_value(&block)
     end
 
     # The number of available sources
-    def self.size
-        @@sources.size
+    def size
+        @sources.size
     end
 
-    def self.visible
-        @@sources.values.select{ |source| source.visible }
+    def visible
+        @sources.values.select(&:visible)
     end
 
-    def self.get(id)
-        @@sources[id]
+    def get(id)
+        @sources[id]
     end
+
+end
+
+class Source
+
+    attr_reader :id, :name, :data_until, :update_start, :update_end, :visible, :dbsize, :dbpack
 
     # Create new source
     #  id - Symbol with id for this source
     #  name - Name of this source
-    def initialize(id, name, data_until, update_start, update_end, visible)
+    def initialize(data_dir, download_dir, id, name, data_until, update_start, update_end, visible) # rubocop:disable Metrics/ParameterLists
         @id           = id.to_sym
         @name         = name
         @data_until   = data_until
@@ -36,12 +50,8 @@ class Source
         @update_end   = update_end
         @visible      = visible
 
-        data_dir = TaginfoConfig.get('paths.data_dir', '../../data')
-        download_dir = TaginfoConfig.get('paths.download_dir', '../../download')
-        @dbsize = File.size("#{ data_dir }/#{ dbname }").to_bytes rescue 0
-        @dbpack = File.size("#{ download_dir }/#{ dbname }.bz2").to_bytes rescue 0
-
-        @@sources[@id] = self
+        @dbsize = File.size?("#{ data_dir }/#{ dbname }")&.to_bytes
+        @dbpack = File.size?("#{ download_dir }/#{ dbname }.bz2")&.to_bytes
     end
 
     def dbname
@@ -49,7 +59,11 @@ class Source
     end
 
     def link_download
-        %Q{<a rel="nofollow" href="/download/#{ dbname }.bz2">#{ dbname }.bz2</a>}
+        %(<a rel="nofollow" href="/download/#{ dbname }.bz2">#{ dbname }.bz2</a>)
+    end
+
+    def update_duration
+        ((Time.parse(update_end) - Time.parse(update_start)) / 60).round
     end
 
 end

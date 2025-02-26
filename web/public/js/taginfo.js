@@ -1,306 +1,450 @@
 // taginfo.js
 
-var grids = {},
-    current_grid = '',
-    up = function() { window.location = '/'; };
+var tabs = null,
+    autocomplete = null,
+    questionMarkKeycode = null,
+    up = null;
+
+const bad_chars_for_url = /[.=\/@]/;
+const bad_chars_for_keys = '!"#$%&()*+,/;<=>?@[\\]^`{|}~' + "'";
+const non_printable = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\u0009\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f\u0080\u0081\u0082\u0083\u0084\u0085\u0086\u0087\u0088\u0089\u008a\u008b\u008c\u008d\u008f\u0090\u0091\u0092\u0093\u0094\u0095\u0096\u0097\u0098\u0099\u009a\u009b\u009c\u009d\u009f\u200e\u200f";
+
+const context = JSON.parse(document.getElementById('context').textContent);
 
 /* ============================ */
 
-function init_tipsy() {
-    jQuery('*[tipsy]').each(function(index, obj) {
-        obj = jQuery(obj);
-        obj.tipsy({ opacity: 1, delayIn: 500, gravity: obj.attr('tipsy') });
-    });
-    jQuery('*[tipsy_html]').each(function(index, obj) {
-        obj = jQuery(obj);
-        obj.tipsy({ opacity: 1, delayIn: 500, gravity: obj.attr('tipsy_html'), html: true });
-    });
-}
+class WidgetManager {
+    timer;
+    widgets = {};
 
-function resize_box() {
-    var wrapper = jQuery('.resize,.ui-tabs-panel'),
-        height = jQuery(window).height();
+    constructor() {
+        window.addEventListener('resize', () => {
+            clearTimeout(this.timer);
+            this.timer = setTimeout(this.resize.bind(this), 250);
+        });
 
-    height -= jQuery('header').outerHeight(true);
-    height -= jQuery('#menu').outerHeight(true);
-    height -= jQuery('div.pre').outerHeight(true);
-    height -= jQuery('.ui-tabs-nav').outerHeight(true);
-    height -= jQuery('footer').outerHeight(true);
-
-    if (height < 440) {
-        height = 440;
+        document.addEventListener('keyup', event => this.keyUp.call(this, event) );
     }
 
-    wrapper.outerHeight(height);
-}
+    addWidget(widget) {
+        this.widgets[widget.id] = widget;
+    }
 
-function resize_grid(the_grid) {
-    if (grids[the_grid]) {
-        var grid = grids[the_grid][0].grid,
-            oldrp = grid.getRp(),
-            rp = calculate_flexigrid_rp(jQuery(grids[current_grid][0]).parents('.resize,.ui-tabs-panel'));
-        if (rp != oldrp) {
-            grid.newRp(rp);
-            grid.fixHeight();
+    resize() {
+        for (const id in this.widgets) {
+            const widget = this.widgets[id];
+            widget.resize.apply(widget);
         }
     }
+
+    keyUp(event) {
+        if (event.ctrlKey || event.altKey || event.metaKey) {
+            return;
+        }
+
+        if (event.target != document.body) {
+            return;
+        }
+
+        for (const id in this.widgets) {
+            if (this.widgets[id].keyUp) {
+                this.widgets[id].keyUp(event);
+                return;
+            }
+        }
+    }
+} // class WidgetManager
+
+const widgetManager = new WidgetManager();
+
+/* ============================ */
+
+class TaginfoObject {
+    instance;
+    path = '';
+    params = {};
+    tab;
+
+    constructor(inst = context.instance) {
+        this.instance = inst;
+    }
+
+    url() {
+        let url = build_link_with_prefix(this.instance, this.path, this.params);
+        if (this.tab) {
+            url += '#' + this.tab;
+        }
+        return url;
+    }
+
+    link(params = {}) {
+        if (params.tab) {
+            this.tab = params.tab;
+        }
+        let content;
+        if (params.highlight) {
+            content = highlight(params.content || this.toString(), params.highlight);
+        } else {
+            content = params.content || this.content();
+        }
+        return link(this.url(), content, params.attrs);
+    }
+
+    isEqual(other) {
+        return  this.instance == other.instance && this.key == other.key &&
+                this.value == other.value && this.rtype == other.rtype;
+    }
+
+} // class TaginfoObject
+
+class TaginfoKey extends TaginfoObject {
+
+    constructor(key, instance) {
+        super(instance);
+        this.key = key;
+
+        if (key.match(bad_chars_for_url)) {
+            this.path = '/keys/';
+            this.params = {key: key};
+        } else {
+            this.path = '/keys/' + encodeURIComponent(key);
+        }
+    }
+
+    get type() {
+        return 'key';
+    }
+
+    toString() {
+        return this.key;
+    }
+
+    toFullString() {
+        if (this.instance == '') {
+            return this.key;
+        }
+
+        return this.key + "@" + this.instance;
+    }
+
+    toJSON() {
+        return {key: this.key, instance: this.instance};
+    }
+
+    isClean() {
+        return this.key.match(/^[a-zA-Z0-9:_]+$/) !== null;
+    }
+
+    content() {
+        if (this.key == '') {
+            return span(texts.misc.empty_string, 'badchar empty');
+        }
+
+        return translate(this.key, function(c) {
+            if (bad_chars_for_keys.indexOf(c) != -1) {
+                return span(c, 'badchar');
+            } else if (non_printable.indexOf(c) != -1) {
+                return span("\ufffd", 'badchar');
+            } else if (c == ' ') {
+                return span('&#x2423;', 'badchar');
+            } else if (c.match(/\s/)) {
+                return span('&nbsp;', 'whitespace');
+            } else {
+                return c;
+            }
+        });
+    }
+
+    toKey() {
+        return this;
+    }
+
+    toTag(value) {
+        return new TaginfoTag(this.key, value, this.instance);
+    }
+
+    fullLink(params = {}) {
+        if (params.with_asterisk) {
+            return this.link(params) + '=*';
+        }
+        return this.link(params);
+    }
+
+} // class TaginfoKey
+
+class TaginfoTag extends TaginfoObject {
+
+    constructor(key, value, instance) {
+        super(instance);
+        this.key = key;
+        this.value = value;
+
+        if (key.match(bad_chars_for_url) || value.match(bad_chars_for_url)) {
+            this.path = '/tags/';
+            this.params = {key: key, value: value};
+        } else {
+            const k = encodeURIComponent(this.key);
+            const v = encodeURIComponent(this.value);
+            this.path = '/tags/' + k + '=' + v;
+        }
+    }
+
+    get type() {
+        return 'tag';
+    }
+
+    toString() {
+        return this.value;
+    }
+
+    toFullString() {
+        if (this.instance == '') {
+            return this.key + '=' + this.value;
+        }
+
+        return this.key + '=' + this.value + "@" + this.instance;
+    }
+
+    toJSON() {
+        return {key: this.key, value: this.value, instance: this.instance};
+    }
+
+    isClean() {
+        return (this.key.match(/^[a-zA-Z0-9:_]+$/) !== null) &&
+               (this.value.match(/^[a-zA-Z0-9:_]+$/) !== null)
+    }
+
+    content() {
+        if (this.value == '') {
+            return span(texts.misc.empty_string, 'badchar empty');
+        }
+
+        return html_escape(this.value)
+                .replace(/ /g, '&#x2423;')
+                .replace(/\s/g, span('&nbsp;', 'whitespace'));
+    }
+
+    toKey() {
+        return new TaginfoKey(this.key, this.instance);
+    }
+
+    fullLink(params = {}) {
+        return this.toKey().link(params) + '=' + this.link(params);
+    }
+
+} // class TaginfoTag
+
+function createKeyOrTag(key, value) {
+    if (value === null || value === undefined || value == '') {
+        return new TaginfoKey(key);
+    }
+    return new TaginfoTag(key, value);
+}
+
+function createKeyOrTagFromHash(data) {
+    let result = createKeyOrTag(data.key, data.value);
+    if (typeof data.instance === 'string') {
+        result.instance = data.instance;
+    }
+    return result;
+}
+
+class TaginfoRelation extends TaginfoObject {
+
+    constructor(rtype, instance) {
+        super(instance);
+        this.rtype = rtype;
+
+        if (rtype.match(bad_chars_for_url)) {
+            this.path = '/relations/';
+            this.params = {rtype: rtype};
+        } else {
+            this.path = '/relations/' + encodeURIComponent(rtype);
+        }
+    }
+
+    toString() {
+        return this.rtype;
+    }
+
+    content() {
+        if (this.rtype == '') {
+            return span(texts.misc.empty_string, 'badchar empty');
+        }
+
+        return translate(this.rtype, function(c) {
+            if (c == ' ') {
+                return span('&#x2423;', 'badchar');
+            } else if (c.match(/\s/)) {
+                return span('&nbsp;', 'whitespace');
+            } else if (c.match(/[a-zA-Z0-9_:]/)) {
+                return c;
+            } else {
+                return span(c, 'badchar');
+            }
+        });
+    }
+
+    toTag() {
+        return new TaginfoTag('type', this.rtype, this.instance);
+    }
+
+} // class TaginfoRelation
+
+class TaginfoProject {
+    id;
+    name;
+
+    constructor(id, name) {
+        this.id = id;
+        this.name = name
+    }
+
+    url() {
+        return build_link('/projects/' + encodeURIComponent(this.id));
+    }
+
+    iconURL() {
+        return build_link('/api/4/project/icon', { project: this.id });
+    }
+
+    img(size) {
+        return img({ src: this.iconURL(), width: size, height: size, alt: '' });
+    }
+
+    link() {
+        return this.img(16) + ' ' + link(this.url(), html_escape(this.name));
+    }
+
+} // class TaginfoProject
+
+class TaginfoWikiPage {
+    title = '';
+
+    constructor(title) {
+        this.title = title;
+    }
+
+    url(options) {
+        let path = '//wiki.openstreetmap.org/';
+
+        if (options && options.edit) {
+            path += 'w/index.php?action=edit&title=';
+        } else {
+            path += 'wiki/';
+        }
+
+        return path + encodeURIComponent(this.title);
+    }
+
+    link(options) {
+        if (this.title == '') {
+            return '';
+        }
+
+        return link(this.url(options),
+            html_escape(this.title),
+            { target: '_blank', 'class': 'extlink' }
+        );
+    }
+
+} // class TaginfoWikiPage
+
+/* ============================ */
+
+function initTooltips() {
+    const tooltips = document.querySelectorAll('*[data-tooltip-position]');
+    const tt = document.getElementById('tooltip');
+
+    for (const tooltip of tooltips) {
+        if (tooltip.hasAttribute('title')) {
+            tooltip.setAttribute('data-tooltip-text', tooltip.getAttribute('title'));
+            tooltip.removeAttribute('title');
+        }
+
+        tooltip.addEventListener("mouseenter", function(event) {
+            event.preventDefault();
+
+            const b = this.getBoundingClientRect();
+
+            let x, y;
+            if (this.getAttribute('data-tooltip-position') == 'OnLeft') {
+                x = b.x + window.scrollX;
+                y = b.y + window.scrollY + b.height / 2;
+            } else if (this.getAttribute('data-tooltip-position') == 'OnRight') {
+                x = b.x + window.scrollX + b.width;
+                y = b.y + window.scrollY + b.height / 2;
+            } else {
+                x = b.x + window.scrollX + b.width / 2;
+                y = b.y + window.scrollY + b.height / 2;
+            }
+
+            tt.innerHTML = "<div class='tooltips'><div class='" + this.getAttribute("data-tooltip-position") + "'>" + this.getAttribute("data-tooltip-text") + "</div></div>";
+            tt.style.display = 'inline-block';
+            tt.style.left = '' + x + 'px';
+            tt.style.top = '' + y + 'px';
+        });
+
+        tooltip.addEventListener("mouseleave", function(event) {
+            event.preventDefault();
+            tt.removeAttribute('style');
+            tt.innerHTML = '';
+        });
+    }
 }
 
 /* ============================ */
 
-var bad_chars_for_url = /[.=\/]/;
-
-function url_for_key(key) {
-    var k = encodeURIComponent(key);
-    if (key.match(bad_chars_for_url)) {
-        return '/keys/?key=' + k;
-    } else {
-        return '/keys/' + k;
+function build_link_with_prefix(prefix, path, params) {
+    if (params && Object.keys(params).length > 0) {
+        const p = new URLSearchParams(params);
+        path += '?' + p.toString();
     }
+    if (prefix == '') {
+        return path;
+    }
+    return '/' + prefix + path;
 }
 
-function url_for_tag(key, value) {
-    var k = encodeURIComponent(key),
-        v = encodeURIComponent(value);
-    if (key.match(bad_chars_for_url) || value.match(bad_chars_for_url)) {
-        return '/tags/?key=' + k + '&value=' + v;
-    } else {
-        return '/tags/' + k + '=' + v;
-    }
-}
-
-function url_for_rtype(rtype) {
-    var t = encodeURIComponent(rtype);
-    if (rtype.match(bad_chars_for_url)) {
-        return '/relations/?rtype=' + t;
-    } else {
-        return '/relations/' + t;
-    }
-}
-
-function url_for_project(id) {
-    return '/projects/' + encodeURIComponent(id);
-}
-
-function url_for_wiki(title, options) {
-    var path = '//wiki.openstreetmap.org/';
-    if (options && options.edit) {
-        return path + 'w/index.php?action=edit&title=' + encodeURIComponent(title);
-    } else {
-        return path + 'wiki/' + encodeURIComponent(title);
-    }
+function build_link(...args) {
+    return build_link_with_prefix(context.instance, ...args);
 }
 
 /* ============================ */
-
-var bad_chars_for_keys = '!"#$%&()*+,/;<=>?@[\\]^`{|}~' + "'";
-var non_printable = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\u0009\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f\u0080\u0081\u0082\u0083\u0084\u0085\u0086\u0087\u0088\u0089\u008a\u008b\u008c\u008d\u008f\u0090\u0091\u0092\u0093\u0094\u0095\u0096\u0097\u0098\u0099\u009a\u009b\u009c\u009d\u009f\u200e\u200f";
 
 function translate(str, fn) {
-    var result = '';
+    let result = '';
 
-    for (var i=0; i < str.length; i++) {
+    for (let i = 0; i < str.length; i++) {
         result += fn(str.charAt(i));
     }
 
     return result;
 }
 
-function fmt_desc(lang, dir, desc) {
-    if (desc === null) {
-        return '';
-    }
-    return '<span lang="' + lang + '" dir="' + dir + '">' + html_escape(desc) + '</span>';
+function html_escape(text) {
+    return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-function fmt_status(status) {
-    if (status === null) {
-        return '';
-    }
-    return html_escape(status);
-}
-
-function fmt_key(key) {
-    if (key == '') {
-        return span(texts.misc.empty_string, 'badchar empty');
-    }
-
-    return translate(key, function(c) {
-        if (bad_chars_for_keys.indexOf(c) != -1) {
-            return span(c, 'badchar');
-        } else if (non_printable.indexOf(c) != -1) {
-            return span("\ufffd", 'badchar');
-        } else if (c == ' ') {
-            return span('&#x2423;', 'badchar');
-        } else if (c.match(/\s/)) {
-            return span('&nbsp;', 'whitespace');
-        } else {
-            return c;
-        }
-    });
-}
-
-function fmt_value(value) {
-    if (value == '') {
-        return span(texts.misc.empty_string, 'badchar empty');
-    }
-
-    return html_escape(value)
-            .replace(/ /g, '&#x2423;')
-            .replace(/\s/g, span('&nbsp;', 'whitespace'));
-}
-
-function fmt_rtype(rtype) {
-    if (rtype == '') {
-        return span(texts.misc.empty_string, 'badchar empty');
-    }
-
-    return translate(rtype, function(c) {
-        if (c == ' ') {
-            return span('&#x2423;', 'badchar');
-        } else if (c.match(/\s/)) {
-            return span('&nbsp;', 'whitespace');
-        } else if (c.match(/[a-zA-Z0-9_:]/)) {
-            return c;
-        } else {
-            return span(c, 'badchar');
-        }
-    });
-}
-
-function fmt_role(role) {
-    if (role == '') {
-        return span(texts.misc.empty_string, 'empty');
-    }
-
-    return translate(role, function(c) {
-        if (bad_chars_for_keys.indexOf(c) != -1) {
-            return span(c, 'badchar');
-        } else if (c == ' ') {
-            return span('&#x2423;', 'badchar');
-        } else if (c.match(/\s/)) {
-            return span('&nbsp;', 'whitespace');
-        } else {
-            return c;
-        }
-    });
-}
-
-/* ============================ */
-
-function link_to_key(key, attr) {
-    return link(
-        url_for_key(key),
-        fmt_key(key),
-        attr
-    );
-}
-
-function link_to_key_with_tab(key, tab, text) {
-    return link(
-        url_for_key(key) + '#' + tab,
-        text
-    );
-}
-
-function link_to_tag_with_tab(key, value, tab, text) {
-    return link(
-        url_for_tag(key, value) + '#' + tab,
-        text
-    );
-}
-
-function link_to_value(key, value, attr) {
-    return link(
-        url_for_tag(key, value),
-        fmt_value(value),
-        attr
-    );
-}
-
-function link_to_tag(key, value, key_attr, value_attr) {
-    return link_to_key(key, key_attr) + '=' + link_to_value(key, value, value_attr);
-}
-
-function link_to_rtype(rtype, attr) {
-    return link(
-        url_for_rtype(rtype),
-        fmt_rtype(rtype),
-        attr
-    );
-}
-
-function link_to_project(id, name) {
-    icon_url = '/api/4/project/icon?project=' + id;
-    return img({ src: icon_url, width: 16, height: 16, alt: '' }) + ' ' + link(
-        url_for_project(id),
-        html_escape(name)
-    );
-}
-
-function link_to_wiki(title, options) {
-    if (title == '') {
-        return '';
-    }
-
-    return link(
-        url_for_wiki(title, options),
-        html_escape(title),
-        { target: '_blank', 'class': 'extlink' }
-    );
-}
-
-function link_to_url(url) {
-    return link(
-        encodeURI(url),
-        html_escape(url.replace(/^http:\/\//, '')),
-        { target: '_blank', 'class': 'extlink' }
-    );
-}
-
-function link_to_url_nofollow(url) {
-    return link(
-        encodeURI(url),
-        html_escape(url.replace(/^http:\/\//, '')),
-        { target: '_blank', 'class': 'extlink', 'rel': 'nofollow' }
-    );
+function h(text) {
+    return html_escape(text);
 }
 
 function highlight(str, query) {
     return html_escape(str).replace(new RegExp('(' + html_escape(query) + ')', 'gi'), "<b>$1</b>");
 }
 
-function link_to_key_with_highlight(key, query) {
-    return link(
-        url_for_key(key),
-        highlight(key, query)
-    );
-}
-
-function link_to_value_with_highlight(key, value, query) {
-    return link(
-        url_for_tag(key, value),
-        highlight(value, query)
-    );
-}
-
-function link_to_rtype_with_highlight(rtype, query) {
-    return link(
-        url_for_rtype(rtype),
-        highlight(rtype, query)
-    );
-}
-
-/* ============================ */
-
-function html_escape(text) {
-    return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+function set_inner_html_to(id, html) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.innerHTML = html;
+    }
 }
 
 function tag(element, text, attrs) {
-    var attributes = '';
+    let attributes = '';
     if (attrs !== undefined) {
-        for (var a in attrs) {
+        for (const a in attrs) {
             attributes += ' ' + a + '="' + attrs[a] + '"';
         }
     }
@@ -312,9 +456,9 @@ function tag(element, text, attrs) {
 }
 
 function style(styles) {
-    var css = '';
+    let css = '';
 
-    for (var s in styles) {
+    for (const s in styles) {
         css += html_escape(s) + ':' + html_escape(styles[s]) + ';';
     }
 
@@ -347,32 +491,58 @@ function hover_expand(text) {
 
 /* ============================ */
 
+function fmt_desc(lang, dir, desc) {
+    if (desc === null) {
+        return '';
+    }
+    return '<span lang="' + lang + '" dir="' + dir + '">' + html_escape(desc) + '</span>';
+}
+
+function fmt_status(status) {
+    if (status === null) {
+        return '<i>(none)</i>';
+    }
+    return '<a class="tagstatus tagstatus-' + html_escape(status.replace(/[^a-z]+/, '-')) + '" href="' + build_link('/sources/wiki/tag_status') + '">' + html_escape(status) + '</a>';
+}
+
+function fmt_role(role) {
+    if (role == '') {
+        return span(texts.misc.empty_string, 'empty');
+    }
+
+    return translate(role, function(c) {
+        if (bad_chars_for_keys.indexOf(c) != -1) {
+            return span(c, 'badchar');
+        } else if (c == ' ') {
+            return span('&#x2423;', 'badchar');
+        } else if (c.match(/\s/)) {
+            return span('&nbsp;', 'whitespace');
+        } else {
+            return c;
+        }
+    });
+}
+
 function fmt_wiki_image_popup(image) {
     if (! image.title) {
         return empty(texts.misc.no_image);
     }
 
-    var w = image.width,
-        h = image.height,
-        max_size = 180,
-        thumb_size = w >= h ? max_size : parseInt(max_size / h * w),
-        other_size = (w >= h ? parseInt(max_size / w * h) : max_size) + 2,
-        url = image.thumb_url_prefix + thumb_size + image.thumb_url_suffix;
+    let w = image.width;
+    let h = image.height;
+    const max_size = 180;
+    const thumb_size = w >= h ? max_size : parseInt(max_size / h * w);
+    const other_size = (w >= h ? parseInt(max_size / w * h) : max_size) + 2;
+    let url = image.thumb_url_prefix + thumb_size + image.thumb_url_suffix;
 
     if (w < max_size) {
         url = image.image_url;
-    } else {
-        w = thumb_size;
-        h = other_size;
     }
 
-    return tag('span', link_to_wiki(image.title), {
-        'class': 'overflow',
-        tipsy_html: 's',
-        title: html_escape(tag('div', img({ src: url }), {
-            'class': 'img_popup',
-            style: style({ width: w + 'px', height: h + 'px' })
-        }))
+    const wikiPage = new TaginfoWikiPage(image.title);
+    return tag('div', hover_expand(wikiPage.link()), {
+        'data-tooltip-position': 'OnTop',
+        title: html_escape(img({ src: url }))
     });
 }
 
@@ -459,7 +629,7 @@ function fmt_type_icon(type, on_or_off) {
 
 function fmt_type_image(type) {
     type = type.replace(/s$/, '');
-    var name = html_escape(texts.osm[type]);
+    const name = html_escape(texts.osm[type]);
     return img({
         src: '/img/types/' + encodeURIComponent(type) + '.svg',
         alt: '[' + name + ']',
@@ -474,7 +644,7 @@ function fmt_with_ts(value) {
     if (value === null) {
         return '-';
     } else {
-        return value.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1&#x202f;');
+        return value.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1\u202f');
     }
 }
 
@@ -483,23 +653,24 @@ function fmt_as_percent(value) {
 }
 
 function fmt_checkmark(value) {
-    return value ? '&#x2714;' : '-';
+    return value ? '\u2714' : '-';
 }
 
 function fmt_value_with_percent(value, fraction) {
-    return tag('div', fmt_with_ts(value), { 'class': 'value' }) +
-           tag('div', fmt_as_percent(fraction), { 'class': 'fraction' }) +
-           tag('div', '', { 'class': 'bar', style: style({ width: (fraction*100).toFixed() + 'px' }) });
+    return tag('div',
+            tag('div', fmt_with_ts(value), { 'class': 'value' }) +
+            tag('div', fmt_as_percent(fraction), { 'class': 'fraction' }) +
+            tag('div', '', { 'class': 'bar', style: style({ width: (fraction*100).toFixed() + 'px' }) }),
+            { 'class': 'value-fraction' });
 }
 
 function fmt_key_or_tag_list(list) {
-    return jQuery.map(list, function(tag, i) {
+    return list.map(function(tag) {
         if (tag.match(/=/)) {
-            var el = tag.split('=', 2);
-            return link_to_tag(el[0], el[1]);
-        } else {
-            return link_to_key(tag);
+            const el = tag.split('=', 2);
+            return (new TaginfoTag(el[0], el[1])).fullLink();
         }
+        return (new TaginfoKey(tag)).link();
     }).join(' &bull; ');
 }
 
@@ -507,310 +678,15 @@ function fmt_prevalent_value_list(key, list) {
     if (list.length == 0) {
         return empty(texts.misc.values_less_than_one_percent);
     }
-    return jQuery.map(list, function(item, i) {
-        return link_to_value(key, item.value, { tipsy: 'e', title: fmt_as_percent(item.fraction) });
-    }).join(' &bull; ');
+    return list.map(
+        item => key.toTag(item.value).link({
+            attrs: { 'data-tooltip-position': 'OnLeft', title: fmt_as_percent(item.fraction) }
+        })
+    ).join(' &bull; ');
 }
 
-/* ============================ */
-
-var flexigrid_defaults = {
-    method        : 'GET',
-    dataType      : 'json',
-    showToggleBtn : false,
-    height        : 'auto',
-    usepager      : true,
-    useRp         : false,
-    onSuccess     : function(grid) {
-        init_tipsy();
-        grid.fixHeight();
-        jQuery('th *[title]').tipsy({ opacity: 1, delayIn: 500, gravity: 's', offset: 3 });
-        jQuery('.sDiv input[title]').tipsy({ opacity: 1, delayIn: 500, gravity: 'e' });
-        jQuery('input.qsbox').bind('keydown', function(event) {
-            if (event.which == 27) { // esc
-                this.blur();
-                return false;
-            }
-            if (event.which == 9) { // tab
-                jQuery('input#search').focus();
-                return false;
-            }
-        });
-        jQuery('div.bDiv:visible').bind('click', function(event) {
-            var row = jQuery(event.target).parents('tr');
-            jQuery('div.bDiv:visible tr').removeClass('trOver');
-            jQuery(row).addClass('trOver');
-        });
-    }
-};
-
-function calculate_flexigrid_rp(box) {
-    var height = box.innerHeight();
-
-    height -= box.children('h2').outerHeight(true);
-    height -= box.children('.boxpre').outerHeight(true);
-    height -= box.children('.pDiv').outerHeight();
-    height -= 90; // table tools and header, possibly horizontal scrollbar
-
-    return Math.floor(height / 26);
-}
-
-function create_flexigrid(domid, options) {
-    current_grid = domid;
-    if (grids[domid] == null) {
-        // grid doesn't exist yet, so create it
-        var me = jQuery('#' + domid),
-            rp = calculate_flexigrid_rp(me.parents('.resize,.ui-tabs-panel'));
-        grids[domid] = me.flexigrid(jQuery.extend({}, flexigrid_defaults, texts.flexigrid, options, { rp: rp }));
-    } else {
-        // grid does exist, make sure it has the right size
-        resize_grid(domid);
-    }
-}
-
-function init_tabs(params) {
-    return jQuery('#tabs').tabs({
-        activate: function (event, ui) {
-            resize_box();
-            var index = ui.newTab.closest("li").index();
-            if (index != 0 || window.location.hash != '') {
-                window.location.hash = ui.newTab.context.hash;
-            }
-            if (ui.newTab.context.hash.substring(1) in create_flexigrid_for) {
-                create_flexigrid_for[ui.newTab.context.hash.substring(1)].apply(this, params);
-            }
-        },
-        create: function (event, ui) {
-            resize_box();
-            var index = jQuery(this).tabs("option", "selected"),
-                id = jQuery(jQuery(this).children()[index+1]).attr('id');
-            if (index != 0 || window.location.hash != '') {
-                window.location.hash = id;
-            }
-            if (id in create_flexigrid_for) {
-                create_flexigrid_for[id].apply(this, params);
-            }
-        }
-    });
-}
-
-function create_characters_flexigrid(string) {
-    return create_flexigrid('grid-characters', {
-        url: '/api/4/unicode/characters?string=' + encodeURIComponent(string),
-        colModel: [
-            { display: texts.unicode.character, name: 'character', width: 20, sortable: true },
-            { display: texts.unicode.codepoint, name: 'codepoint', width: 60, sortable: true, align: 'right' },
-            { display: texts.unicode.script, name: 'script', width: 100, sortable: true },
-            { display: texts.unicode.general_category, name: 'general_category', width: 150, sortable: false },
-            { display: texts.unicode.name, name: 'name', width: 600, sortable: false, align: 'left' }
-        ],
-        preProcess: function(data) {
-            data.rows = jQuery.map(data.data, function(row, i) {
-                return { 'cell': [
-                    row.char,
-                    link('https://decodeunicode.org/' + fmt_unicode_code_point(row.codepoint), fmt_unicode_code_point(row.codepoint), { target: '_blank', title: 'decodeunicode.org' }),
-                    fmt_unicode_script(row.script, row.script_name),
-                    fmt_unicode_general_category(row.category),
-                    row.name
-                ] };
-            });
-            return data;
-        }
-    });
-}
-
-/* ============================ */
-
-function d3_colors() {
-    return ["#1f77b4","#aec7e8","#ff7f0e","#ffbb78","#2ca02c","#98df8a","#d62728","#ff9896","#9467bd","#c5b0d5","#8c564b","#c49c94","#e377c2","#f7b6d2","#7f7f7f","#c7c7c7","#bcbd22","#dbdb8d","#17becf","#9edae5"];
-}
-
-/* ============================ */
-
-function table_up() {
-    var current = jQuery('.trOver:visible');
-    if (current.size() > 0) {
-        var prev = jQuery('div.bDiv:visible tr.trOver').removeClass('trOver').prev();
-        if (prev.size() > 0) {
-            prev.addClass('trOver');
-        } else {
-            jQuery('div.pPrev:visible').click();
-        }
-    } else {
-        jQuery('div.bDiv:visible tr:last').addClass('trOver');
-    }
-}
-
-function table_down() {
-    var current = jQuery('.trOver:visible');
-    if (current.size() > 0) {
-        var next = jQuery('div.bDiv:visible tr.trOver').removeClass('trOver').next();
-        if (next.size() > 0) {
-            next.addClass('trOver');
-        } else {
-            jQuery('div.pNext:visible').click();
-        }
-    } else {
-        jQuery('div.bDiv:visible tr:first').addClass('trOver');
-    }
-}
-
-function table_right() {
-    var current = jQuery('.trOver');
-    if (current.size() > 0) {
-        var link = current.find('a.pref');
-        if (link.size() == 0) {
-            link = current.find('a');
-        }
-        if (link.size() > 0) {
-            window.location = link.attr('href');
-        }
-    }
-}
-
-/* ============================ */
-
-function open_help() {
-    jQuery('#help').dialog({
-        modal: true,
-        resizable: false,
-        title: texts.misc.help,
-        minWidth: 800,
-        minHeight: 400,
-        position: { my: 'top', at: 'top+100' },
-        create: function(event, ui) {
-            jQuery('#help_tabs').tabs();
-        }
-    });
-    return false;
-}
-
-/* ============================ */
-
-function cookies_enabled() {
-    var cookieEnabled = (navigator.cookieEnabled) ? true : false;
-
-    if (typeof navigator.cookieEnabled == "undefined" && !cookieEnabled) {
-        document.cookie="testcookie";
-        cookieEnabled = (document.cookie.indexOf("testcookie") != -1) ? true : false;
-    }
-    return (cookieEnabled);
-}
-
-function get_comparison_list() {
-    return jQuery.cookie('taginfo_comparison_list') || [];
-}
-
-function set_comparison_list(list) {
-    jQuery.cookie('taginfo_comparison_list', list, { expires: 1, path: '/' });
-}
-
-function comparison_list_update(key, value) {
-    var l = get_comparison_list().length;
-
-    var cl = jQuery('#list option:first').html();
-    cl = cl.replace(/([0-9]+)/, String(l));
-    jQuery('#list option:first').html(cl);
-
-    if (comparison_list_contains(get_comparison_list(), key, value)) {
-        jQuery('#list option:eq(1)').attr('style', 'color: #e0e0e0');
-    } else {
-        jQuery('#list option:eq(1)').attr('style', '');
-    }
-    if (l == 0) {
-        jQuery('#list option:eq(2)').attr('style', 'color: #e0e0e0');
-    } else {
-        jQuery('#list option:eq(2)').attr('style', '');
-    }
-    if (l < 2) {
-        jQuery('#list option:eq(3)').attr('style', 'color: #e0e0e0');
-    } else {
-        jQuery('#list option:eq(3)').attr('style', '');
-    }
-
-    jQuery('#list').val('title').change();
-}
-
-function comparison_list_item_clean(text) {
-    return text === null || text.match(/^[a-zA-Z0-9:_]+$/) !== null;
-}
-
-function comparison_list_url(list) {
-    var okay = true;
-    jQuery.each(list, function(index, item) {
-        if (!comparison_list_item_clean(item[0]) ||
-            !comparison_list_item_clean(item[1])) {
-            okay = false;
-        }
-    });
-
-    if (okay) {
-        return '/compare/' + jQuery.map(list, function(item, i) {
-            return item[0] + (item[1] === null ? '' : ('=' + item[1]));
-        }).join('/');
-    } else {
-        var keys = [];
-        var values = [];
-        jQuery.each(list, function(index, item) {
-            keys.push(item[0]);
-            values.push(item[1] === null ? '' : item[1]);
-        });
-        return '/compare/?' + jQuery.param({ 'key': keys, 'value': values });
-    }
-}
-
-function comparison_list_contains(list, key, value) {
-    var contains = false;
-
-    jQuery.each(list, function(index, item) {
-        if (item[0] == key && item[1] == value) {
-            contains = true;
-        }
-    });
-
-    return contains;
-}
-
-function comparison_list_change(key, value) {
-    var list = get_comparison_list(),
-        command = jQuery('#list').val();
-
-    if (command == 'title') {
-        return true;
-    } else if (command == 'add' && !comparison_list_contains(list, key, value)) {
-        list.push([key, value]);
-        set_comparison_list(list);
-    } else if (command == 'clear') {
-        set_comparison_list([]);
-    } else if (command == 'compare' && list.length >= 2) {
-        window.location = comparison_list_url(list);
-    }
-
-    comparison_list_update(key, value);
-    return false;
-}
-
-/* ============================ */
-
-function activate_josm_button() {
-    if (jQuery('#josm_button').length != 0) {
-        jQuery('#josm_button').bind('click', function() {
-            var url = jQuery('#josm_button')[0].href;
-            jQuery.get(url, function(data) {
-                if (data.substring(0, 2) != 'OK') {
-                    alert("Problem contacting JOSM. Is it running? Is remote control activated?");
-                    console.log("Answer from JOSM: [" + data + "]");
-                }
-            });
-            return false;
-        });
-    }
-}
-
-/* ============================ */
-
-function project_tag_desc(description, icon, url) {
-    var out = '';
+function fmt_project_tag_desc(description, icon, url) {
+    let out = '';
     if (icon) {
         out += img({src: icon, alt: '', style: 'max-width: 16px; max-height: 16px;'}) + ' ';
     }
@@ -823,254 +699,1369 @@ function project_tag_desc(description, icon, url) {
     return out;
 }
 
+function fmt_wikidata_item(item, description) {
+    let url = 'https://www.wikidata.org/wiki/';
+    if (item[0] == 'P') {
+        url += 'Property:' + encodeURI(item);
+    } else {
+        url += encodeURI(item);
+    }
+    return link(url, html_escape(item), { target: '_blank', 'class': 'extlink' }) + ' \u00b7 ' + description;
+}
+
 /* ============================ */
 
-jQuery(document).ready(function() {
-    jQuery('#javascriptmsg').remove();
+class DynamicTableColumn {
 
-    jQuery('select').customSelect();
+    name; // Name of this column
+    display; // HTML that will be shown in this column header
+    width; // Width in px
+    sortable = false; // Can we sort the table by this column?
+    align = 'left'; // Header and content alignment
+    title; // Optional tooltip title
+    headerElement; // The DOM element for the header cell
 
-    jQuery('#help_link').bind('click', open_help);
+    constructor(config) {
+        this.name = config.name;
+        this.display = config.display;
+        this.width = config.width;
 
-    jQuery.cookie.json = true;
-
-    jQuery.getQueryString = (function(a) {
-        if (a == "") return {};
-        var b = {};
-        for (var i = 0; i < a.length; i++) {
-            var p=a[i].split('=');
-            b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+        if (config.sortable) {
+            this.sortable = config.sortable;
         }
-        return b;
-    })(window.location.search.substr(1).split('&'));
 
-    init_tipsy();
+        if (config.align) {
+            this.align = config.align;
+        }
 
-    resize_box();
+        if (config.title) {
+            this.title = config.title;
+        }
+    }
+
+    makeHeaderElement(col, max) {
+        const element = document.createElement('div');
+        element.classList.add('dt-header');
+        element.dataset.name = this.name;
+        element.dataset.col = col;
+
+        element.style.gridColumnStart = col * 2 + 1;
+        element.style.textAlign = this.align;
+
+        if (this.sortable) {
+            element.style.cursor = 'pointer';
+        }
+
+        if (this.title) {
+            element.setAttribute('title', this.title);
+            element.setAttribute('data-tooltip-position', 'OnTop');
+        }
+
+        if (col + 1 < max) {
+            element.style.width = this.width + 'px';
+        } else {
+            element.style.minWidth = this.width + 'px';
+        }
+
+        element.innerHTML = this.display;
+
+        this.headerElement = element;
+        return element;
+    }
+
+    makeBodyElement(col, row, max) {
+        const element = document.createElement('div');
+        element.className = 'dt-body';
+        element.dataset.col = col;
+        element.dataset.row = row;
+
+        element.style.textAlign = this.align;
+
+        if (col + 1 < max) {
+            element.style.width = this.width + 'px';
+        }
+
+        return element;
+    }
+
+    setWidth(width) {
+        this.width = width;
+        this.headerElement.style.width = width + 'px';
+    }
+} // class DynamicTableColumn
+
+class DynamicTable {
+    id; // The id of this table
+    element; // The div element for the whole table including the toolbar
+    config; // The original table configuration
+    toolbar; // The toolbar element
+    table; // The div element used for the table
+    queryInput; // The input element with the query
+    columns = []; // The table column definitions
+
+    usePager = true;
+    rp = 0; // The number of rows per page
+
+    totalRows = 0; // The total number of rows in this table
+    currentRow = 0; // The current row (range: 0 to totalRows - 1)
+
+    get currentPage() {
+        return this.page(this.currentRow);
+    }
+
+    get maxPage() {
+        return Math.ceil(this.totalRows / this.rp);
+    }
+
+    get rowOnPage() {
+        return this.currentRow % this.rp;
+    }
+
+    constructor(id, config) {
+        this.id = id;
+        this.element = document.getElementById(id);
+
+        if (!this.element) {
+            throw new Error('No HTML object found with id "' + id + '" for DynamicTable.');
+        }
+
+        this.config = config;
+
+        for (const column of this.config.colModel) {
+            this.columns.push(new DynamicTableColumn(column));
+        }
+
+        if (this.config.usePager !== undefined && !this.config.usePager) {
+            this.usePager = false;
+        }
+
+        if (this.usePager) {
+            this.initToolbar();
+        }
+        this.initTable();
+
+        this.element.classList.add('dt-container');
+    }
+
+    page(rowNum) {
+        if (this.rp == 0) {
+            return 0;
+        }
+        return Math.floor(rowNum / this.rp);
+    }
+
+    calculateRowsPerPage() {
+        const rowHeight = 20 /*cell*/ + 2 * 2 /*cell padding*/;
+        const parentHeight = this.element.parentNode.getBoundingClientRect().height;
+        const padding = 2 * 20 /* top/bottom padding */ + 1 /* bottom border */;
+
+        let height = parentHeight - padding;
+        for (const child of this.element.parentNode.children) {
+            const style = window.getComputedStyle(child);
+            height -= parseInt(style.marginTop);
+            height -= parseInt(style.marginBottom);
+            height -= child.getBoundingClientRect().height;
+        }
+
+        return Math.max(10, Math.floor(height / rowHeight));
+    }
+
+    hasSearch() {
+        return this.config.searchitems !== undefined;
+    }
+
+    searchFor() {
+        const s = this.config.searchitems;
+        return s ? s[0].display : undefined;
+    }
+
+    initToolbar() {
+        let tools = [];
+        for (const toolClasses of ['dt-first dt-button key-tooltip',
+                                   'dt-prev dt-button key-tooltip',
+                                   'dt-page',
+                                   'dt-next dt-button key-tooltip',
+                                   'dt-last dt-button key-tooltip',
+                                   'dt-reload dt-button',
+                                   'dt-json dt-api no-print',
+                                   'dt-csv dt-api no-print',
+                                   'dt-info',
+                                   'dt-search key-tooltip']) {
+            const newElement = document.createElement('div');
+            newElement.className = toolClasses;
+            tools.push(newElement);
+        }
+
+        tools[0].addEventListener('click', this.goToFirstPage.bind(this));
+        tools[1].addEventListener('click', this.goToPrevPage.bind(this));
+
+        tools[2].innerHTML = '<span class="dt-page-msg">'
+            + texts.dynamic_table.pagetext
+            + ' </span><input type="text" size="4"> '
+            + texts.dynamic_table.outof
+            + ' <span class="dt-page-max"></span>';
+
+        tools[2].addEventListener('change', event => {
+            event.preventDefault();
+            let newPage = parseInt(event.target.value);
+            if (newPage < 1) {
+                newPage = 1;
+                event.target.value = newPage;
+            } else if (newPage > this.maxPage) {
+                newPage = this.maxPage;
+                event.target.value = newPage;
+            }
+            this.updateDisplay((newPage - 1) * this.rp);
+        });
+
+        tools[3].addEventListener('click', this.goToNextPage.bind(this));
+        tools[4].addEventListener('click', this.goToLastPage.bind(this));
+        tools[5].addEventListener('click', this.load.bind(this));
+
+        tools[6].innerHTML = '<a href="" target="_blank">JSON</a>';
+
+        if (this.config.csv) {
+            tools[7].innerHTML = '<a href="" target="_blank">CSV</a>';
+        }
+
+        if (this.hasSearch()) {
+            this.queryInput = document.createElement('input');
+            this.queryInput.className = 'qsbox';
+            this.queryInput.setAttribute('type', 'text');
+            this.queryInput.setAttribute('size', 20);
+            this.queryInput.setAttribute('name', 'q');
+            this.queryInput.setAttribute('placeholder', texts.misc.search_for + ': ' + this.searchFor());
+            this.queryInput.addEventListener('change', () => {
+                this.currentRow = 0;
+                this.load();
+            });
+
+            this.queryInput.addEventListener('keydown', function(event) {
+                if (event.key == 'Escape') {
+                    event.preventDefault();
+                    this.blur();
+                    return;
+                }
+                if (event.key == 'Tab') {
+                    event.preventDefault();
+                    document.getElementById('search').focus();
+                }
+            });
+
+            tools[9].append(this.queryInput);
+        }
+
+        this.toolbar = document.createElement('div');
+        this.toolbar.classList.add('dt-toolbar');
+        this.toolbar.append(...tools);
+        this.element.append(this.toolbar);
+    }
+
+    dragStart(element, num, event) {
+        event.target.setPointerCapture(event.pointerId);
+        event.preventDefault();
+
+        const origWidth = this.columns[num - 1].width;
+        const x = event.clientX;
+        let dx = 0;
+
+        element.onpointermove = (event) => {
+            dx = event.clientX - x;
+            const width = origWidth + dx;
+            if (width >= 20 && width <= 1000) {
+                this.columns[num - 1].setWidth(width);
+                for (const c of this.element.querySelectorAll('div[data-col="' + (num - 1) + '"]')) {
+                    c.style.width = width + 'px';
+                }
+            }
+        };
+
+        element.onpointerup = function(event) {
+            element.onpointermove = null;
+            element.onpointerup = null;
+        };
+    }
+
+    clearTableBody() {
+        for (const bodyElement of this.table.querySelectorAll('.dt-body,.dt-handle,.dt-noresult')) {
+            bodyElement.remove();
+        }
+    }
+
+    initHandles(numRows) {
+        const rowEnd = 'span ' + (numRows + 1);
+        for (let i = 1; i < this.columns.length; i++) {
+            const handle = document.createElement('div');
+            handle.classList.add('dt-handle-handle');
+            const element = document.createElement('div');
+            element.classList.add('dt-handle-space');
+            element.append(handle);
+            element.style.gridColumnStart = i * 2;
+            element.style.gridRowEnd = rowEnd;
+            handle.addEventListener('dragstart', () => false);
+
+            handle.addEventListener('pointerdown', this.dragStart.bind(this, element, i));
+
+            this.table.append(element);
+        }
+    }
+
+    initTable() {
+        this.table = document.createElement('div');
+        this.table.classList.add('dt-table');
+        this.table.style.gridTemplateColumns = 'repeat(' + ((this.columns.length - 1) * 2) + ', min-content) auto';
+
+        for (let col = 0; col < this.columns.length; col++) {
+            const column = this.columns[col];
+            const element = column.makeHeaderElement(col, this.columns.length);
+            if (column.name == this.config.sortname) {
+                element.classList.add('dt-sort-' + this.config.sortorder);
+            }
+            if (column.sortable) {
+                element.addEventListener('click', event => this.sort(event));
+            }
+            this.table.append(element);
+        }
+
+        if (this.usePager) {
+            this.table.addEventListener('wheel', event => {
+                if (!event.shiftKey) {
+                    return;
+                }
+                if (event.deltaY < 0) {
+                    event.preventDefault();
+                    this.goToPrevPage();
+                } else if (event.deltaY > 0) {
+                    event.preventDefault();
+                    this.goToNextPage();
+                }
+            });
+        }
+
+        this.table.addEventListener('click', event => {
+            const item = event.target.closest('.dt-body');
+            if (item) {
+                this.currentRow = this.currentPage * this.rp + parseInt(item.dataset.row);
+                this.updateCurrentRowDisplay();
+            }
+        });
+
+        this.element.append(this.table);
+    }
+
+    sort(event) {
+        const element = event.currentTarget;
+        const columnName = element.dataset.name;
+        if (this.config.sortname == columnName) {
+            if (this.config.sortorder == 'asc') {
+                this.config.sortorder = 'desc';
+                element.classList.remove('dt-sort-asc');
+            } else {
+                this.config.sortorder = 'asc';
+                element.classList.remove('dt-sort-desc');
+            }
+            element.classList.add('dt-sort-' + this.config.sortorder);
+        } else {
+            const sortElements = element.parentNode.querySelectorAll('.dt-sort-asc,.dt-sort-desc');
+            for (const el of sortElements) {
+                el.classList.remove('dt-sort-desc');
+                el.classList.remove('dt-sort-asc');
+            }
+            element.classList.add('dt-sort-' + this.config.sortorder);
+            this.config.sortname = columnName;
+        }
+        this.currentRow = 0;
+        this.load();
+    }
+
+    fromToMessage() {
+        const firstRow = this.currentRow - this.rowOnPage + 1;
+        const lastRow = Math.min(this.totalRows, firstRow + this.rp - 1);
+        let msg = '<span class="dt-wide">' + texts.dynamic_table.pagestat;
+        msg = msg.replace('{from}', '</span>' + firstRow + '<span class="dt-narrow">\u2009\u2013\u2009</span><span class="dt-wide">');
+        msg = msg.replace('{to}', '</span>' + lastRow + '<span class="dt-narrow">\u2009/\u2009</span><span class="dt-wide">');
+        msg = msg.replace('{total}', '</span>' + this.totalRows + '<span class="dt-wide">');
+        return msg + '</span>';
+    }
+
+    display(data) {
+        if (data.total == 0) {
+            this.totalRows = 1;
+            if (this.toolbar) {
+                this.toolbar.querySelector('.dt-page input').value = '0';
+                this.toolbar.querySelector('.dt-page span.dt-page-max').innerText = '0';
+                this.toolbar.querySelector('.dt-json a').setAttribute('href', build_link(data.url));
+                this.toolbar.querySelector('.dt-csv a')?.setAttribute('href', build_link(data.url + '&format=csv'));
+                this.toolbar.querySelector('.dt-info').innerText = texts.dynamic_table.nomsg;
+            }
+
+            this.clearTableBody();
+
+            const noResultMessage = document.createElement('span');
+            noResultMessage.className = 'empty';
+            if (this.queryInput && this.queryInput.value != '') {
+                noResultMessage.innerText = texts.dynamic_table.filter_nothing_found;
+            } else if (this.config.empty) {
+                noResultMessage.innerText = this.config.empty;
+            } else {
+                noResultMessage.innerText = texts.dynamic_table.nomsg;
+            }
+
+            const noResultElement = document.createElement('div');
+            noResultElement.className = 'dt-noresult';
+            noResultElement.append(noResultMessage);
+            this.table.append(noResultElement);
+
+            return;
+        }
+
+        this.totalRows = data.total;
+
+        if (this.toolbar) {
+            this.toolbar.querySelector('.dt-page input').value = this.currentPage + 1;
+            this.toolbar.querySelector('.dt-page span.dt-page-max').innerText = this.maxPage;
+            this.toolbar.querySelector('.dt-json a').setAttribute('href', build_link(data.url));
+            this.toolbar.querySelector('.dt-csv a')?.setAttribute('href', build_link(data.url + '&format=csv'));
+
+            this.toolbar.querySelector('.dt-info').innerHTML = this.fromToMessage();
+        }
+
+        this.clearTableBody();
+        this.initHandles(data.rows.length);
+
+        let elements = [];
+        let rowNum = 0;
+        for (const row of data.rows) {
+            let column = 0;
+            for (const cell of row) {
+                const element = this.columns[column].makeBodyElement(column, rowNum, this.columns.length);
+                element.innerHTML = cell;
+                element.addEventListener('mouseover', this.makeActive.bind(this, element));
+                element.addEventListener('mouseout', this.makeInactive.bind(this, element));
+                elements.push(element);
+                column++;
+            }
+            rowNum++;
+        }
+
+        this.table.append(...elements);
+
+        initTooltips();
+
+        this.updateCurrentRowDisplay();
+
+        if (this.usePager) {
+            widgetManager.addWidget(this);
+        }
+    }
+
+    resize() {
+        if (this.controller) {
+            this.controller.abort();
+        }
+        this.clearTableBody();
+        this.load();
+    }
+
+    buildURL() {
+        let p = {};
+
+        for (const param in this.config.params) {
+            p[param] = this.config.params[param];
+        }
+
+        if (this.config.sortname) {
+            p.sortname = this.config.sortname;
+            p.sortorder = this.config.sortorder;
+        }
+
+        if (this.usePager) {
+            if (this.element.querySelectorAll('.dt-body,.dt-noresult').length == 0) {
+                this.rp = this.calculateRowsPerPage();
+            }
+            p.rp = this.rp;
+            p.page = this.currentPage + 1;
+        }
+
+        if (this.queryInput !== undefined && this.queryInput.value != '') {
+            p.query = this.queryInput.value;
+        }
+
+        return build_link(this.config.url, p);
+    }
+
+    async load() {
+        if (this.controller) {
+            this.controller.abort();
+        }
+
+        if (this.toolbar) {
+            if (window.innerWidth <= 800) {
+                this.toolbar.querySelector('.dt-info').innerText = '...';
+            } else {
+                this.toolbar.querySelector('.dt-info').innerText = texts.dynamic_table.procmsg;
+            }
+        }
+
+        this.controller = new AbortController();
+
+        try {
+            const response = await fetch(this.buildURL(), { signal: this.controller.signal });
+            if (!response.ok) {
+                throw new Error("Network error");
+            }
+            const json = await response.json();
+            this.controller = undefined
+
+            json.rows = json.data.map(row => {
+                return this.config.processRow(row);
+            });
+
+            this.display(json);
+        } catch (error) {
+            console.log(error);
+            this.clearTableBody();
+            if (this.toolbar) {
+                this.toolbar.querySelector('.dt-info').innerHTML = span(h(texts.dynamic_table.errormsg), 'bad');
+            }
+        }
+    }
+
+    elementsInRow(row) {
+        return this.table.querySelectorAll('div[data-row="' + row + '"]');
+    }
+
+    makeActive(element) {
+        for (const el of this.elementsInRow(element.dataset.row)) {
+            el.classList.add('active');
+        }
+    }
+
+    makeInactive(element) {
+        for (const el of this.elementsInRow(element.dataset.row)) {
+            el.classList.remove('active');
+        }
+    }
+
+    updateCurrentRowDisplay() {
+        for (const element of this.table.querySelectorAll('.dt-current-row')) {
+            element.classList.remove('dt-current-row');
+        }
+
+        const currentRow = this.elementsInRow(this.rowOnPage);
+        if (currentRow.length > 0) {
+            for (const element of currentRow) {
+                element.classList.add('dt-current-row');
+            }
+            currentRow[0].classList.add('key-tooltip');
+        }
+    }
+
+    updateDisplay(newRow) {
+        if (newRow < 0) {
+            newRow = 0;
+        } else if (newRow >= this.totalRows) {
+            newRow = this.totalRows - 1;
+        }
+
+        if (this.currentRow == newRow) {
+            return;
+        }
+
+        if (this.currentPage == this.page(newRow)) {
+            this.currentRow = newRow;
+
+            for (const element of this.table.querySelectorAll('.active')) {
+                element.classList.remove('active');
+            }
+
+            this.updateCurrentRowDisplay();
+            return;
+        }
+
+        this.currentRow = newRow;
+        this.load();
+    }
+
+    goToPrevRow() {
+        this.updateDisplay(this.currentRow - 1);
+    }
+
+    goToNextRow() {
+        this.updateDisplay(this.currentRow + 1);
+    }
+
+    goToFirstPage() {
+        this.updateDisplay(0);
+    }
+
+    goToPrevPage() {
+        this.updateDisplay(this.currentRow - this.rp);
+    }
+
+    goToNextPage() {
+        this.updateDisplay(this.currentRow + this.rp);
+    }
+
+    goToLastPage() {
+        this.updateDisplay(this.totalRows - 1);
+    }
+
+    selectRow() {
+        const apref = this.element.querySelectorAll('.dt-current-row a.pref');
+        if (apref.length > 0) {
+            window.location = apref[0].getAttribute('href');
+            return;
+        }
+
+        const a = this.element.querySelectorAll('.dt-current-row a');
+        if (a.length > 0) {
+            window.location = a[0].getAttribute('href');
+        }
+    }
+
+    keyUp(event) {
+        switch (event.key) {
+            case 'Home': event.preventDefault(); this.goToFirstPage(); break;
+            case 'PageUp': event.preventDefault(); this.goToPrevPage(); break;
+            case 'PageDown': event.preventDefault(); this.goToNextPage(); break;
+            case 'End': event.preventDefault(); this.goToLastPage(); break;
+            case 'ArrowUp': event.preventDefault(); this.goToPrevRow(); break;
+            case 'ArrowDown': event.preventDefault(); this.goToNextRow(); break;
+            case 'ArrowRight': event.preventDefault(); this.selectRow(); break;
+        }
+    }
+} // class DynamicTable
+
+function createDynamicTable(id, options) {
+    const dt = new DynamicTable(id, options);
+    dt.load();
+    return dt;
+}
+
+class Tabs {
+    element;
+    buttons;
+    tabs;
+    widgets = [];
+    state = [];
+    numTabs;
+    currentTab;
+
+    constructor(id) {
+        this.element = document.getElementById(id);
+
+        const children = Array.from(this.element.children);
+
+        // First child is <ul> with tab buttons
+        this.buttons = children[0].children;
+        this.numTabs = this.buttons.length;
+
+        // Every child except the first is a tab
+        this.tabs = children.slice(1);
+
+        for (const button of this.buttons) {
+            button.addEventListener('click', this.click.bind(this));
+        }
+
+        for (let i = 0; i < this.numTabs; i++) {
+            this.widgets[i] = [];
+        }
+    }
+
+    setTabFromURL() {
+        if (window.location.hash == '') {
+            this.choose(0);
+        } else {
+            this.activate(window.location.hash.substring(1));
+        }
+    }
+
+    choose(n) {
+        this.currentTab = n;
+        for (const button of this.buttons) {
+            button.classList.remove('active');
+        }
+        this.buttons[n].classList.add('active');
+        for (const tab of this.tabs) {
+            tab.style.display = 'none';
+        }
+        this.tabs[n].style.display = 'block';
+        if (n > 0 || window.location.hash != '') {
+            window.location.hash = this.tabs[n].id;
+        }
+
+        for (const widget of this.widgets[this.currentTab]) {
+            if (this.state[this.currentTab] == 'resize') {
+                if (widget && widget.resize) {
+                    widget.resize();
+                }
+            } else if (this.state[this.currentTab] != 'ok') {
+                if (widget && widget.load) {
+                    widget.load();
+                } else if (widget && widget.draw) {
+                    widget.draw();
+                }
+            }
+        }
+        this.state[this.currentTab] = 'ok';
+    }
+
+    getIndex(tabname) {
+        for (let n = 0; n < this.tabs.length; ++n) {
+            if (this.tabs[n].id == tabname) {
+                return n;
+            }
+        }
+        return 0;
+    }
+
+    activate(tabname) {
+        this.choose(this.getIndex(tabname));
+    }
+
+    click(event) {
+        if (event.target) {
+            event.preventDefault();
+            const href = event.target.closest('[href]').getAttribute('href');
+            if (href) {
+                const scroll = window.scrollY;
+                this.activate(href.substring(1));
+                window.scrollTo({ top: scroll });
+            }
+        }
+    }
+
+    keyUp(event) {
+        if (event.which >= 49 && event.which <= 57) { // digit
+            this.choose(event.which - 49);
+            return;
+        }
+
+        for (const widget of this.widgets[this.currentTab]) {
+            if (widget && widget.keyUp) {
+                widget.keyUp(event);
+                return;
+            }
+        }
+    }
+
+    addWidget(tab, widget) {
+        if (Array.isArray(widget)) {
+            for (const w of widget) {
+                this.widgets[this.getIndex(tab)].push(w);
+            }
+            return;
+        }
+        this.widgets[this.getIndex(tab)].push(widget);
+    }
+
+    resize() {
+        for (const widget of this.widgets[this.currentTab]) {
+            if (widget && widget.resize) {
+                widget.resize();
+            }
+        }
+        for (let i = 0; i < this.state.length; ++i) {
+            if (i != this.currentTab) {
+                this.state[i] = 'resize';
+            }
+        }
+    }
+} // class Tabs
+
+function initTabs(config, params) {
+    for (const tab in config) {
+        try {
+            tabs.addWidget(tab, config[tab].apply(this, params));
+        } catch (e) {
+            // Ignore tables that can't be created. This is usually because
+            // there is no data available.
+        }
+    }
+}
+
+/* ============================ */
+
+function createCharactersTable(string) {
+    return new DynamicTable('grid-characters', {
+        url: '/api/4/unicode/characters',
+        params: { string: string },
+        colModel: [
+            { display: texts.unicode.character, name: 'character', width: 20 },
+            { display: texts.unicode.codepoint, name: 'codepoint', width: 60, align: 'right' },
+            { display: texts.unicode.script, name: 'script', width: 100 },
+            { display: texts.unicode.general_category, name: 'general_category', width: 150 },
+            { display: texts.unicode.name, name: 'name', width: 150, align: 'left' }
+        ],
+        usePager: false,
+        processRow: row => {
+            return [
+                row.char,
+                link('https://decodeunicode.org/' + fmt_unicode_code_point(row.codepoint), fmt_unicode_code_point(row.codepoint), { target: '_blank', title: 'decodeunicode.org', class: 'extlink' }),
+                fmt_unicode_script(row.script, row.script_name),
+                fmt_unicode_general_category(row.category),
+                row.name
+            ];
+        }
+    });
+}
+
+/* ============================ */
+
+class ComparisonList {
+
+    list = [];
+
+    constructor(list = []) {
+        this.list = list.map( d => createKeyOrTagFromHash(d) );
+    }
+
+    load() {
+        const tcl = window.sessionStorage.getItem('taginfo_comparison_list');
+        const list = tcl ? JSON.parse(tcl) : [];
+        this.list = list.map( d => createKeyOrTagFromHash(d) );
+    }
+
+    store() {
+        window.sessionStorage.setItem('taginfo_comparison_list', JSON.stringify(this.list));
+    }
+
+    get length() {
+        return this.list.length;
+    }
+
+    add(keyOrTag) {
+        if (!this.contains(keyOrTag)) {
+            this.list.push(keyOrTag);
+        }
+    }
+
+    clear() {
+        this.list = [];
+    }
+
+    contains(keyOrTag) {
+        return this.list.find( item => item.isEqual(keyOrTag) ) !== undefined;
+    }
+
+    compare() {
+        if (this.length >= 2) {
+            window.location = this.url();
+        }
+    }
+
+    url() {
+        if (this.list.every( item => item.isClean() )) {
+            const kv = this.list.map( item => item.toFullString() );
+            return build_link('/compare/' + kv.join('/'));
+        }
+
+        let params = new URLSearchParams();
+        this.list.forEach( item => params.append('key[]', item.key) );
+        this.list.forEach( item => params.append('value[]', item.value || '') );
+
+        return build_link('/compare/?' + params.toString());
+    }
+} // class ComparisonList
+
+class ComparisonListDisplay {
+    comparison_list;
+    keyOrTag;
+
+    constructor(keyOrTag) {
+        const list = new ComparisonList();
+        this.comparison_list = list;
+        this.keyOrTag = keyOrTag;
+
+        list.load();
+        this.update();
+
+        document.addEventListener('keyup', (event) => {
+            if (event.key == '+') {
+                list.add(keyOrTag); list.store(); this.update();
+            }
+        });
+
+        document.getElementById('comparison-list-add').addEventListener('click', () => { list.add(keyOrTag); list.store(); this.update(); });
+        document.getElementById('comparison-list-clear').addEventListener('click', () => { list.clear(); list.store(); this.update(); });
+        document.getElementById('comparison-list-compare').addEventListener('click', () => { list.compare(); });
+    }
+
+    update() {
+        const length = this.comparison_list.length;
+
+        const title = document.querySelector('#comparison-list div');
+        title.textContent = title.textContent.replace(/([0-9]+)/, String(length));
+
+        const enable_disable = function(id, condition) {
+            document.getElementById('comparison-list-' + id).className = condition ? '' : 'disabled';
+        };
+
+        enable_disable('add', !this.comparison_list.contains(this.keyOrTag));
+        enable_disable('clear', length > 0);
+        enable_disable('compare', length >= 2);
+    }
+} // class ComparisonListDisplay
+
+/* ============================ */
+
+function activateJOSMButton() {
+    const button = document.getElementById('josm_button');
+    if (!button) {
+        return;
+    }
+
+    button.addEventListener('click', async function(event) {
+        event.preventDefault();
+        try {
+            const response = await fetch(button.getAttribute('href'));
+            const text = await response.text();
+
+            if (!response.ok || text.substring(0, 2) != 'OK') {
+                throw new Error(text);
+            }
+        } catch (error) {
+            console.log("Error when contacting JOSM: ", error);
+            alert("Problem contacting JOSM. Is it running? Is remote control activated?");
+        }
+    });
+}
+
+function activateTagHistoryButton(data) {
+    const buttonElement = document.getElementById('osm-tag-history-button');
+    const items = data.map(d => {
+        if (!d.type || d.type == 'all') {
+            d.type = '***';
+        } else if (d.type.endsWith('s')) {
+            d.type = d.type.substring(0, d.type.length - 1);
+        }
+        return d.type + '/' + encodeURIComponent(d.key) + '/' + (d.value ? encodeURIComponent(d.value) : '');
+    });
+    buttonElement.setAttribute('href', 'https://taghistory.raifer.tech/?#' + items.join('&'));
+}
+
+function activateOhsomeButton(filter, key, value = '') {
+    let p = new URLSearchParams({
+        backend: 'ohsomeApi',
+        key: key,
+        value: value
+    });
+
+    if (!filter || filter == 'all') {
+        p.append('types', 'node,way,relation');
+    } else {
+        p.append('types', filter.substring(0, filter.length - 1));
+    }
+
+    const buttonElement = document.getElementById('ohsome-button');
+    buttonElement.setAttribute('href', 'https://dashboard.ohsome.org/#' + p.toString());
+}
+
+/* ============================ */
+
+class Autocomplete {
+    constructor(id, results) {
+        this.data = [];
+        this.current = 0;
+        this.value = '';
+        this.element = document.getElementById(id);
+        this.results = document.getElementById(results);
+        this.source = build_link('/search/suggest?format=simple&term=');
+        this.element?.addEventListener('input', this.trigger.bind(this));
+        this.element?.parentNode.addEventListener('keydown', this.key.bind(this));
+    }
+
+    trigger(event) {
+        this.value = this.element.value;
+        if (this.value.length < 2) {
+            this.clear();
+            return;
+        }
+        fetch(this.source + encodeURIComponent(this.value))
+            .then( (response) => response.json() )
+            .then( (data) => this.display.apply(this, [data]) );
+    }
+
+    update() {
+        this.element.value = this.current == 0 ? this.value : this.data[this.current - 1];
+        let n = 1;
+        for (let c of this.results.children) {
+            if (n == this.current) {
+                c.classList.add('active');
+            } else {
+                c.classList.remove('active');
+            }
+            n += 1;
+        }
+    }
+
+    key(event) {
+        if (event.key == 'ArrowUp') {
+            event.preventDefault();
+            if (this.current == 0) {
+                this.current = this.data.length;
+            } else {
+                this.current -= 1;
+            }
+            this.update();
+        } else if (event.key == 'ArrowDown') {
+            event.preventDefault();
+            if (this.current == this.data.length) {
+                this.current = 0;
+            } else {
+                this.current += 1;
+            }
+            this.update();
+        } else if (event.key == 'Enter') {
+            if (this.current > 0) {
+                event.preventDefault();
+                window.location = this.results.children[this.current - 1].href;
+            }
+        } else if (event.key == 'Escape') {
+            event.preventDefault();
+            this.clear();
+            this.element.value = this.value;
+            this.element.focus();
+        }
+    }
+
+    clear() {
+        this.current = 0;
+        this.data = [];
+        this.results.innerHTML = '';
+        this.results.style.display = null;
+    }
+
+    display(data) {
+        if (data.length == 0) {
+            this.clear();
+            return;
+        }
+        this.current = 0;
+        this.data = data;
+        let out = '';
+        for (let d of data) {
+            const link = d.match(/=/) ? build_link('/tags/' + d) : build_link('/keys/' + d);
+            out += '<a href="' + link + '">' + d + '</a>';
+        }
+        this.results.innerHTML = out;
+        this.results.style.display = 'block';
+    }
+} // class Autocomplete
+
+/* ============================ */
+
+function whenReady() {
+    if (document.getElementById('tabs')) {
+        tabs = new Tabs('tabs');
+    }
+
+    for (const el of document.getElementsByClassName('tagstatus')) {
+        el.setAttribute('href', build_link('/sources/wiki/tag_status'));
+    }
 
     if (typeof page_init === 'function') {
         page_init();
     }
 
-    jQuery('#locale').bind('change', function() {
-        jQuery('#url').val(window.location.pathname);
-        jQuery('#set_language').submit();
-    });
-
-    jQuery('#search').autocomplete({
-        minLength: 2,
-        source: '/search/suggest?format=simple',
-        delay: 10,
-        select: function(event, ui) {
-            var query = ui.item.value;
-            if (query.match(/=/)) {
-                window.location = '/tags/' + ui.item.value;
-            } else {
-                window.location = '/keys/' + ui.item.value;
-            }
-        }
-    });
-
-    jQuery(document).bind('keypress', function(event) {
-        if (event.ctrlKey || event.altKey || event.metaKey) {
-            return;
-        }
-        if (event.target == document.body) {
-            if (event.which >= 49 && event.which <= 57) { // digit
-                jQuery("#tabs").tabs("select", event.which - 49);
-            } else {
-                switch (event.which) {
-                    case 63: // ?
-                        open_help();
-                        return false;
-                    case 99: // c
-                        window.location = comparison_list_url(get_comparison_list());
-                        return false;
-                    case 102: // f
-                        jQuery('input.qsbox').focus();
-                        return false;
-                    case 104: // h
-                        window.location = '/';
-                        return false;
-                    case 107: // k
-                        window.location = '/keys';
-                        return false;
-                    case 112: // p
-                        window.location = '/projects';
-                        return false;
-                    case 114: // r
-                        window.location = '/relations';
-                        return false;
-                    case 115: // s
-                        jQuery('input#search').focus();
-                        return false;
-                    case 116: // t
-                        window.location = '/tags';
-                        return false;
-                    case 120: // x
-                        window.location = '/reports';
-                        return false;
-                }
-            }
-        }
-    });
-
-    jQuery(document).bind('keyup', function(event) {
-        if (event.ctrlKey || event.altKey || event.metaKey) {
-            return;
-        }
-        if (event.target == document.body) {
-            switch (event.which) {
-                case 36: // home
-                    jQuery('div.pFirst:visible').click();
-                    return false;
-                case 33: // page up
-                    jQuery('div.pPrev:visible').click();
-                    return false;
-                case 34: // page down
-                    jQuery('div.pNext:visible').click();
-                    return false;
-                case 35: // end
-                    jQuery('div.pLast:visible').click();
-                    return false;
-                case 37: // arrow left
-                    up();
-                    return false;
-                case 38: // arrow up
-                    table_up();
-                    return false;
-                case 39: // arrow right
-                    table_right();
-                    return false;
-                case 40: // arrow down
-                    table_down();
-                    return false;
-            }
-        }
-    });
-
-    jQuery(document).bind('keydown', function(event) {
-        if (event.target == document.body && event.which == 9) {
-            jQuery('input#search').focus();
-            return false;
-        }
-    });
-
-    jQuery('input#search').bind('keydown', function(event) {
-        if (event.which == 27) { // esc
-            this.blur();
-            return false;
-        }
-        if (event.which == 9) { // tab
-            jQuery('input.qsbox:visible').focus();
-            return false;
-        }
-    });
-
-    jQuery('#search_form').bind('submit', function(event) {
-        return jQuery('input#search').val() != '';
-    });
-
-    jQuery('#menu').slicknav({
-        prependTo: 'body',
-        label: ''
-    });
-
-    jQuery('#tools').slicknav({
-        prependTo: '#toolsmenu',
-        label: ''
-    });
-
-    jQuery(window).resize(function() {
-        jQuery('select').trigger('render');
-        resize_box();
-        resize_grid(current_grid);
-    });
-});
-
-function tomorrow() {
-    var d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toISOString().substring(0, 10);
-}
-
-function draw_chronology_chart(data, filter) {
-    var w = 900,
-        h = 400,
-        margin = { top: 10, right: 15, bottom: 60, left: 80 };
-
-    if (data[0].date > '2007-10-07') {
-        data.unshift({date: '2007-10-07', nodes: 0, ways: 0, relations: 0});
+    if (tabs) {
+        widgetManager.addWidget(tabs);
+        tabs.setTabFromURL();
     }
 
-    data.push({date: tomorrow(), nodes: 0, ways: 0, relations: 0});
+    initTooltips();
 
-    var sum = 0;
-    data.forEach(function(d) {
-        d.date = new Date(d.date);
-        if (filter == 'all') {
-            sum += d.nodes + d.ways + d.relations;
-        } else {
-            sum += d[filter];
-        }
-        d.sum = sum;
+    // Initialize language switcher
+    document.getElementById('locale')?.addEventListener('change', function() {
+        document.getElementById('url').value = window.location.pathname;
+        document.getElementById('set_language').submit();
     });
 
-    var t0 = data[0].date;
-        t1 = data[data.length - 1].date;
+    autocomplete = new Autocomplete('search', 'suggestions');
 
-    var max = d3.max(data, d => d.sum);
+    window.addEventListener('popstate', function(event) {
+        tabs?.setTabFromURL();
+    })
 
-    var scale_x = d3.scaleTime()
-                    .domain([t0, t1])
-                    .range([0, w]);
+    document.addEventListener('keypress', function(event) {
+        if (event.ctrlKey || event.altKey || event.metaKey) {
+            return;
+        }
 
-    var axis_x = d3.axisBottom(scale_x)
-                    .tickFormat(d3.timeFormat('%b %Y'));
+        if (event.target != document.body) {
+            return;
+        }
 
-    var scale_y = d3.scaleLinear()
-                    .domain([0, max])
-                    .range([h, 0]);
+        switch (event.key) {
+            case 'c':
+                const cl = new ComparisonList();
+                cl.load();
+                window.location = cl.url();
+                break;
+            case 'd':
+                window.location = build_link('/sources');
+                break;
+            case 'f':
+                event.preventDefault();
+                for (element of document.querySelectorAll('input.qsbox')) {
+                    element.focus();
+                }
+                break;
+            case 'h':
+                window.location = build_link('/');
+                break;
+            case 'k':
+                window.location = build_link('/keys');
+                break;
+            case 'p':
+                window.location = build_link('/projects');
+                break;
+            case 'r':
+                window.location = build_link('/relations');
+                break;
+            case 's':
+                event.preventDefault();
+                document.getElementById('search').focus();
+                break;
+            case 't':
+                window.location = build_link('/tags');
+                break;
+            case 'x':
+                window.location = build_link('/reports');
+                break;
+        }
+    });
 
-    var line = d3.line().curve(d3.curveStepAfter)
-                 .x(d => scale_x(d.date))
-                 .y(d => scale_y(d.sum));
+    if (window.location.pathname != '/') {
+        document.addEventListener('keyup', function(event) {
+            if (event.ctrlKey || event.altKey || event.metaKey) {
+                return;
+            }
 
-    d3.select('#chart-chronology svg').remove();
+            if (event.target != document.body) {
+                return;
+            }
 
-    var chart = d3.select('#chart-chronology').append('svg')
-                    .attr('width', w + margin.left + margin.right)
-                    .attr('height', h + margin.top + margin.bottom)
-                    .append('g')
-                        .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
-                        .call(function(c) {
-                            c.append('rect')
-                                .attr('width', w + 10)
-                                .attr('height', h + 10)
-                                .attr('x', -5)
-                                .attr('y', -5)
-                                .style('fill', 'white')
-                                .style('stroke', '#d0d0c8')
-                        });
+            if (event.key == 'ArrowLeft') {
+                event.preventDefault();
+                if (up) {
+                    up();
+                    return;
+                }
+                window.location.pathname = window.location.pathname.replace(/\/[^/]*$/, '');
+            }
+        });
+    }
 
-    chart.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', 'translate(0, ' + (h + 5) + ')')
-        .call(axis_x);
+    document.addEventListener('keydown', function(event) {
+        if (event.target == document.body && event.key == '?' && window.innerWidth >= 1000) {
+            if (event.repeat) {
+                return;
+            }
+            questionMarkKeycode = event.keyCode;
+            event.preventDefault();
+            document.documentElement.style.setProperty('--key-info-visibility', 'visible');
+            return;
+        }
+        if (event.target == document.body && event.key == 'Tab') {
+            event.preventDefault();
+            document.getElementById('search').focus();
+        }
+        questionMarkKeycode = null;
+        document.documentElement.style.removeProperty('--key-info-visibility');
+    });
 
-    chart.append('g')
-        .attr('class', 'y axis')
-        .attr('transform', 'translate(-5, 0)')
-        .call(d3.axisLeft(scale_y));
+    document.addEventListener('keyup', function(event) {
+        questionMarkKeycode = null;
+        document.documentElement.style.removeProperty('--key-info-visibility');
+    });
 
-    chart.append('path')
-        .datum(data)
-        .attr('fill', 'none')
-        .attr('stroke', '#083e76')
-        .attr('stroke-width', 1.5)
-        .attr('stroke-linejoin', 'round')
-        .attr('stroke-linecap', 'round')
-        .attr('d', line);
+    const search_element = document.getElementById('search');
+
+    search_element?.addEventListener('keyup', function(event) {
+        if (event.key == 'Escape') {
+            event.preventDefault();
+            this.blur();
+        }
+    });
+
+    search_element?.addEventListener('keydown', function(event) {
+        if (event.key == 'Tab') {
+            event.preventDefault();
+            for (const element of document.querySelectorAll('input.qsbox')) {
+                element.focus();
+            }
+        }
+    });
+
+    document.getElementById('search_form')?.addEventListener('submit', function(event) {
+        if (document.getElementById('search').value == '') {
+            event.preventDefault();
+        }
+    });
+
+    const menu_button = document.getElementById('menu-button');
+    if (menu_button) {
+        menu_button.addEventListener('click', () => {
+            const menu = document.getElementById('menu');
+            if (menu.style.display) {
+                menu.style.display = null;
+                menu_button.classList.remove('active');
+            } else {
+                menu.style.display = 'block';
+                menu_button.classList.add('active');
+            }
+        });
+    }
+
+    const tools_button = document.getElementById('toolsmenu');
+    if (tools_button) {
+        tools_button.addEventListener('click', () => {
+            const tools = document.getElementById('tools');
+            if (tools.style.display) {
+                tools.style.display = null;
+            } else {
+                tools.style.display = 'block';
+            }
+        });
+    }
 }
 
+class ChartChronology {
+    id;
+    element;
+    url;
+    filter;
+    data;
+    height;
+
+    constructor(id, url, filter, height) {
+        this.id = id;
+        this.element = document.getElementById(this.id);
+        this.url = url;
+        this.filter = filter;
+        this.height = height;
+    }
+
+    async load() {
+        const response = await fetch(this.url);
+        const json = await response.json();
+
+        if (json.total == 0) {
+            return;
+        }
+
+        this.data = this.prepareData(json.data);
+        this.draw();
+    }
+
+    tomorrow() {
+        let d = new Date();
+        d.setDate(d.getDate() + 1);
+        return d.toISOString().substring(0, 10);
+    }
+
+    prepareData(data) {
+        if (data[0].date > '2007-10-07') {
+            data.unshift({date: '2007-10-07', nodes: 0, ways: 0, relations: 0});
+        }
+
+        data.push({date: this.tomorrow(), nodes: 0, ways: 0, relations: 0});
+
+        let sum = 0;
+        data.forEach(d => {
+            d.date = new Date(d.date);
+            if (this.filter == 'all') {
+                sum += d.nodes + d.ways + d.relations;
+            } else {
+                sum += d[this.filter];
+            }
+            d.sum = sum;
+        });
+
+        return data;
+    }
+
+    draw() {
+        this.element.innerHTML = '';
+
+        const boxWidth = this.element.getBoundingClientRect().width;
+        const w = Math.min(900, boxWidth - 60);
+        const h = this.height;
+        const margin = { top: 10, right: 15, bottom: 30, left: 45 };
+
+        const t0 = this.data[0].date;
+        const t1 = this.data[this.data.length - 1].date;
+
+        const max = d3.max(this.data, d => d.sum);
+
+        const scaleX = d3.scaleTime()
+                         .domain([t0, t1])
+                         .range([0, w]);
+
+        const axisX = d3.axisBottom(scaleX)
+                        .ticks(w / 80)
+                        .tickFormat(d3.timeFormat(w > 500 ? '%b %Y' : '%Y'));
+
+        const scaleY = d3.scaleLinear()
+                         .domain([0, max])
+                         .range([h, 0]);
+
+        const axisY = d3.axisLeft(scaleY)
+                        .ticks(h / 40)
+                        .tickFormat(d3.formatPrefix(",.0f", max / (h / 40)));
+
+        const line = d3.line()
+                       .curve(d3.curveStepAfter)
+                       .x(d => scaleX(d.date))
+                       .y(d => scaleY(d.sum));
+
+        const chart = d3.select(this.element).append('svg')
+                        .attr('width', w + margin.left + margin.right)
+                        .attr('height', h + margin.top + margin.bottom)
+                        .append('g')
+                            .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
+                            .call(function(c) {
+                                c.append('rect')
+                                    .attr('width', w + 10)
+                                    .attr('height', h + 10)
+                                    .attr('x', -5)
+                                    .attr('y', -5)
+                                    .style('fill', 'white')
+                                    .style('stroke', '#d0d0c8')
+                            });
+
+        chart.append('g')
+             .attr('class', 'x axis')
+             .attr('transform', 'translate(0, ' + (h + 5) + ')')
+             .call(axisX);
+
+        chart.append('g')
+             .attr('class', 'y axis')
+             .attr('transform', 'translate(-5, 0)')
+             .call(axisY);
+
+        chart.append('path')
+             .datum(this.data)
+             .attr('fill', 'none')
+             .attr('stroke', '#083e76')
+             .attr('stroke-width', 1.5)
+             .attr('stroke-linejoin', 'round')
+             .attr('stroke-linecap', 'round')
+             .attr('d', line);
+    }
+
+    resize() {
+        this.draw();
+    }
+} // class ChartChronology
+
 /* ============================ */
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", whenReady);
+} else {
+    whenReady();
+}
+

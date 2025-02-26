@@ -1,14 +1,15 @@
-<div class="pre ui-helper-clearfix">
-    <div id="pre-text">
-        <h1 class="section"><%= h(t.taginfo.reports) %></h1>
-        <p><%= h(t.pages.reports.intro) %></p>
-    </div>
-</div>
-<div class="box resize">
+<h1 class="section"><%= h(t.taginfo.reports) %></h1>
+<p><%= h(t.pages.reports.intro) %></p>
+<div class="box">
     <h2><%= h(t.pages.reports.list) %></h2>
-    <ul class="reportlist">
-<% Report.each_visible_with_index do |report, n| c = (n%2!=0) ? ' even' : '' %>
-        <li><a href="<%= report.url %>"><%= h(t.reports[report.name].name) %></a></li>
+    <div>
+        <ul class="reportlist">
+<% Report.each_visible_with_index(@sources) do |report| %>
+            <li><a href="<%= build_link(report.url) %>"><%= h(t.reports[report.name].name) %></a></li>
 <% end %>
-    </ul>
+            <li><a href="<%= build_link('/sources/db') %>"><%= h(t.pages.sources.db.stats.name) %></a></li>
+            <li><a href="<%= build_link('/sources/wiki/language_comparison_table_for_keys') %>"><%= h(t.pages.sources.wiki.language_comparison_table_for_keys.name) %></a></li>
+            <li><a href="<%= build_link('/sources/wiki/image_comparison') %>"><%= h(t.pages.sources.wiki.image_comparison.name) %></a></li>
+        </ul>
+    </div>
 </div>

@@ -6,7 +6,7 @@ class Taginfo < Sinatra::Base
         :parameters => {
             :string => 'Character string (required).'
         },
-        :paging => :yes,
+        :paging => :optional,
         :result => paging_results([
             [:char,        :TEXT, 'Unicode character.'],
             [:codepoint,   :INT,  'Unicode code point.'],
@@ -39,17 +39,19 @@ script AS (
 )
 SELECT codepoint, d.script, s.name AS script_name, category, d.name FROM script d, unicode_scripts s WHERE d.script = s.script ORDER BY num", str, str).
             paging(@ap).
-            execute()
+            execute
 
         return generate_json_result(str.length,
-            res.map{ |row| {
+            res.map do |row| {
                 :char        => row['codepoint'].chr(Encoding::UTF_8),
                 :codepoint   => row['codepoint'],
                 :script      => row['script'],
                 :script_name => row['script_name'],
                 :category    => row['category'],
                 :name        => row['name']
-            } }
-        );
+            }
+            end
+        )
     end
+
 end

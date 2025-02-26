@@ -25,15 +25,16 @@ when you switch to a new version, sometimes things can break.
 
 It uses:
 
-* Ruby (must be at least 2.4)
+* Ruby (must be at least 3.0)
 * [Sinatra web framework](http://www.sinatrarb.com/) and other ruby libraries
 * curl binary
-* sqlite3 binary (version 3.9 or above with FTS5 and regexp support)
+* sqlite3 binary (version 3.33 or above with FTS5 and regexp support)
 * Optional: Parallel bzip (pbzip2)
+* Optional: Vips image library with [Ruby bindings](https://github.com/libvips/ruby-vips)
 
 Install the Debian/Ubuntu packages:
 ```sh
-$ sudo apt-get install curl sqlite3 sqlite3-pcre
+$ sudo apt-get install curl sqlite3 ruby-vips
 $ sudo apt-get install ruby-passenger libapache2-mod-passenger
 ```
 
@@ -75,26 +76,34 @@ cd web
 
 You can also use it via [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/).
 
+(On Debian install these packages: `uwsgi uwsgi-core uwsgi-plugin-rack-ruby3.1`.)
+
 ```sh
 cd web
-uwsgi uwsgi.ini
+bundle exec uwsgi uwsgi.ini
 ```
 
 You can change various settings in the [config file](web/uwsgi.ini) and use
 it through a web server like Apache2 or Nginx.
 
 
+## Tests
+
+There are a few tests for the Ruby code. Call `rake` in the `web` directory to
+run the tests.
+
+
+## Rubocop
+
+There is a configuration for [Rubocop](https://rubocop.org/). You can run
+Rubocop with `rubocop FILENAME.rb...` to check one or more Ruby files. Fixing
+issues is currently an ongoing process.
+
+
 ## Javascript
 
 Taginfo uses the following Javascript libraries:
-* jQuery 1.9.0
-* jQuery UI 1.9.2
-* [customSelect](http://adam.co/lab/jquery/customselect/)
-* [tipsy](http://onehackoranother.com/projects/jquery/tipsy/)
-* [jQuery Cookie](https://github.com/carhartl/jquery-cookie/)
-* Flexigrid (from [Google Code](http://code.google.com/p/flexigrid/) and
-  [flexigrid.info](http://www.flexigrid.info/), but with changes and bugfixes)
-* [slicknav](http://slicknav.com/)
+* [d3](https://d3js.org/)
 
 All the Javascript and CSS needed is already included.
 

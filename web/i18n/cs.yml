@@ -47,14 +47,15 @@ taginfo:
     relations: Relace
     combinations: Kombinace
     key_combinations: Kombinace
-    comparison: Porovníní klíč/značka
+    comparison: Porovnání klíč/značka
     overview: Přehled
     links: Odkazy
     data_from: Data z
-    data_from_description: Poslední aktualizace databáze taginfo
+    data_from_description: Poslední aktualizace databáze Taginfo
     instance:
-        title: O tomto serveru taginfo
+        title: O tomto serveru Taginfo
         other: Viz <a href="//wiki.openstreetmap.org/wiki/Taginfo/Sites">OSM wiki</a> pro infomace o dalších serverech.
+    characters: Znaky
 
 misc:
     values_less_than_one_percent: žádné hodnoty s více než 1%
@@ -147,7 +148,7 @@ pages:
         reports:
             listreports: Všechny zprávy...
         about:
-            intro:
+            intro: |
                 <p>OpenStreetMap používá <b>značky</b> ve tvaru <b>klíč=hodnota</b>
                 pro popis geografických objektů. Taginfo sbírá informace
                 o těchto značkách z několika zdrojů, aby vám pomohl pochopit,
@@ -166,24 +167,23 @@ pages:
                 práci.</p>
                 <p>Ať už přispíváte do OSM nebo používáte data z OSM, vždy se objevují
                 otázky jako: Jaké značky používají lidé pro prvek X? Jaké značky mohu použít
-                pro prvek Y, aby se správně objevil na mapě? Je značka Z popsaná na 
+                pro prvek Y, aby se správně objevil na mapě? Je značka Z popsaná na
                 wiki skutečně používaná a kde?</p>
                 <p>Taginfo vám pomáhá zobrazením statistik o tom, které značky se skutečně
                 vyskytují v databázi, kolik lidí je používá, kde jsou použity atd. Také
                 sbírá informace o značkách z wiki a dalších míst. Taginfo
                 se pokouší shromáždit všechny informace o značkách, aby vám pomohl pochopit
-                jak se používají a co znamenají. Viz <a href="/sources">seznam zdrojů</a>,
+                jak se používají a co znamenají. Viz <a href="sources">seznam zdrojů</a>,
                 které taginfo používá.</p>
         about_site:
             title: O tomto serveru
         building_on_taginfo:
             title: Stavíme na taginfo
-            pre: |
-                <p>Můžete používat data z taginfo ve vašich vlastních projektech:</p>
+            pre: 'Můžete používat data z taginfo ve vašich vlastních projektech:'
             api: |
                 <h3>API</h3>
                 <p>K datům z Taginfo můžete přistupovat pomocí REST API. Podívejte se na
-                <a href="/taginfo/apidoc">dokumentaci API</a> pro více podrobností, nějaké obecné informace jsou
+                <a href="taginfo/apidoc">dokumentaci API</a> pro více podrobností, nějaké obecné informace jsou
                 <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo/API">na OSM wiki</a>.
                 Servery, na kterých běží taginfo API nemají neomezené zdroje.
                 Používejte, prosím, API zodpovědně. Máte-li pochybnosti, kontaktujte správce
@@ -192,7 +192,7 @@ pages:
                 <h3>Stažení</h3>
                 <p>Chcete-li si hrát s daty, které taginfo používá, můžete si stáhnout
                 pravidelně aktualizované databázové soubory Sqlite. Data již pro vás byla připravena.
-                Podívejte se na <a href="/download">stránku stahování</a>, kde je seznam souborů. Povšimněte si,
+                Podívejte se na <a href="download">stránku stahování</a>, kde je seznam souborů. Povšimněte si,
                 že některé z těchto souborů jsou celkem velké. Pokud je chcete stahovat pravidelně,
                 kontaktujte spráce serveru, který používáte, nebo nás kontaktuje na mailing listu.</p>
             license: |
@@ -209,8 +209,8 @@ pages:
                 <a class="extlink" href="https://ctd-studio.co.uk/">Christianem Topfem</a>.</p>
                 <h3>Překlady</h3>
                 <p>Potřebujeme překladatele uživatelského rozhraní taginfo. Podívejte se na <a
-                href="/taginfo/translations">přehled překladů</a>, kde najdete jazyky, na kterých
-                je potřeba zapracovat. Více informací o tom, jak pomoci je na 
+                href="taginfo/translations">přehled překladů</a>, kde najdete jazyky, na kterých
+                je potřeba zapracovat. Více informací o tom, jak pomoci je na
                 <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo/I18N">OSM wiki</a>.</p>
                 <h3>Zdrojový kód</h3>
                 <p>Všechen software pracující na taginfo serveru je Open Source. Můžete si ho stáhnout na
@@ -234,13 +234,12 @@ pages:
                 máte-li dotazy nebo chcete-li pomoci.</p>
     sources:
         intro: |
-            <p>Taginfo sbírá data o značkách OSM z vícero zdrojů a dává je dohromady
-            pro snadné procházení a průzkum.</p>
-            <p>Uvědomte si, že taginfo tato data pouze zobrazuje. Pokud je chcete změnit,
-            musíte je opravit u zdroje.</p>
-        list:
-            title: Seznam zdrojů
-            intro: Zde je seznam aktuálně používaných zdrojů. V budoucnu můžeme integrovat více zdrojů.
+            Taginfo sbírá data o značkách OSM z vícero zdrojů a dává je
+            dohromady pro snadné procházení a průzkum. Zde je seznam aktuálně
+            používaných zdrojů. V budoucnu můžeme integrovat více zdrojů.
+        display_only: |
+            Uvědomte si, že taginfo tato data pouze zobrazuje. Pokud je chcete změnit,
+            musíte je opravit u zdroje.
         description:
             db: |
                 <p>Statistika o klíčích, značkách a typech relací se generuje z <a class="extlink" href="https://planet.openstreetmap.org/">databáze OSM</a> (nebo z extractu) a stejně se vytvářejí mapy, které ukazují geografické rozmístění uzlů a cest.</p>
@@ -249,7 +248,7 @@ pages:
             languages: |
                 <p>Taginfo získává informace o různých jazycích světa, jejich kódech, názvech, atd. z různých registrů <a class="extlink" href="https://www.iana.org/">IANA</a> a <a class="extlink" href="https://www.unicode.org/">Unicode</a>.</p>
             projects: |
-                <p>Projekty, které nějak používají značky OSM, jako jsou editory, mapy, navigace, atd. Viz <a href="/projects">seznam projektů</a>.</p>
+                <p>Projekty, které nějak používají značky OSM, jako jsou editory, mapy, navigace, atd.</p>
             chronology: |
                 <p>Množství klíčů/značek během času podle <a class="extlink" href="https://planet.openstreetmap.org/planet/full-history/">historie OSM</a>.</p>
         updates:
@@ -259,13 +258,87 @@ pages:
         last_update_run: Poslední aktualizace proběhla
         data_until_explanation: Všechny editace do tohoto času jsou již v datech, pozdější možná.
         to: do
+        languages:
+            subtags:
+                title: Podznačky BCP47
+                filter:
+                    label: Ukaž pouze podznačky typu
+                    all: Vše
+                    language: Jazyk
+                    script: Písmo
+                    region: Region
+                    variant: Varianta
+                intro: |
+                    <p><a href="https://www.ietf.org/">IETF</a> definuje <i>jazykové
+                    značky</i> ve svém standardu
+                    <a href="https://tools.ietf.org/html/bcp47">Tags for Identifying Languages
+                    (BCP47)</a>. Jazykové
+                    značky obsahují jednu nebo více <i>podznaček</popisující jazyk,
+                    písmo, variantu, atd. Pro více informací se podívejte
+                    také na <a href="https://en.wikipedia.org/wiki/IETF_language_tag">položku Wikipedie
+                    o jazykovýách značkách IETF</a> a stránky <a
+                    href="http://www.langtag.net/">langtag.net</a>.</p>
+                note: |
+                    Uvědomte si, že data zobrazená v této taublce nejsou z OpenStreetMap,
+                    ukazuje pouze základní kameny, které lze použít pro popis jazyků
+                    bez ohledu na to, zda jsou skutečně použity v OSM.
+        wiki:
+            language_comparison_table_for_keys:
+                name: Srovnání jazyků klíčů na wiki
+                icons:
+                    template: Stránka je na wiki a obsahuje standardní šablonu.
+                    error: Stránka je na wiki, obsahuje standardní šablonu, ale nelze ji zpracovat.
+                    page: Stránka je na wiki, ale neobsahuje standardní šablonu.
+                    redirect: Stránka je přesměrována.
+                intro: |
+                    Tato tabulka zobrazuje všechny klíče, pro které je dostupná wiki stránka a v jakém jazyce.
+            parsing_problems:
+                name: Problémy s procházením wiki
+                intro: |
+                    Taginfo čte všechny wiki stránky, které popisují klíče, značky a relace,
+                    aby získal informace o značkách. Tato zpráva ukazuje seznam problémů,
+                    na které jsme narazili při čtení těchto stránek. Nejedná se nutně
+                    o chyby na wiki, znamená to jen, že něco na wiki stránce není naformátováno
+                    tak, aby tomu taginfo rozumnělo. Buď je potřeba opravit stránku,
+                    nebo se musí upravit taginfo.
+                location: Umístění
+                reason: Důvod
+                wiki_page: Wiki stránka
+                lang: Jazyk
+                info: Další informace
+            image_comparison:
+                name: Wiki obrázky
+                intro: |
+                    Obrázky se na wiki používají pro ilustraci značek v různých
+                    jazycích. Někdy je varianta obrázku z jednoho nebo jiného jazyka
+                    lepší. Ale někdy má smysl mít různé obrázky v různých jazycích
+                    kvůli různému kulturnímu pozadí a podobně.
+        db:
+            stats:
+                name: Statistika databáze
+                objects_in_db: Počet objektů v databázi
+                tags_in_db: Počet značek v databázi
+                distinct_keys: Počet různých klíčů
+                distinct_tags: Počet různých značek
+                nodes_in_db: Počet uzlů v databázi
+                nodes_with_tags_in_db: Počet uzlů s alespoň jednou značkou
+                nodes_with_tags_in_db_percent: Procent uzlů s alespoň jednou značkou
+                tags_on_nodes: Počet značek na uzlech
+                avg_tags_per_tagged_node: Průměrný počet značek na označený uzel
+                ways_in_db: Počet cest v databázi
+                closed_ways_in_db: Počet uzavřených cest
+                tags_on_ways: Počet značek na cestách
+                avg_tags_per_way: Průměrný počet značek na cestě
+                relations_in_db: Počet relací v databázi
+                tags_on_relations: Počet značek na relacích
+                avg_tags_per_relation: Průměrný počet značek na relaci
     download:
         intro: |
             <p>Zde si můžete stáhnout databáze, které taginfo používá. Všechna data jsou uložena
             v databázích <a class="extlink" href="https://www.sqlite.org/">Sqlite</a>.
             Databázové soubory jsou poté zabaleny pomocí <a class="extlink" href="http://www.bzip.org/">bzip2</a>.</p>
             <p>Pokud si nechcete tyto databáze stahovat, ale potřebujete strojový přístup
-            k datům, můžete také použít <a href="/about">API</a>.</p>
+            k datům, můžete také použít <a href="about">API</a>.</p>
         file: Soubor
         packed: Zabaleno
         unpacked: Rozbaleno
@@ -290,13 +363,13 @@ pages:
         nothing_to_compare: Nemáme žádné klíče/značky k porovnání. Jděte na nějakou stránku klíče nebo značky a přidejte je.
     keys:
         intro: |
-                Tato tabulka zobrazuje včechny klíče značek, které existují v databázi nebo v nějakém z jiných zdrojů.
+            Tato tabulka zobrazuje včechny klíče značek, které existují v databázi nebo v nějakém z jiných zdrojů.
     tags:
         intro: |
-                Tato tabulka zobrazuje nejrozšířenější značky v databázi.
+            Tato tabulka zobrazuje nejrozšířenější značky v databázi.
     relations:
         name: Typy relací
-        intro: Informace o různých typech relací (popsaných značkou <a href="/keys/type?filter=relations">type</a>).
+        intro: Informace o různých typech relací (popsaných značkou <a href="keys/type?filter=relations">type</a>).
         relations_of_type_tooltip: Počet relací tohoto typu (a procento ze všech relací).
         prevalent_roles: Převažující role
         prevalent_roles_tooltip: Převažující role tohoto typu relace.
@@ -305,13 +378,13 @@ pages:
         empty_role: prázdná role
     projects:
         intro: |
-                Tato tabulka zobrazuje všechny projekty, o kterých taginfo ví, které používají nějakým způsobem značky OSM.<br/>Pro více informací o této funkci se podívejte na <a href="//wiki.openstreetmap.org/wiki/Taginfo/Projects" class="extlink">wiki</a>.
+            Tato tabulka zobrazuje všechny projekty, o kterých taginfo ví, které používají nějakým způsobem značky OSM.<br/>Pro více informací o této funkci se podívejte na <a href="//wiki.openstreetmap.org/wiki/Taginfo/Projects" class="extlink">wiki</a>.
     key:
         description_from_wiki: Popis tohoto klíče z wiki (je-li dostupný ve zvoleném jazyce, jinak v angličtině).
         no_description_in_wiki: Tento klíč nemá na wiki žádný popis v angličtině. (Viz také záložku "Wiki".)
         filter:
             label: |
-                 Filtr:
+                Filtr:
             none: Žádný filtr
             nodes: Pouze uzly
             ways: Pouze cesty
@@ -372,7 +445,7 @@ pages:
             title: Kombinace
             description: Tato tabulka zobrazuje pouze nejčastější kombinace nejčastějších značek.
         chronology:
-            no_chronology: Litujeme, Chronologie lze vytvo5it pouze pro nejrozšířenější značky.
+            no_chronology: Litujeme, Chronologie lze vytvořit pouze pro nejrozšířenější značky.
         geographic_distribution:
             title: Geografické rozložení této značky
             all: Ukazuje rozložení uzlů a cest pro tento klíč, relace nejsou zobrazeny.
@@ -392,6 +465,8 @@ pages:
         projects:
             title: Projekty používající tuto značku
             description: Jak je tato značka používaná v projektu
+        characters:
+            title: Znaky Unicode v typu relace
     relation:
         name: Typ relace
         description_from_wiki: Popis tohoto typu relace z wiki (je-li dostupný ve vašem jazyce, jinak v angličtině).
@@ -422,6 +497,8 @@ pages:
         projects:
             title: Projekty používající tento typ relace
             description: Jak se tento typ relace používá v projektu
+        characters:
+            title: Znaky Unicode v typu relace
     project:
         overview:
             project_name: Název projektu
@@ -438,7 +515,7 @@ pages:
             count_all_tooltip: Počet objektů v databází s tímto klíčem/značkou
             objects_tooltip: Typ objektů použitých projektem
 
-flexigrid:
+dynamic_table:
     pagetext: Strana
     pagestat: Zobrazuji {from} až {to} z {total} položek
     outof: z
@@ -464,7 +541,7 @@ sources:
         description: Agregovaná statistika v průběhu času.
     db:
         name: Databáze
-        description: Statistiky o každém klíči a každé značce z hlavní databáze OSM (soubor planet).
+        description: Statistiky o každém klíči a každé značce z hlavní databáze OSM.
     wiki:
         name: Wiki
         description: Data ze wiki stránek OSM o značkách a klíčích.
@@ -483,8 +560,8 @@ reports:
         name: Znaky v klíčích
         intro: |
             V klíči OSM se může objevit jakýkoliv platný znak Unicode, ale obvykle
-            se používají pouze malá latinská písmena (a-z) a podtržítko (_).
-            Dvojtečka (:) je často používaná jako oddělovací znak. Tato 
+            se používají pouze malá latinková písmena (a-z) a podtržítko (_).
+            Dvojtečka (:) je často používaná jako oddělovací znak. Tato
             zpráva kategorizuje všechny klíče podle znaků, které používají.
         statistics:
             tab: Statistika
@@ -492,9 +569,9 @@ reports:
             fraction: Procent
             characters: Znaky v klíči
             characters_in_keys:
-                plain: Pouze malá latinská písmena (<span class="char">a</span> až <span class="char">z</span>) a podtržítko (<span class="char">_</span>), první a poslední znak je písmeno.
-                colon: Jako A ale s jednou nebo více dvojtečkami (<span class="char">:</span>) uvnitř.
-                letters: Jako B ale s velkými latinskými písmeny nebo písmeny jiných abeced.
+                plain: Pouze malá latinková písmena (<span class="char">a</span> až <span class="char">z</span>) a podtržítko (<span class="char">_</span>), první a poslední znak je písmeno.
+                colon: Jako A, ale s jednou nebo více dvojtečkami (<span class="char">:</span>) uvnitř.
+                letters: Jako B, ale s velkými latinkovými písmeny nebo písmeny jiných abeced.
                 space: Přinejmenším jeden bílý znak (mezera, tabulátor, nový řádek, návrat vozíku, nebo z jiné abecedy).
                 problem: Obsahuje pravděpodobně problematické znaky <span class="char">=+/&amp;&lt;&gt;;'"?%#@\,</span>.
                 rest: Vše ostatní.
@@ -503,7 +580,7 @@ reports:
             tab: Jednoduché
             title: Jednoduché klíče
             intro: |
-                <p>Klíče obsahující pouze malá latinská písmena (<span
+                <p>Klíče obsahující pouze malá latinková písmena (<span
                 class="char">a</span> až <span class="char">z</span>) a
                 podtržítko (<span class="char">_</span>). První a poslední
                 znak musí být písmeno. Většina jednoduchých klíčů spadá
@@ -513,16 +590,16 @@ reports:
             title: Klíče s dvojtečkou
             intro: |
                 <p>Klíče, které v sobě obsahují jednu nebo více dvojteček (<span
-                class="char">:</span>) kromě písmen 
+                class="char">:</span>) kromě písmen
                 (<span class="char">a</span> až <span
                 class="char">z</span>) a podtržítek (<span
-                class="char">_</span>). Dvojtečka se často používá jako znak 
+                class="char">_</span>). Dvojtečka se často používá jako znak
                 oddělující hierachie.</p>
         letters:
             tab: Písmena
             title: Klíče s velkými písmeny nebo písmeny z jiných jazyků
             intro: |
-                <p>Obvykle se pro klíče preferují malá latinská písmena,
+                <p>Obvykle se pro klíče preferují malá latinková písmena,
                 ale někdy se používají i velká písmena
                 (např. u známých zkratek) nebo písmena z jiných jazyků
                 (např. u klíčů, které jsou relevantní jen v oblasti,
@@ -555,24 +632,6 @@ reports:
             title: Všechny další klíče
             intro: |
                 <p>Klíče, které nespadají do žádné ostatní kategorie.</p>
-    database_statistics:
-        name: Statistika databáze
-        objects_in_db: Počet objektů v databázi
-        tags_in_db: Počet značek v databázi
-        distinct_keys: Počet různých klíčů
-        distinct_tags: Počet různých značek
-        nodes_in_db: Počet uzlů v databázi
-        nodes_with_tags_in_db: Počet uzlů s alespoň jednou značkou
-        nodes_with_tags_in_db_percent: Procent uzlů s alespoň jednou značkou
-        tags_on_nodes: Počet značek na uzlech
-        avg_tags_per_tagged_node: Průměrný počet značek na označený uzel
-        ways_in_db: Počet cest v databázi
-        closed_ways_in_db: Počet uzavřených cest
-        tags_on_ways: Počet značek na cestách
-        avg_tags_per_way: Průměrný počet značek na cestě
-        relations_in_db: Počet relací v databázi
-        tags_on_relations: Počet značek na relacích
-        avg_tags_per_relation: Průměrný počet značek na relaci
     frequently_used_keys_without_wiki_page:
         name: Často používané klíče bez wiki stránky
         intro: |
@@ -597,15 +656,6 @@ reports:
             intro: Tento histogram ukazuje, kolik existuje klíčů o dané délce.
             key_length: Délka klíče
             number_of_keys: Počet klíčů
-    language_comparison_table_for_keys_in_the_wiki:
-        name: Srovnání jazyků klíčů na wiki
-        icons:
-            template: Stránka je na wiki a obsahuje standardní šablonu.
-            error: Stránka je na wiki, obsahuje standardní šablonu, ale nelze ji zpracovat.
-            page: Stránka je na wiki, ale neobsahuje standardní šablonu.
-            redirect: Stránka je přesměrována.
-        intro: |
-            Tato tabulka zobrazuje všechny klíče, pro které je dostupná wiki stránka a v jakém jazyce.
     languages:
         name: Jazyky
         intro: |
@@ -621,8 +671,8 @@ reports:
         name: Wiki stránky o neexistujících klíčích
         intro: |
             Tato tabulka zobrazuje klíče, pro které existuje wiki stránka, ale nemají ani
-            jeden výskyt v databázi. To není nutně chybou (někdo možná přidal 
-            na wiki dokumentaci během přípravy používání klíče nebo wiki stránka 
+            jeden výskyt v databázi. To není nutně chybou (někdo možná přidal
+            na wiki dokumentaci během přípravy používání klíče nebo wiki stránka
             dokumentuje značku prohlášenou za zastaralou), ale může se jednat o překlep či jinou chybu.
         wiki_pages: Wiki stránky
     name_tags:
@@ -633,31 +683,6 @@ reports:
         overview:
             tab: Přehled
             title: Přehled
-        bcp47:
-            tab: Podznačky BCP47
-            title: Podznačky BCP47
-            filter:
-                label: Ukaž pouze podznačky typu
-                all: Vše
-                language: Jazyk
-                script: Písmo
-                region: Region
-                variant: Varianta
-            intro: |
-                <p><a href="https://www.ietf.org/">IETF</a> definuje <i>jazykové
-                značky</i> ve svém standardu
-                <a href="https://tools.ietf.org/html/bcp47">Tags for Identifying Languages
-                (BCP47)</a>. Jazykové
-                značky obsahují jednu nebo více <i>podznaček</popisující jazyk,
-                písmo, variantu, atd. Následující seznam ukazuje podznačky, které jsou
-                momentálně registrované a mají význam pro OSM. Pro více informací se podívejte
-                také na <a href="https://en.wikipedia.org/wiki/IETF_language_tag">položku Wikipedie
-                o jazykovýách značkách IETF</a> a stránky <a
-                href="http://www.langtag.net/">langtag.net</a>.</p>
-                <p>Uvědomte si, že data zobrazená v této taublce <b>nejsou</b> z OpenStreetMap,
-                ukazuje pouze základní kameny, které lze použít pro popis jazyků
-                bez ohledu na to, zda jsou skutečně použity v OSM.
-                </p>
     similar_keys:
         name: Podobné klíče
         intro: |
@@ -683,24 +708,9 @@ reports:
             title: Unikátní značky
         relation_types:
             title: Unikátní typy relací
-    wiki_images:
-        name: Wiki obrázky
-        intro: |
-            Obrázky se na wiki používají pro ilustraci značek v různých
-            jazycích. Někdy je varianta obrázku z jednoho nebo jiného jazyka
-            lepší. Ale někdy má smysl mít různé obrázky v různých jazycích
-            kvůli různému kulturnímu pozadí a podobně.
-    wiki_problems:
-        name: Problémy s procházením wiki
-        intro: |
-            Taginfo čte všechny wiki stránky, které popisují klíče, značky a relace,
-            aby získal informace o značkách. Tato zpráva ukazuje seznam problémů,
-            na které jsme narazili při čtení těchto stránek. Nejedná se nutně
-            o chyby na wiki, znamená to jen, že něco na wiki stránce není naformátováno
-            tak, aby tomu taginfo rozumnělo. Buď je potřeba opravit stránku,
-            nebo se musí upravit taginfo.
-        location: Umístění
-        reason: Důvod
-        wiki_page: Wiki stránka
-        lang: Jazyk
-        info: Další informace
+unicode:
+    character: Znak
+    codepoint: Kódový bod
+    general_category: Obecná kategorie
+    name: Název kódového dodu Unicode
+    script: Skript
