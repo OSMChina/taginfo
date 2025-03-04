@@ -244,6 +244,29 @@ pages:
                 <a class="extlink" href="//lists.openstreetmap.org/listinfo/taginfo-dev">taginfo-dev mailing list</a>
                 if you have questions or want to help.</p>
     sources:
+        intro: |
+            Taginfo collects data about OSM tags from several sources and
+            brings them together for easy browsing and discovery. Here is a
+            list of currently used sources. More sources might be integrated in
+            the future.
+        display_only: |
+            Note that taginfo only displays this data. If you want to change it, you
+            have to go back to the source.
+        description:
+            db: |
+                <p>Statistics about keys, tags, and relation types are generated from the <a class="extlink" href="https://planet.openstreetmap.org/">OSM database</a> (or an extract) as well as the maps that show the geographic distribution of nodes and ways.</p>
+            wiki: |
+                <p>The <a class="extlink" href="//wiki.openstreetmap.org/">OSM Wiki</a> is read and all Key:*, Tag:*, and Relation:* pages (in all the different languages) are analyzed. Descriptions, images, related tags, etc. are extracted from them.</p>
+            languages: |
+                <p>Taginfo gets information about the different languages of the world, their codes, names, etc. from several <a class="extlink" href="https://www.iana.org/">IANA</a> and <a class="extlink" href="https://www.unicode.org/">Unicode</a> registries and from Wikipedia.</p>
+            projects: |
+                <p>Projects that use OSM tags in some way, such as editors, maps, routers, etc.</p>
+            chronology: |
+                <p>Number of keys/tags over time from <a class="extlink" href="https://planet.openstreetmap.org/planet/full-history/">history planet</a>.</p>
+            wikidata: |
+                <p>The <a class="extlink" href="https://www.wikidata.org/">Wikidata database</a> connects OSM keys, tags, and relations to other concepts using the property <a href="https://www.wikidata.org/wiki/Property:P1282">P1282</a>.</p>
+            sw: |
+                <p>Configurations from various OSM programs (such as editors).</p>
         updates:
             title: 更新
             intro: Taginfo的数据会定期从来源更新
@@ -251,6 +274,107 @@ pages:
         last_update_run: 最后一次更新运行于
         data_until_explanation: 所有截止到这天的修改都会在数据里，之后的数据也有可能包含在内。
         to: 到
+        data: Data
+        database_size: Database size
+        minutes: mins
+        statistics: Statistics
+        import_errors: Import errors
+        languages:
+            subtags:
+                title: BCP47 Subtags
+                filter:
+                    label: Show only subtags of type
+                    all: All
+                    language: Language
+                    script: Script
+                    region: Region
+                    variant: Variant
+                columns:
+                    type: Type
+                    subtag: Subtag
+                    description: Description
+                    added: Added
+                    notes: Notes
+                intro: |
+                    <p>The <a href="https://www.ietf.org/">IETF</a> defines
+                    <i>language tags</i> in its standard <a
+                    href="https://tools.ietf.org/html/bcp47">Tags for
+                    Identifying Languages (BCP47)</a>. Language tags consist of
+                    one or more <i>subtags</i> describing the languages,
+                    scripts, regions, and variants. For more information see
+                    also the <a
+                    href="https://en.wikipedia.org/wiki/IETF_language_tag">Wikipedia
+                    entry on IETF language tags</a> and the <a
+                    href="http://www.langtag.net/">langtag.net</a> site.</p>
+                note: |
+                    Note that the data shown in this table is not from
+                    OpenStreetMap, it just shows the building blocks that can
+                    be used to describe languages irrespective of whether they
+                    are actually used in OSM.
+                show: Show all language subtags...
+            wikipedia_sites:
+                title: Wikipedia sites
+        wikidata:
+            index:
+                show_items: Show all Wikidata items...
+                show_errors: Show all errors...
+            stats:
+                keys: Key items
+                tags: Tag items
+                relations: Relation items
+                roles: Role items
+                qcode: Items with Q code
+                pcode: Items with P code
+            items:
+                title: Items
+                description: |
+                    These are all Wikidata items with the property P1282 and
+                    the OSM key, tag, or relation they link to. Not shown are
+                    "Role" type properties and properties that don't have the
+                    correct format.
+                columns:
+                    type: Type
+                    ktr: Key/Tag/Relation
+                    item: Wikidata item
+            errors:
+                description: |
+                    These are all the issues encountered when importing the
+                    Wikidata items with property P1282.
+                columns:
+                    item: Wikidata item
+                    p1282: Value of P1282 property
+                    error: Error message
+        wiki:
+            language_comparison_table_for_keys:
+                name: Language comparison table for keys in the wiki
+                icons:
+                    template: Page in wiki available and contains standard template.
+                    error: Page in wiki available and contains standard template, but couldn't be parsed.
+                    page: Page in wiki available but doesn't contain standard template.
+                    redirect: Page is a redirect.
+                intro: |
+                    This table shows all tag keys for which there are wiki pages available and in what languages they are.
+            parsing_problems:
+                name: Parsing problems
+                intro: |
+                    Taginfo reads all wiki pages used to describe keys, tags, and
+                    relations to find information about tags. This report shows a list
+                    of problems encountered while reading those pages. These aren't
+                    necessarily errors in the wiki, they just mean that something in
+                    the wiki pages isn't formatted in a way taginfo understands. Either
+                    the page has to be corrected or taginfo has to be fixed.
+                location: Location
+                reason: Reason
+                wiki_page: Wiki page
+                lang: Lang.
+                info: Additional information
+            image_comparison:
+                name: Wiki images
+                intro: |
+                    Images used in the wiki to symbolize the keys in different
+                    languages. Sometimes the image from one or the other language
+                    variant is better. But sometimes it makes sense to have different
+                    images because of different cultural backgrounds or so.
         wiki:
             language_comparison_table_for_keys:
                 name: Wiki中的键的多语言对照表
