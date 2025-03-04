@@ -346,7 +346,7 @@ pages:
                     error: Error message
         wiki:
             language_comparison_table_for_keys:
-                name: Language comparison table for keys in the wiki
+                name: Wiki中的键的多语言对照表
                 icons:
                     template: Page in wiki available and contains standard template.
                     error: Page in wiki available and contains standard template, but couldn't be parsed.
@@ -355,7 +355,7 @@ pages:
                 intro: |
                     This table shows all tag keys for which there are wiki pages available and in what languages they are.
             parsing_problems:
-                name: Parsing problems
+                name: Wiki解析问题
                 intro: |
                     Taginfo reads all wiki pages used to describe keys, tags, and
                     relations to find information about tags. This report shows a list
@@ -369,19 +369,12 @@ pages:
                 lang: Lang.
                 info: Additional information
             image_comparison:
-                name: Wiki images
+                name: Wiki图片
                 intro: |
                     Images used in the wiki to symbolize the keys in different
                     languages. Sometimes the image from one or the other language
                     variant is better. But sometimes it makes sense to have different
                     images because of different cultural backgrounds or so.
-        wiki:
-            language_comparison_table_for_keys:
-                name: Wiki中的键的多语言对照表
-            parsing_problems:
-                name: Wiki解析问题
-            image_comparison:
-                name: Wiki图片
         db:
             stats:
                 name: 数据库统计信息
@@ -403,9 +396,11 @@ pages:
                 avg_tags_per_relation: Average number of tags per relation
     download:
         intro: |
-            <p>你可以在这里下载taginfo使用的数据库。所有数据都以<a class="extlink" href="https://www.sqlite.org/">Sqlite</a>数据库存储。
+            <p>你可以在这里下载taginfo使用的数据库。
+            所有数据都以<a class="extlink" href="https://www.sqlite.org/">Sqlite</a>数据库存储。
             这些数据库文件已通过<a class="extlink" href="http://www.bzip.org/">bzip2</a>打包。</p>
-            <p>如果你不想下载这些数据库，但又需要对数据的自动化访问，你也可以用<a href="/about">API</a>。</p>
+            <p>如果你不想下载这些数据库，但又需要对数据的自动化访问，
+            你也可以用<a href="/about">API</a>。</p>
         file: 文件
         packed: 打包后的
         unpacked: 未打包的
@@ -413,7 +408,8 @@ pages:
         note: 有些未位于数据库内的索引不可在此下载。“打包后的”文件不包含这些索引，“未打包的”文件包含这些您可能会希望在下载后重建的索引。
     reports:
         intro: |
-            报告将从不同角度展示标签数据。他们通常以有趣的方式汇集来自多个来源的数据。
+            报告将从不同角度展示标签数据。
+            他们通常以有趣的方式汇集来自多个来源的数据。
             部分报告或许可以帮您发现特定的错误。
         list: 全部报告列表
         data_sources: 所使用的数据集
@@ -425,12 +421,26 @@ pages:
         no_values: 未能找到值
         no_tags: 未能找到标签
         no_match: 未能匹配到结果
+    compare:
+        nothing_to_compare: There are no keys/tags to compare. Go to any key or tag page and add them.    
     keys:
         intro: |
             这个表展示了数据库或其他一切来源中的所有标签的键
     tags:
         intro: |
             这个表展示了数据库中最常用的标签。
+    relations:
+        name: Relation types
+        intro: Information about the different types of relations (indicated by the <a href="keys/type?filter=relations">type</a> tag).
+        relations_of_type_tooltip: Number of relations of this type (and as percentage of all relations).
+        prevalent_roles: Prevalent roles
+        prevalent_roles_tooltip: Prevalent roles for this type of relation.
+        no_information: No information
+        roles_less_than_one_percent: no roles with more than 1%
+        empty_role: empty role
+    projects:
+        intro: |
+            This table shows all projects known to taginfo that use OSM tags in some way.<br/>For more about this functionality see the <a href="//wiki.openstreetmap.org/wiki/Taginfo/Projects" class="extlink">wiki</a>.
     key:
         description_from_wiki: Wiki上关于您所选的键的解释（若您当前的语言不可用则将默认为英文）
         no_description_in_wiki: 在Wiki上找不到这个键的英文描述（亦可参见“Wiki”标签页）
@@ -450,6 +460,13 @@ pages:
             objects_last_edited_by: 具有这个键的对象被%1的用户最后修改过。
             no_endorsement: （这不意味着所有这些用户都认可这个键。）
             distribution_of_values: 值的分布
+            all_other_values: All other values
+            known_projects: Taginfo knows %1 projects referencing this key.
+            status:
+              from_wiki: 'Tag status from wiki pages:'
+              unknown: Unknown or ambiguous tag status on the wiki.
+              see_wiki_tab: See Wiki tab for details.
+              marked_discardable: 'Tag is marked as discardable by:'
         other_keys_used:
             title: 其他与这个键一并使用的键
             other: 其他键
@@ -480,6 +497,8 @@ pages:
             count_all_tooltip: 与本键相似的键的对象个数
             similarity: 相似性
             similarity_tooltip: 越小的数字意味着越接近
+        characters:
+            title: Unicode characters in this key
     project:
         overview:
             project_name: 项目名称
