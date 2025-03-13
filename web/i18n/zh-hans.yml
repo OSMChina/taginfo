@@ -125,7 +125,7 @@ help:
         relations_page: 关系页
         projects_page: 项目页
         reports_page: 报告页
-        sources_page: Sources page
+        sources_page: 来源页
         compare_page: 对比页
         first_page: 首页
         prev_page: 上一页
@@ -141,8 +141,8 @@ help:
         deactivate: 停用输入域
         up: 上一层级页面
         switch_input: 在输入域间切换
-        show_keys: Show available shortcut keys
-        add_to_comparison: Add current key/tag to comparison list
+        show_keys: 展示可用的快捷键
+        add_to_comparison: 将当前键/标签加入对比列表
 
 pages:
     not_found:
@@ -200,14 +200,14 @@ pages:
                 Please use the API responsibly. If in doubt contact the maintainers of the
                 site you are using or talk to us on the mailing list.</p>
             download: |
-                <h3>Download</h3>
+                <h3>下载</h3>
                 <p>If you want to play around with the data used by taginfo, you can download the
                 regularly updated Sqlite database files. All the preprocessing is done for you.
                 See the <a href="download">download page</a> for a list of files. Note that
                 some of these files can get quite large. If you want to download them regularly,
                 contact the maintainers of the site you are using or talk to us on the mailing list.</p>
             license: |
-                <h3>License</h3>
+                <h3>许可证</h3>
                 <p>The data available through taginfo is licenced under ODbL, the
                 <a class="extlink" href="//www.openstreetmap.org/copyright">same
                 license as the OpenStreetMap data</a>.</p>
@@ -250,11 +250,11 @@ pages:
             list of currently used sources. More sources might be integrated in
             the future.
         display_only: |
-            Note that taginfo only displays this data. If you want to change it, you
-            have to go back to the source.
+            请注意Taginfo仅展示数据。
+            如果您希望更改数据，您应该转而更改数据来源。
         description:
             db: |
-                <p>Statistics about keys, tags, and relation types are generated from the <a class="extlink" href="https://planet.openstreetmap.org/">OSM database</a> (or an extract) as well as the maps that show the geographic distribution of nodes and ways.</p>
+                <p>关于键、标签和关系类型的统计均从<a class="extlink" href="https://planet.openstreetmap.org/">OSM 数据库</a>（或其他镜像）中产生。 此外地图上还将展示点和节点的地理空间分布。</p>
             wiki: |
                 <p>The <a class="extlink" href="//wiki.openstreetmap.org/">OSM Wiki</a> is read and all Key:*, Tag:*, and Relation:* pages (in all the different languages) are analyzed. Descriptions, images, related tags, etc. are extracted from them.</p>
             languages: |
@@ -266,7 +266,7 @@ pages:
             wikidata: |
                 <p>The <a class="extlink" href="https://www.wikidata.org/">Wikidata database</a> connects OSM keys, tags, and relations to other concepts using the property <a href="https://www.wikidata.org/wiki/Property:P1282">P1282</a>.</p>
             sw: |
-                <p>Configurations from various OSM programs (such as editors).</p>
+                <p>Configurations from various OSM programs（尤其是编辑器）。</p>
         updates:
             title: 更新
             intro: Taginfo的数据会定期从来源更新
@@ -275,26 +275,26 @@ pages:
         data_until_explanation: 所有截止到这天的修改都会在数据里，之后的数据也有可能包含在内。
         to: 到
         data: Data
-        database_size: Database size
-        minutes: mins
-        statistics: Statistics
-        import_errors: Import errors
+        database_size: 数据库大小
+        minutes: 分钟
+        statistics: 统计
+        import_errors: 导入错误
         languages:
             subtags:
-                title: BCP47 Subtags
+                title: BCP47 子标签
                 filter:
-                    label: Show only subtags of type
-                    all: All
-                    language: Language
-                    script: Script
-                    region: Region
-                    variant: Variant
+                    label: 仅展示子标签类型
+                    all: 全部
+                    language: 语言
+                    script: 文字
+                    region: 区域
+                    variant: 变体
                 columns:
-                    type: Type
-                    subtag: Subtag
-                    description: Description
-                    added: Added
-                    notes: Notes
+                    type: 类型
+                    subtag: 子标签
+                    description: 描述
+                    added: 添加
+                    notes: 笔记
                 intro: |
                     <p>The <a href="https://www.ietf.org/">IETF</a> defines
                     <i>language tags</i> in its standard <a
@@ -307,17 +307,17 @@ pages:
                     entry on IETF language tags</a> and the <a
                     href="http://www.langtag.net/">langtag.net</a> site.</p>
                 note: |
-                    Note that the data shown in this table is not from
-                    OpenStreetMap, it just shows the building blocks that can
-                    be used to describe languages irrespective of whether they
-                    are actually used in OSM.
-                show: Show all language subtags...
+                    请注意这个表格中展现的数据并非来自
+                    OpenStreetMap，而并不管它们事实上在OSM中
+                    是否被使用，它只是展示可以用来
+                    描述语言的组成模块。
+                show: Show all language subtags……
             wikipedia_sites:
-                title: Wikipedia sites
+                title: 维基百科站点
         wikidata:
             index:
-                show_items: Show all Wikidata items...
-                show_errors: Show all errors...
+                show_items: 显示所有Wikidata条目……
+                show_errors: 显示所有错误……
             stats:
                 keys: Key items
                 tags: Tag items
@@ -333,8 +333,8 @@ pages:
                     "Role" type properties and properties that don't have the
                     correct format.
                 columns:
-                    type: Type
-                    ktr: Key/Tag/Relation
+                    type: 类型
+                    ktr: 键/标签/关系
                     item: Wikidata item
             errors:
                 description: |
@@ -730,7 +730,7 @@ reports:
             in the wiki page.</p>
         also_show_keys: Also show keys that have no English language wiki page but a page in some other language.
         table:
-            create_wiki_page: Create wiki page...
+            create_wiki_page: Create wiki page……
     key_lengths:
         name: 键长度
         intro: |
