@@ -239,16 +239,16 @@ pages:
                 <p>Bug reports and feature requests should be directed to the <a class="extlink"
                 href="https://github.com/taginfo/taginfo/issues">GitHub issue tracker</a>. Or you can
                 come talk to us on the mailing list.</p>
-                <h3>Contact/Mailing list</h3>
-                <p>Contact us on the
-                <a class="extlink" href="//lists.openstreetmap.org/listinfo/taginfo-dev">taginfo-dev mailing list</a>
-                if you have questions or want to help.</p>
+                <h3>联系/邮件列表</h3>
+                <p>如果您有疑问或需要帮助，可在
+                <a class="extlink" href="//lists.openstreetmap.org/listinfo/taginfo-dev">taginfo-dev 邮件列表</a>
+                上联系我们。</p>
     sources:
         intro: |
-            Taginfo collects data about OSM tags from several sources and
-            brings them together for easy browsing and discovery. Here is a
-            list of currently used sources. More sources might be integrated in
-            the future.
+            Taginfo从多个来源收集关于OSM标签
+            的数据并将其整合以便浏览和探索。
+            这是一个现在正使用的来源的列表。
+            未来或将整合更多来源。
         display_only: |
             请注意Taginfo仅展示数据。
             如果您希望更改数据，您应该转而更改数据来源。
@@ -274,7 +274,7 @@ pages:
         last_update_run: 最后一次更新运行于
         data_until_explanation: 所有截止到这天的修改都会在数据里，之后的数据也有可能包含在内。
         to: 到
-        data: Data
+        data: 数据
         database_size: 数据库大小
         minutes: 分钟
         statistics: 统计
@@ -316,32 +316,32 @@ pages:
                 title: 维基百科站点
         wikidata:
             index:
-                show_items: 显示所有Wikidata项目……
+                show_items: 显示所有Wikidata条目……
                 show_errors: 显示所有错误……
             stats:
-                keys: Key 项目
-                tags: Tag 项目
-                relations: Relation 项目
-                roles: Role 项目
-                qcode: 项目 with Q code
-                pcode: 项目 with P code
+                keys: Key 条目
+                tags: Tag 条目
+                relations: Relation 条目
+                roles: Role 条目
+                qcode: 条目 with Q code
+                pcode: 条目 with P code
             items:
-                title: 项目
+                title: 条目
                 description: |
-                    These are all Wikidata 项目 with the 属性P1282 and
+                    These are all Wikidata 条目 with the 属性P1282 and
                     the OSM key, tag, or relation they link to. Not shown are
                     "Role" type properties and properties that don't have the
                     correct format.
                 columns:
                     type: 类型
                     ktr: 键/标签/关系
-                    item: Wikidata 项目
+                    item: Wikidata 条目
             errors:
                 description: |
                     These are all the issues encountered when importing the
-                    Wikidata 项目 with 属性P1282.
+                    Wikidata 条目 with 属性P1282.
                 columns:
-                    item: Wikidata 项目
+                    item: Wikidata 条目
                     p1282: 属性P1282的值
                     error: Error message
         wiki:
@@ -488,8 +488,8 @@ pages:
             combined_tags: 关联的标签
             linked_tags: 链接的标签
         projects:
-            title: 使用了这个键的项目
-            description: 这个键在这个项目中是如何被使用的
+            title: 使用这个键的项目
+            description: 这个键在此项目中如何被使用
         similar:
             tab: 相似
             title: 相似的键
@@ -535,8 +535,8 @@ pages:
             combined_tags: Combined Tags
             linked_tags: Linked Tags
         projects:
-            title: Projects using this tag
-            description: How this tag is used in the project
+            title: 使用这个标签的项目
+            description: 这个标签在此项目中如何被使用
         characters:
             title: Unicode characters in this tag value
     relation:
