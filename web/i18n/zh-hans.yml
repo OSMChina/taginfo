@@ -220,12 +220,12 @@ pages:
                 <a class="extlink" href="https://ctd-studio.co.uk/">Christian Topf</a>.</p>
                 <h3>Translations</h3>
                 <p>We need translators for the taginfo user interface. See the <a
-                href="taginfo/translations">translations overview</a> for languages that need
+                href="taginfo/translations">翻译概览</a> for languages that need
                 some work. More information on how to help is on the
                 <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo/I18N">OSM wiki</a>.</p>
                 <h3>Code</h3>
                 <p>All the software behind the taginfo sites is Open Source. You can get it on
-                <a class="extlink" href="https://github.com/taginfo/taginfo/">GitHub</a>. For an overview
+                <a class="extlink" href="https://github.com/taginfo/taginfo/">GitHub</a>. For an 概览
                 see the page about the <a class="extlink"
                 href="//wiki.openstreetmap.org/wiki/Taginfo/Architecture">taginfo
                 architecture</a> on the OSM wiki.</p>
@@ -258,13 +258,13 @@ pages:
             wiki: |
                 <p>The <a class="extlink" href="//wiki.openstreetmap.org/">OSM Wiki</a> is read and all Key:*, Tag:*, and Relation:* pages (in all the different languages) are analyzed. Descriptions, images, related tags, etc. are extracted from them.</p>
             languages: |
-                <p>Taginfo gets information about the different languages of the world, their codes, names, etc. from several <a class="extlink" href="https://www.iana.org/">IANA</a> and <a class="extlink" href="https://www.unicode.org/">Unicode</a> registries and from Wikipedia.</p>
+                <p>Taginfo gets information about the different languages of the world, their codes, names, etc. from several <a class="extlink" href="https://www.iana.org/">IANA</a> and <a class="extlink" href="https://www.unicode.org/">Unicode</a> registries and from 维基百科.</p>
             projects: |
                 <p>Projects that use OSM tags in some way, such as editors, maps, routers, etc.</p>
             chronology: |
                 <p>Number of keys/tags over time from <a class="extlink" href="https://planet.openstreetmap.org/planet/full-history/">history planet</a>.</p>
             wikidata: |
-                <p>The <a class="extlink" href="https://www.wikidata.org/">Wikidata database</a> connects OSM keys, tags, and relations to other concepts using the property <a href="https://www.wikidata.org/wiki/Property:P1282">P1282</a>.</p>
+                <p>The <a class="extlink" href="https://www.wikidata.org/">Wikidata database</a> connects OSM keys, tags, and relations to other concepts using the 属性 <a href="https://www.wikidata.org/wiki/Property:P1282">P1282</a>.</p>
             sw: |
                 <p>Configurations from various OSM programs（尤其是编辑器）。</p>
         updates:
@@ -303,7 +303,7 @@ pages:
                     one or more <i>subtags</i> describing the languages,
                     scripts, regions, and variants. For more information see
                     also the <a
-                    href="https://en.wikipedia.org/wiki/IETF_language_tag">Wikipedia
+                    href="https://en.wikipedia.org/wiki/IETF_language_tag">维基百科
                     entry on IETF language tags</a> and the <a
                     href="http://www.langtag.net/">langtag.net</a> site.</p>
                 note: |
@@ -316,33 +316,33 @@ pages:
                 title: 维基百科站点
         wikidata:
             index:
-                show_items: 显示所有Wikidata条目……
+                show_items: 显示所有Wikidata项目……
                 show_errors: 显示所有错误……
             stats:
-                keys: Key items
-                tags: Tag items
-                relations: Relation items
-                roles: Role items
-                qcode: Items with Q code
-                pcode: Items with P code
+                keys: Key 项目
+                tags: Tag 项目
+                relations: Relation 项目
+                roles: Role 项目
+                qcode: 项目 with Q code
+                pcode: 项目 with P code
             items:
-                title: Items
+                title: 项目
                 description: |
-                    These are all Wikidata items with the property P1282 and
+                    These are all Wikidata 项目 with the 属性P1282 and
                     the OSM key, tag, or relation they link to. Not shown are
                     "Role" type properties and properties that don't have the
                     correct format.
                 columns:
                     type: 类型
                     ktr: 键/标签/关系
-                    item: Wikidata item
+                    item: Wikidata 项目
             errors:
                 description: |
                     These are all the issues encountered when importing the
-                    Wikidata items with property P1282.
+                    Wikidata 项目 with 属性P1282.
                 columns:
-                    item: Wikidata item
-                    p1282: Value of P1282 property
+                    item: Wikidata 项目
+                    p1282: 属性P1282的值
                     error: Error message
         wiki:
             language_comparison_table_for_keys:
@@ -545,23 +545,23 @@ pages:
         no_description_in_wiki: No English language description for this relation type in the wiki. (See also the "Wiki" tab.)
         button_disabled: Button disabled, because there are too many objects with this relation type.
         overview:
-            tab: Overview
-            title: Overview
+            tab: 概览
+            title: 概览
             member_type: Member type
             member_count: Number of members
             see_also: See also the tag page
             known_projects: Taginfo knows %1 projects referencing this relation type.
         roles:
-            tab: Roles
-            title: Member roles
+            tab: 角色
+            title: 成员角色
             objects_tooltip: Relation members with this role (and as percentage of all members) for this relation type.
             nodes_tooltip: Relation members of type node with this role (and as percentage of all members of type node) for this relation type.
             ways_tooltip: Relation members of type way with this role (and as percentage of all members of type way) for this relation type.
             relations_tooltip: Relation members of type relation with this role (and as percentage of all members of type relation) for this relation type.
             no_roles_info: There is no information about roles for this relation type (most likely because there are only very few of those relations).
         graph:
-            tab: Roles Graph
-            title: Roles Graph
+            tab: 角色图
+            title: 角色图
         wiki_pages:
             title: Wiki pages about this relation type
             none_found: No wiki page available for this relation type.
@@ -650,8 +650,8 @@ reports:
             冒号 (:) 通常用作分隔符。
             这份报告根据所有键所使用的字符对它们进行分类。
         statistics:
-            tab: Statistics
-            title: Statistics overview
+            tab: 统计
+            title: 统计概览
             fraction: Fraction
             characters: Characters in key
             characters_in_keys:
